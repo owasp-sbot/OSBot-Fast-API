@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 import requests
 from threading              import Thread
 from fastapi                import FastAPI
-from osbot_utils.utils.Http import wait_for_port, wait_for_port_closed
+from osbot_utils.utils.Http import wait_for_port, wait_for_port_closed, is_port_open
 from uvicorn                import Config, Server
 from osbot_utils.utils.Misc import random_port
 
@@ -19,6 +19,9 @@ class Fast_API_Server:
         self.config    : Config  = Config(app=self.app, host=FAST_API__HOST, port=self.port, log_level=self.log_level)
         self.server    : Server  = None
         self.thread    : Thread  = None
+
+    def is_port_open(self):
+        return is_port_open(host=FAST_API__HOST, port=self.port)
 
     def start(self):
         self.server = Server(config=self.config)
@@ -36,10 +39,9 @@ class Fast_API_Server:
         self.thread.join()
         return wait_for_port_closed(host=FAST_API__HOST, port=self.port)
 
-    def url(self):
-        return f'http://{FAST_API__HOST}:{self.port}/'
-
     def requests_get(self, path=''):
         url = urljoin(self.url(), path)
         return requests.get(url)
 
+    def url(self):
+        return f'http://{FAST_API__HOST}:{self.port}/'
