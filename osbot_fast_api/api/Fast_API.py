@@ -8,6 +8,9 @@ from osbot_utils.utils.Misc                         import list_set
 from osbot_utils.decorators.lists.index_by          import index_by
 from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
 
+#from osbot_fast_api.Fast_API_Utils import fastapi_routes
+
+from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 
 
 class Fast_API:
@@ -16,15 +19,21 @@ class Fast_API:
     def app(self):
         return FastAPI()
 
+    def fast_api_utils(self):
+        return Fast_API_Utils(self)
+
+    @index_by
+    def routes(self, include_default=False):
+        return self.fast_api_utils().fastapi_routes(include_default=include_default)
+        #return fastapi_routes(self.app(),include_default=include_default)
+
     # def path_static_folder(self):
     #     return path_combine(osbot_llms.path, 'web_static')
     #
     # def path_static_tests_folder(self):
     #     return path_combine(osbot_llms.path, '../tests/web_static')
     #
-    # @index_by
-    # def routes(self, include_default=False):
-    #     return fastapi_routes(self.app(),include_default=include_default)
+
     #
     # def router(self):
     #     return self.app().router
