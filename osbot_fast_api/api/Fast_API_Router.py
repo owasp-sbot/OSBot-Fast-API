@@ -5,16 +5,35 @@ from osbot_utils.utils.Misc import lower
 
 from osbot_utils.utils.Str import str_safe
 
-DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
+from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 
-class FastAPI_Router:
+#DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
 
-    def __init__(self, app, name):
+class Fast_API_Router:
+
+    def __init__(self, app, tag):
         self.router = APIRouter()
         self.app    = app
-        self.prefix = f'/{lower(str_safe(name))}'
-        self.tag    = name
+        self.prefix = f'/{lower(str_safe(tag))}'
+        self.tag    = tag
         self.setup()
+
+    def add_route(self, path, function, methods):
+        self.router.add_api_route(path=path, endpoint=function, methods=methods)
+        return self
+
+    def add_route_get(self, path, function):
+        return self.add_route(path=path, function=function, methods=['GET'])
+
+    def add_route_post(self, path, function):
+        return self.add_route(path=path, function=function, methods=['POST'])
+
+    def fast_api_utils(self):
+        return Fast_API_Utils(self.app)
+
+    @index_by
+    def routes(self):
+        return self.fast_api_utils().fastapi_routes(router=self.router)
 
     # @index_by
     # def routes(self, include_prefix=False):
@@ -29,12 +48,14 @@ class FastAPI_Router:
     # def routes_paths(self):
     #     return list(self.routes(index_by='http_path'))
 
-    def setup_routes(self):     # overwrite this to add routes to self.router
-        pass
-
     def setup(self):
         self.setup_routes()
         self.app.include_router(self.router, prefix=self.prefix, tags=[self.tag])
+
+    def setup_routes(self):     # overwrite this to add routes to self.router
+        pass
+
+
 
     # def routes_list(self):
     #     items = []

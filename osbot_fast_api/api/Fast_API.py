@@ -32,13 +32,12 @@ class Fast_API:
         return TestClient(self.app())
 
     def fast_api_utils(self):
-        return Fast_API_Utils(self)
+        return Fast_API_Utils(self.app())
 
     def path_static_folder(self):        # override this to add support for serving static files from this directory
         return None
 
     def fast_api_setup(self):
-
         self.setup_middleware    ()        # todo: add support for only adding this when running in Localhost
         self.setup_default_routes()
         self.setup_static_routes ()

@@ -39,7 +39,7 @@ class test_Fast_API(TestCase):
     def test_fast_api_utils(self):
         fast_api_utils = self.fast_api.fast_api_utils()
         assert type(fast_api_utils)    is Fast_API_Utils
-        assert fast_api_utils.fast_api == self.fast_api
+        assert fast_api_utils.app      == self.fast_api.app()
 
     def test_path_static_folder(self):
         assert self.fast_api.path_static_folder() is None

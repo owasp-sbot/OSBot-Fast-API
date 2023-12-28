@@ -6,7 +6,8 @@ from osbot_utils.utils.Files import folder_exists, folder_name, files_names, fil
 
 from osbot_fast_api.api.Fast_API                          import Fast_API
 from osbot_fast_api.api.routers.Router_Status import ROUTE_STATUS__ROUTES
-from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER
+from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, \
+    EX_1_ROUTES
 
 
 class test_Fast_API__Simple(TestCase):
@@ -35,11 +36,7 @@ class test_Fast_API__Simple(TestCase):
         response = self.client.get('/docs')
         assert response.status_code == 200
         assert '<title>FastAPI - Swagger UI</title>' in response.text
-        pprint(response.headers)
-
-        response = self.client.head('/docs')
-        pprint(response.headers)
-
+        assert dict(response.headers) == {'content-length': '939', 'content-type': 'text/html; charset=utf-8'}
 
     def test_route__root(self):
         response = self.client.get('/', follow_redirects=False)
@@ -49,8 +46,7 @@ class test_Fast_API__Simple(TestCase):
 
     def test_routes(self):
         routes = self.fast_api.routes()
-        EX_1_ROUTES = [{'http_methods': ['GET'        ], 'http_path': '/'      , 'method_name': 'redirect_to_docs'},
-                            {'http_methods': ['GET', 'HEAD'], 'http_path': '/static', 'method_name': 'static'          }]
+
         assert (routes == EX_1_ROUTES + ROUTE_STATUS__ROUTES)
 
     def test_user_middleware(self):
@@ -58,3 +54,11 @@ class test_Fast_API__Simple(TestCase):
         middleware  = middlewares[0]
         assert len(middlewares)  == 1
         assert str(middleware) == "Middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, allow_methods=['GET', 'POST', 'HEAD'], allow_headers=['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'], expose_headers=['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'])"
+
+
+    # BUGS
+
+    def test_bug___CORS_headers_are_not_showing_in_headers(self):
+        assert self.enable_cors is True
+        response = self.client.get('/docs')
+        assert dict(response.headers) == {'content-length': '939', 'content-type': 'text/html; charset=utf-8'} # bug: the cors heaaders should show here
