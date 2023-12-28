@@ -30,7 +30,7 @@ class test_Fast_API__Simple(TestCase):
         assert static_folder is not None
         assert folder_exists(static_folder) is True
         assert folder_name(static_folder)   == EX_1__FOLDER_NAME__STATIC_FOLDER
-        assert files_names(files_list(static_folder)) == ['aaa.txt']
+        assert files_names(files_list(static_folder)) == ['__init__.py', 'aaa.txt']
 
     def test_route__docs(self):
         response = self.client.get('/docs')
