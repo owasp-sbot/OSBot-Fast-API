@@ -9,6 +9,8 @@ from osbot_fast_api.api.routers.Router_Status   import ROUTER_STATUS__ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
 
+EXPECTED_ROUTES_METHODS = ['redirect_to_docs', 'status', 'version']
+EXPECTED_ROUTES_PATHS   = ['/', '/status/status', '/status/version']
 
 class test_Fast_API(TestCase):
 
@@ -53,6 +55,14 @@ class test_Fast_API(TestCase):
         expected_routes = FAST_API_DEFAULT_ROUTES + ROUTER_STATUS__ROUTES
         routes          = self.fast_api.routes(include_default=True)
         assert routes == expected_routes
+
+    def test_routes_methods(self):
+        routes_methods         = self.fast_api.routes_methods()
+        assert routes_methods == EXPECTED_ROUTES_METHODS
+
+    def test_routes_paths(self):
+        routes_paths          = self.fast_api.routes_paths()
+        assert routes_paths == EXPECTED_ROUTES_PATHS
 
     def test_setup_routes(self):
         assert self.fast_api.setup_routes() == self.fast_api

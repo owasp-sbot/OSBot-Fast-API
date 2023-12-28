@@ -47,7 +47,13 @@ class Fast_API:
     @index_by
     def routes(self, include_default=False):
         return self.fast_api_utils().fastapi_routes(include_default=include_default)
-        #return fastapi_routes(self.app(),include_default=include_default)
+
+    def routes_methods(self):
+        return list_set(self.routes(index_by='method_name'))
+
+    def routes_paths(self):
+        return list_set(self.routes(index_by='http_path'))
+
 
     def setup_default_routes(self):
         self.setup_add_root_route()

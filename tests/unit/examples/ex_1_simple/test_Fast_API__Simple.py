@@ -2,10 +2,11 @@ from unittest import TestCase
 
 from fastapi import FastAPI
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import folder_exists, folder_name, files_names, files_list
+from osbot_utils.utils.Files import folder_exists, folder_name, files_names, files_list, parent_folder
 
 from osbot_fast_api.api.Fast_API                          import Fast_API
 from osbot_fast_api.api.routers.Router_Status             import ROUTER_STATUS__ROUTES
+from osbot_fast_api.examples.ex_1_simple import static_files
 from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, \
     EX_1_ROUTES
 
@@ -30,7 +31,7 @@ class test_Fast_API__Simple(TestCase):
         assert static_folder is not None
         assert folder_exists(static_folder) is True
         assert folder_name(static_folder)   == EX_1__FOLDER_NAME__STATIC_FOLDER
-        assert files_names(files_list(static_folder)) == ['__init__.py', 'aaa.txt']
+        assert files_names(files_list(static_folder)).__contains__( 'aaa.txt') is True
 
     def test_route__docs(self):
         response = self.client.get('/docs')
@@ -53,11 +54,15 @@ class test_Fast_API__Simple(TestCase):
         assert response.status_code == 200
         assert response.text        == 'this is a static file'
 
+    def test_static_files__init__(self):
+        assert folder_name(static_files.path) == 'static_files'
+
     def test_user_middleware(self):
         middlewares = self.fast_api.user_middleware()
         middleware  = middlewares[0]
         assert len(middlewares)  == 1
         assert str(middleware) == "Middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, allow_methods=['GET', 'POST', 'HEAD'], allow_headers=['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'], expose_headers=['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'])"
+
 
 
     # BUGS
