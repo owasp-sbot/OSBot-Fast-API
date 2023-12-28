@@ -2,6 +2,11 @@
 git+https://github.com/owasp-sbot/OSBot-Utils.git@dev
 python-dotenv
 
+#for fastapi
+fastapi
+uvicorn
+requests
+httpx
 
 # for testing
 pytest

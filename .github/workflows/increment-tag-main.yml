@@ -1,10 +1,5 @@
 name: Increment Tag - Main branch
 
-#on:
-#  push:
-#    branches:
-#      - main
-
 on:
   workflow_dispatch:
   workflow_run:

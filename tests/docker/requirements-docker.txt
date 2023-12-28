@@ -1,10 +1,11 @@
 # all requirements from requirements-unit.txt plus these ones
 
+# enable the dependencies below when we actually have docker tests :)
 # for OWSBot
-git+https://github.com/owasp-sbot/OSBot-AWS.git@dev
-git+https://github.com/owasp-sbot/OSBot-Docker.git@dev
-boto3
-docker
+#git+https://github.com/owasp-sbot/OSBot-AWS.git@dev
+#git+https://github.com/owasp-sbot/OSBot-Docker.git@dev
+#boto3
+#docker
 
 # for fastapi
-fastapi
+#fastapi
