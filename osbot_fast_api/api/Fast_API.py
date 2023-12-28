@@ -15,9 +15,15 @@ from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 
 class Fast_API:
 
+    def __init__(self):
+        self.fast_api_setup()
+
     @cache_on_self
     def app(self):
         return FastAPI()
+
+    def app_router(self):
+        return self.app().router
 
     def fast_api_utils(self):
         return Fast_API_Utils(self)
@@ -28,14 +34,25 @@ class Fast_API:
     def fast_api_setup(self):
         #self.setup_default_routes()
         # self.setup_middleware()        # todo: add support for only adding this when running in Localhost
+        self.setup_default_routes()
         self.setup_static_routes()
+
         #self.setup_routes()
         return self
+
 
     @index_by
     def routes(self, include_default=False):
         return self.fast_api_utils().fastapi_routes(include_default=include_default)
         #return fastapi_routes(self.app(),include_default=include_default)
+
+    def setup_default_routes(self):
+        self.setup_add_root_route()
+
+    def setup_add_root_route(self):
+        def redirect_to_docs():
+            return RedirectResponse(url="/docs")
+        self.app_router().get("/")(redirect_to_docs)
 
     def setup_static_routes(self):
         path_static_folder = self.path_static_folder()
@@ -43,6 +60,8 @@ class Fast_API:
             path_static        = "/static"
             path_name          = "static"
             self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
+
+
 
     #
     # def path_static_tests_folder(self):

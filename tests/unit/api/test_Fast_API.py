@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from fastapi import FastAPI
+from osbot_utils.utils.Dev import pprint
 from starlette.testclient import TestClient
 
 from osbot_fast_api.api.Fast_API         import Fast_API
@@ -38,6 +39,11 @@ class test_Fast_API(TestCase):
 
     def test_path_static_folder(self):
         assert self.fast_api.path_static_folder() is None
+
+    def test_route__root(self):
+        response = self.client.get('/', follow_redirects=False)
+        assert response.status_code == 307
+        assert response.headers.get('location') == '/docs'
 
     def test_routes(self):
         expected_routes = FAST_API_DEFAULT_ROUTES

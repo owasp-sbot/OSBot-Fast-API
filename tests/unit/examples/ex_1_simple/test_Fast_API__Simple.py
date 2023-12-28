@@ -27,6 +27,5 @@ class test_Fast_API__Simple(TestCase):
 
     def test_routes(self):
         routes = self.fast_api__simple.routes()
-        assert routes == [ { 'http_methods': ['GET', 'HEAD'],
-                             'http_path'   : '/static'      ,
-                             'method_name' : 'static'       }]
+        assert routes == [{'http_methods': ['GET'        ], 'http_path': '/'      , 'method_name': 'redirect_to_docs'},
+                          {'http_methods': ['GET', 'HEAD'], 'http_path': '/static', 'method_name': 'static'          }]

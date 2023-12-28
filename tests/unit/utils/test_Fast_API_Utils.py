@@ -13,4 +13,4 @@ class test_Fast_API_Utils(TestCase):
 
     def test_fastapi_routes(self):
         routes  = self.fast_api_utils.fastapi_routes(include_default=False)
-        assert routes == []
+        assert routes == [{'http_methods': ['GET'        ], 'http_path': '/'      , 'method_name': 'redirect_to_docs'}]
