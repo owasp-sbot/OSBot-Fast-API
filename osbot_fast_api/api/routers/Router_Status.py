@@ -30,7 +30,7 @@ class Router_Status(FastAPI_Router):
         return Version().value()
 
     def setup_routes(self):
-        self.router.get("/status" )(self.status)
-        self.router.get("/version")(self.status)
+        self.router.get("/status" )(self.status )
+        self.router.get("/version")(self.version)
 
 
