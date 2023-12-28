@@ -22,13 +22,28 @@ class Fast_API:
     def fast_api_utils(self):
         return Fast_API_Utils(self)
 
+    def path_static_folder(self):        # override this to add support for serving static files from this directory
+        return None
+
+    def fast_api_setup(self):
+        #self.setup_default_routes()
+        # self.setup_middleware()        # todo: add support for only adding this when running in Localhost
+        self.setup_static_routes()
+        #self.setup_routes()
+        return self
+
     @index_by
     def routes(self, include_default=False):
         return self.fast_api_utils().fastapi_routes(include_default=include_default)
         #return fastapi_routes(self.app(),include_default=include_default)
 
-    # def path_static_folder(self):
-    #     return path_combine(osbot_llms.path, 'web_static')
+    def setup_static_routes(self):
+        path_static_folder = self.path_static_folder()
+        if path_static_folder:
+            path_static        = "/static"
+            path_name          = "static"
+            self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
+
     #
     # def path_static_tests_folder(self):
     #     return path_combine(osbot_llms.path, '../tests/web_static')
@@ -59,11 +74,7 @@ class Fast_API:
     #                               allow_methods     = ["GET", "POST", "HEAD"]       ,
     #                               allow_headers     = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"],
     #                               expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
-    # def setup_static_routes(self):
-    #     path_static        = "/static"
-    #     path_static_folder = self.path_static_folder()
-    #     path_name          = "static"
-    #     self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
+
     #
     # def setup_routes(self):
     #     Router_Open_AI(self.app())

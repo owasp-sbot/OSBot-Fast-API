@@ -33,6 +33,9 @@ class test_Fast_API(TestCase):
         assert type(fast_api_utils)    is Fast_API_Utils
         assert fast_api_utils.fast_api == self.fast_api
 
+    def test_path_static_folder(self):
+        assert self.fast_api.path_static_folder() is None
+
     def test_routes(self):
         expected_routes = FAST_API_DEFAULT_ROUTES
         routes          = self.fast_api.routes(include_default=True)
