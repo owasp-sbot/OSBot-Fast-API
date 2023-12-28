@@ -1,0 +1,17 @@
+name: Run Python Tests
+description: 'Run Python Tests'
+
+inputs:
+  package_name:
+    description: 'Package name for coverage'
+    required: true
+
+runs:
+    using: 'composite'
+    steps:
+      - name: Run pytest (with coverage) - Unit Tests
+        shell: bash
+        run: |
+          coverage run --source=${{ inputs.package_name }} -m pytest -v -s --durations=0 --ignore=tests_* tests/integration
+        env:
+          COVERAGE_FILE        : .coverage.integration

@@ -1,0 +1,27 @@
+name: Publish Code Coverage
+description: 'Publish Code Coverage'
+
+inputs:
+  codecov_token:
+    description: 'CodeCov access token'
+    required: true
+
+
+runs:
+    using: 'composite'
+    steps:
+      - name: Combine coverage data
+        shell: bash
+        run: |
+            ls -la
+            coverage combine .coverage.unit .coverage.docker .coverage.integration
+
+      - name: Print coverage report
+        shell: bash
+        run: |
+          coverage report -m
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN         : ${{ inputs.codecov_token         }}

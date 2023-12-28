@@ -1,0 +1,81 @@
+name       : 'Increment Tag - Main'
+description: 'Increment Tag - Main'
+
+inputs:
+  package_name:
+    description: 'Package name for coverage'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # updated to v2
+      with:
+        ref: 'main'  # Check out the 'main' branch
+        fetch-depth: 0  # Fetch all history for .Git info
+
+    - name: Update Main Branch
+      shell: bash
+      run: |
+        git pull origin main        
+
+    - name: Set up Git user
+      shell: bash
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+
+    - name: Fetch all tags
+      shell: bash
+      run: git fetch --tags
+
+    - name: Find and increment latest tag
+      shell: bash
+      id: latest_tag
+      run: |
+        LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+        echo "Latest tag: $LATEST_TAG"
+        
+        # Extract just the version part and increment it
+        VERSION_PART=$(echo $LATEST_TAG | sed 's/^v//')
+        MAJOR=$(echo $VERSION_PART | cut -d. -f1)
+        Z_PART=$(echo $VERSION_PART | cut -d. -f2)
+        
+        NEW_Z=$((Z_PART + 1))
+        
+        NEW_TAG="v$MAJOR.$NEW_Z.0"
+        echo "New tag: $NEW_TAG"
+        
+        echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+
+    - name: Update README badge
+      shell: bash
+      run: |        
+        sed -i "s/release-v[0-9]*\.[0-9]*\.[0-9]*/release-$NEW_TAG/" README.md
+
+    - name: Update Version File (root)
+      shell: bash
+      run: |
+        echo $NEW_TAG > ./${{ inputs.package_name }}/version
+
+    - name: Commit and push changes
+      shell: bash
+      run: |
+        git add README.md ./${{ inputs.package_name }}/version
+        git commit -m "Update release badge and version file"
+        git push origin main     # Push to the 'main' branch
+
+    - name: Tag new version
+      shell: bash
+      run: |
+        NEW_TAG=${{ env.NEW_TAG }}
+        git tag $NEW_TAG
+        git push origin $NEW_TAG
+
+    - name: Update Dev branch
+      shell: bash
+      run: |
+        git checkout dev
+        git merge main
+        git push origin dev
