@@ -17,10 +17,10 @@ class Router_Status(Fast_API_Router):
         super().setup()
 
     def status(self):
-        return 'ok'
+        return {'status':'ok'}
 
     def version(self):
-        return Version().value()
+        return {'version': Version().value()}
 
     def setup_routes(self):
         self.router.get("/status" )(self.status )

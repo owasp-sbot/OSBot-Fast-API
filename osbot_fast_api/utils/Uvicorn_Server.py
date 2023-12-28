@@ -34,17 +34,19 @@ class Uvicorn_Server:
 
         return self.wait_for_server_started()
 
+    def read_stderr(self, stderr):
+        print('in read_stderr')
+        line = stderr.readline()
+        if line:
+            print('stderr:', line, end='')
+
     def read_stdout(self, stdout):          # todo: bug: figure out why the stdout and stderr are not being read
         print('in read_stdout')
         line = stdout.readline()
         if line:
             print('stdout:', line, end='')
 
-    def read_stderr(self, stderr):
-        print('in read_stderr')
-        line = stderr.readline()
-        if line:
-            print('stderr:', line, end='')
+
 
     def stop(self):
         if self.process:

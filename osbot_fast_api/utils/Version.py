@@ -15,4 +15,4 @@ class Version:
         return path_combine(self.path_code_root(), self.FILE_NAME_VERSION)
 
     def value(self):
-        return file_contents(self.path_version_file())
+        return file_contents(self.path_version_file()).strip()

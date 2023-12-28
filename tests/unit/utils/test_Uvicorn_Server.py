@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Dev import pprint
@@ -26,6 +27,21 @@ class test_Uvicorn_Server(TestCase):
         assert self.uvicorn_server.python_file              == self.python_file
         assert self.uvicorn_server.python_path              == 'python3'
 
+    @patch('builtins.print')
+    def test_read_stderr(self, mock_print):
+        mock_stderr = MagicMock()
+        mock_stderr.readline.return_value = 'error message\n'
+        self.uvicorn_server.read_stderr(mock_stderr)
+        mock_print.assert_any_call('in read_stderr')
+        mock_print.assert_any_call('stderr:', 'error message\n', end='')
+
+    @patch('builtins.print')
+    def test_read_stdout(self, mock_print):
+        mock_stdout = MagicMock()
+        mock_stdout.readline.return_value = 'test output\n'
+        self.uvicorn_server.read_stdout(mock_stdout)
+        mock_print.assert_any_call('in read_stdout')
+        mock_print.assert_any_call('stdout:', 'test output\n', end='')
 
     def test_start_stop(self):
         with Duration(prefix='start'):

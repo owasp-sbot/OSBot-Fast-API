@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import file_exists, file_contents
+from osbot_utils.utils.Misc import trim
 
 from osbot_fast_api.utils.Version import Version
 
@@ -20,5 +21,5 @@ class test_Version(TestCase):
         assert file_exists(path_version_file)
 
     def test_value(self):
-        assert self.version.value() == file_contents(self.version.path_version_file())
+        assert self.version.value() == trim(file_contents(self.version.path_version_file()))
 

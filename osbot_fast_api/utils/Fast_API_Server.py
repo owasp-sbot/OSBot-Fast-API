@@ -9,15 +9,16 @@ from uvicorn                import Config, Server
 from osbot_utils.utils.Misc import random_port
 
 FAST_API__HOST      = "127.0.0.1"
-FAST_API__LOG_LEVEL = "info"
+FAST_API__LOG_LEVEL = "error"
 
 class Fast_API_Server:
-    def __init__(self, app, port=None):
-        self.app   : FastAPI = app
-        self.port  : int     = port or random_port()
-        self.config: Config  = Config(app=self.app, host=FAST_API__HOST, port=self.port, log_level=FAST_API__LOG_LEVEL)
-        self.server: Server  = None
-        self.thread: Thread  = None
+    def __init__(self, app, port=None, log_level=None):
+        self.app       : FastAPI = app
+        self.port      : int     = port or random_port()
+        self.log_level : str     = log_level or FAST_API__LOG_LEVEL
+        self.config    : Config  = Config(app=self.app, host=FAST_API__HOST, port=self.port, log_level=self.log_level)
+        self.server    : Server  = None
+        self.thread    : Thread  = None
 
     def start(self):
         self.server = Server(config=self.config)
