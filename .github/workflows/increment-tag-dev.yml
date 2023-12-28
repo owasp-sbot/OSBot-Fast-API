@@ -1,0 +1,22 @@
+name: Increment Tag - Dev branch
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Run Unit Tests"]
+    branches: [dev]
+    types:
+      - completed
+
+jobs:
+  increment-tag-dev:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3 #
+      - name: Increment Tag (for DEV)
+        uses: ./.github/actions/increment-tag-dev
+        with:
+          package_name: ${{ secrets.PACKAGE_NAME          }}
+
+

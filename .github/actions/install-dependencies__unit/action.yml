@@ -1,0 +1,28 @@
+name       : Install Dependencies (for tests - Unit)
+description: 'Install Dependencies (for tests - Unit)'
+
+runs:
+    using: 'composite'
+    steps:
+      - name: Install Python 3.x
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - name: Cache pip dependencies (for tests - Unit)
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/tests/unit/requirements-unit.txt') }}
+          restore-keys: |
+              ${{ runner.os }}-pip-
+      - name: Install dependencies (for tests - Unit)
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tests/unit/requirements-unit.txt
+          pip install -e .
+
+#      - name: Configure Playwright
+#        shell: bash
+#        run: |
+#          playwright install chromium

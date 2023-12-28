@@ -1,0 +1,8 @@
+# for OSBOT
+git+https://github.com/owasp-sbot/OSBot-Utils.git@dev
+python-dotenv
+
+
+# for testing
+pytest
+coverage

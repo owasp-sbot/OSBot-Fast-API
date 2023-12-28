@@ -1,0 +1,17 @@
+name       : Install Dependencies (for tests - Docker)
+description: 'Install Dependencies (for tests - Docker)'
+
+runs:
+    using: 'composite'
+    steps:
+      - name: Cache pip dependencies (for tests - Unit)
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/tests/docker/requirements-docker.txt') }}
+          restore-keys: |
+              ${{ runner.os }}-pip-
+      - name: Install dependencies (for tests - Unit)
+        shell: bash
+        run: |          
+          pip install -r tests/docker/requirements-docker.txt
