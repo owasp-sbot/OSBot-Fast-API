@@ -28,7 +28,6 @@ class test_Uvicorn_Server(TestCase):
 
 
     def test_start_stop(self):
-        print()
         with Duration(prefix='start'):
             assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is False
             assert self.uvicorn_server.start() is True

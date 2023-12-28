@@ -1,3 +1,4 @@
+import selectors
 import subprocess
 from urllib.parse import urljoin
 
@@ -17,17 +18,40 @@ class Uvicorn_Server:
         self.python_path = 'python3'
         self.stdout      = None
         self.stderr      = None
+        self.sel = None
 
     def start(self):
-        self.process = subprocess.Popen(['uvicorn', "server:app", "--port", str(self.port)], cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.process = subprocess.Popen(args=['uvicorn', "server:app", "--port", str(self.port)],
+                                        cwd=self.cwd,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        text=True,
+                                        bufsize=1)
+
+        self.sel = selectors.DefaultSelector()
+        self.sel.register(self.process.stdout, selectors.EVENT_READ, self.read_stdout)
+        self.sel.register(self.process.stderr, selectors.EVENT_READ, self.read_stderr)
+
         return self.wait_for_server_started()
 
+    def read_stdout(self, stdout):          # todo: bug: figure out why the stdout and stderr are not being read
+        print('in read_stdout')
+        line = stdout.readline()
+        if line:
+            print('stdout:', line, end='')
+
+    def read_stderr(self, stderr):
+        print('in read_stderr')
+        line = stderr.readline()
+        if line:
+            print('stderr:', line, end='')
 
     def stop(self):
         if self.process:
-            #self.stdout, self.stderr = self.process.communicate()  # This will capture stdout and stderr
             self.process.kill()
-            return self.wait_for_server_stopped()
+            self.process.wait()
+            self.sel.close()
+        return self.wait_for_server_stopped()
             #print(f"stdout: {self.stdout.decode('utf-8')}")
             #print(f"stderr: {self.stderr.decode('utf-8')}")
 
