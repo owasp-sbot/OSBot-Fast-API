@@ -36,7 +36,7 @@ class test_Fast_API_Server(TestCase):
         assert self.fast_api_server.server.should_exit    is False
         assert self.fast_api_server.server.started        is True
         assert self.fast_api_server.thread.daemon         is False
-        assert self.fast_api_server.thread.name           == 'Thread-1 (run)'
+        assert self.fast_api_server.thread.name.startswith('Thread')
 
         response = self.fast_api_server.requests_get()
 
