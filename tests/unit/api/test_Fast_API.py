@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from fastapi import FastAPI
+from starlette.testclient import TestClient
 
 from osbot_fast_api.api.Fast_API         import Fast_API
 from osbot_fast_api.utils.Fast_API_Utils import FAST_API_DEFAULT_ROUTES
@@ -12,6 +13,8 @@ class test_Fast_API(TestCase):
 
     def setUp(self):
         self.fast_api = Fast_API()
+        self.app    = self.fast_api.app()
+        self.client = TestClient(self.app)
 
     def test__init__(self):
         assert type(self.fast_api.app()) is FastAPI
