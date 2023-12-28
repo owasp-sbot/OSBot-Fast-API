@@ -9,6 +9,7 @@ from osbot_utils.decorators.lists.index_by          import index_by
 from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
 from starlette.testclient import TestClient
 
+from osbot_fast_api.api.routers.Router_Status import Router_Status
 #from osbot_fast_api.Fast_API_Utils import fastapi_routes
 
 from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
@@ -38,11 +39,10 @@ class Fast_API:
 
     def fast_api_setup(self):
 
-        self.setup_middleware()        # todo: add support for only adding this when running in Localhost
+        self.setup_middleware    ()        # todo: add support for only adding this when running in Localhost
         self.setup_default_routes()
-        self.setup_static_routes()
-
-        #self.setup_routes()
+        self.setup_static_routes ()
+        self.setup_routes        ()
         return self
 
     @index_by
@@ -59,8 +59,8 @@ class Fast_API:
         self.app_router().get("/")(redirect_to_docs)
 
     def setup_routes(self):
-    #     Router_Open_AI(self.app())
-          return self
+        Router_Status(self.app())
+        return self
 
     def setup_static_routes(self):
         path_static_folder = self.path_static_folder()

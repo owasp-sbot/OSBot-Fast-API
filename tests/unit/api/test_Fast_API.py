@@ -5,6 +5,7 @@ from osbot_utils.utils.Dev import pprint
 from starlette.testclient import TestClient
 
 from osbot_fast_api.api.Fast_API         import Fast_API
+from osbot_fast_api.api.routers.Router_Status import ROUTE_STATUS__ROUTES
 from osbot_fast_api.utils.Fast_API_Utils import FAST_API_DEFAULT_ROUTES
 
 from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
@@ -50,7 +51,7 @@ class test_Fast_API(TestCase):
         assert dict(response.headers) == {'content-length': '0', 'location': '/docs'}
 
     def test_routes(self):
-        expected_routes = FAST_API_DEFAULT_ROUTES
+        expected_routes = FAST_API_DEFAULT_ROUTES + ROUTE_STATUS__ROUTES
         routes          = self.fast_api.routes(include_default=True)
         assert routes == expected_routes
 

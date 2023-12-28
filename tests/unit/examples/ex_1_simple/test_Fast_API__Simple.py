@@ -5,6 +5,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, folder_name, files_names, files_list
 
 from osbot_fast_api.api.Fast_API                          import Fast_API
+from osbot_fast_api.api.routers.Router_Status import ROUTE_STATUS__ROUTES
 from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER
 
 
@@ -48,8 +49,9 @@ class test_Fast_API__Simple(TestCase):
 
     def test_routes(self):
         routes = self.fast_api.routes()
-        assert routes == [{'http_methods': ['GET'        ], 'http_path': '/'      , 'method_name': 'redirect_to_docs'},
-                          {'http_methods': ['GET', 'HEAD'], 'http_path': '/static', 'method_name': 'static'          }]
+        EX_1_ROUTES = [{'http_methods': ['GET'        ], 'http_path': '/'      , 'method_name': 'redirect_to_docs'},
+                            {'http_methods': ['GET', 'HEAD'], 'http_path': '/static', 'method_name': 'static'          }]
+        assert (routes == EX_1_ROUTES + ROUTE_STATUS__ROUTES)
 
     def test_user_middleware(self):
         middlewares = self.fast_api.user_middleware()
