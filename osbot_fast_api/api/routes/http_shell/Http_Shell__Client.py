@@ -1,11 +1,20 @@
+import requests
+from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Functions import function_source_code
+from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Model__Shell_Command, Model__Shell_Data
+
+
 class Http_Shell__Client:
-    def __init__(self, shell_server_endpoint=None):
-        self.shell_server_endpoint = shell_server_endpoint
+    def __init__(self, server_endpoint=None):
+        self.server_endpoint = server_endpoint
         pass
 
     def _invoke(self, method_name, method_kwargs=None):
-        event = {'lambda_shell': {'method_name': method_name, 'method_kwargs': method_kwargs}}
-        return Shell_Server().invoke(event)
+        shell_data         =  Model__Shell_Data(method_name=method_name, method_kwargs=method_kwargs or {})
+        shell_command      =  Model__Shell_Command(auth_key='aaa', data=shell_data)
+        shell_command_json = shell_command.model_dump()
+        response           = requests.post(self.server_endpoint, json=shell_command_json)
+        return response.json()
 
     def bash(self, command, cwd=None):
         return self._invoke('bash', {'command': command, 'cwd': cwd})
@@ -27,12 +36,6 @@ class Http_Shell__Client:
     def process_run(self, executable, params=None, cwd=None):
         return self._invoke('process_run', {'executable': executable, 'params': params, 'cwd': cwd})
 
-    def reset(self):
-        if self.aws_lambda.s3_bucket is None:  # if these values are not set
-            self.aws_lambda.set_s3_bucket(AWS_Config().lambda_s3_bucket())  # use default values
-            self.aws_lambda.set_s3_key(
-                f'{AWS_Config().lambda_s3_folder_lambdas()}/{self.aws_lambda.original_name}.zip')  # which are needed
-        return self.aws_lambda.update_lambda_code()  # to trigger the update (which will reset the lambda and force a cold start on next lambda invocation)
 
     def python_exec(self, code):
         return self._invoke('python_exec', {'code': code})

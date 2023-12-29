@@ -5,18 +5,20 @@ from unittest import TestCase
 
 from osbot_utils.utils.Dev import pprint
 
-from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Http_Shell__Server
+from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Http_Shell__Server, Model__Shell_Data, \
+    Model__Shell_Command
 
 
 class test_Http_Shell__Server(TestCase):
 
     def setUp(self):
-        self.server = Http_Shell__Server()
-
+        self.auth_key = 'an-auth-key'
+        self.server   = Http_Shell__Server()
 
     def _shell_invoke(self, method_name, method_kwargs=None):
-        event = {'method_name': method_name, 'method_kwargs': method_kwargs}
-        return self.server.invoke(event).get('return_value')
+        data    = Model__Shell_Data   (method_name=method_name, method_kwargs=method_kwargs)
+        command = Model__Shell_Command(auth_key=self.auth_key, data=data)
+        return self.server.invoke(command).get('return_value')
 
     # test methods
     def test_bash(self):
@@ -31,14 +33,24 @@ class test_Http_Shell__Server(TestCase):
         assert 'Size'       in disk_space
 
     def test_invoke(self):
-        assert self.server.invoke({}) is None
-        assert self.server.invoke({'method_name':'ping', 'method_kwargs': {}}) == { 'method_invoked': True,
-                                                                                    'method_kwargs': {},
-                                                                                    'method_name': 'ping',
-                                                                                    'return_value': 'pong'}
-        assert self.server.invoke({'shell': {'method_name':'aaaa', 'method_kwargs': {}}}) is None
-        assert self._shell_invoke('ping', {}  ) == 'pong'
-        assert self._shell_invoke('ping', None) == 'pong'
+        data    = Model__Shell_Data   (method_name='', method_kwargs={})
+        command = Model__Shell_Command(auth_key=self.auth_key, data=data)
+        assert self.server.invoke(command) == dict(error_message = 'unknown method: ' , method_kwargs = {}  ,
+                                                   method_name   = ''                ,  return_value  = None,
+                                                   status        = 'error'                                  )
+        data.method_name = 'ping'
+        assert self.server.invoke(command) == dict(error_message = None  , method_kwargs = {}    ,
+                                                   method_name   = 'ping', return_value  = 'pong',
+                                                   status        = 'ok'                          )
+        data.method_kwargs = {'a':1}
+        assert self.server.invoke(command) == dict(error_message = "Http_Shell__Server.ping() got an unexpected keyword argument 'a'",
+                                                   method_kwargs = {'a': 1} , method_name = 'ping'                                   ,
+                                                   return_value  = None     , status      = 'error'                                  )
+        data.method_name   = 'file_contents'
+        data.method_kwargs = {}
+        assert self.server.invoke(command) == dict(error_message = "Http_Shell__Server.file_contents() missing 1 required positional argument: 'path'",
+                                                   method_kwargs = {}   , method_name = 'file_contents'                                               ,
+                                                   return_value  = None , status      = 'error'                                                       )
 
 
     def test_invoke__process_run(self):

@@ -1,22 +1,43 @@
 from osbot_utils.utils.Process import Process
+from pydantic import BaseModel
+
+
+class Model__Shell_Data(BaseModel):
+    method_name   : str
+    method_kwargs : dict = {}
+
+class Model__Shell_Command(BaseModel):
+    auth_key: str
+    data    : Model__Shell_Data
 
 class Http_Shell__Server:
 
-    def invoke(self, data):
-        method_name   = data.get('method_name')
-        method_kwargs = data.get('method_kwargs')
-        if method_name:
-            if hasattr(Http_Shell__Server,method_name):
-                method = getattr(Http_Shell__Server, method_name)
+    def invoke(self, command: Model__Shell_Command):
+        data           = command.data
+        method_name    = data.method_name
+        method_kwargs  = data.method_kwargs
+        return_value   = None
+        error_message  = None
+
+        if hasattr(Http_Shell__Server,method_name):
+            method = getattr(Http_Shell__Server, method_name)
+            try:
                 if type(method_kwargs) is dict:
                     return_value = method(**method_kwargs)
-                else:
-                    return_value = method()
-                return { "method_invoked" : True          ,
-                         "method_name"    : method_name   ,
-                         "method_kwargs"  : method_kwargs ,
-                         "return_value"   : return_value  }
-        return None
+                # else:
+                #     return_value = method()
+                status         = "ok"
+            except Exception as error:
+                error_message = str(error)
+                status        = "error"
+        else:
+            error_message = f'unknown method: {method_name}'
+            status        = "error"
+        return { "error_message"  : error_message  ,
+                 "method_name"    : method_name    ,
+                 "method_kwargs"  : method_kwargs  ,
+                 "return_value"   : return_value   ,
+                 "status"         : status         }
 
 
     @staticmethod  # note: this method by design allows extra commands injection via | and ;
