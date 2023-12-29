@@ -19,6 +19,7 @@ jobs:
         uses: ./.github/actions/run-tests__unit
         with:
           package_name          : ${{ secrets.PACKAGE_NAME          }}
+          HTTP_SHELL__AUTH_KEY  : ${{ secrets.HTTP_SHELL__AUTH_KEY  }}
 
       # Tests - Integration
       - name: Run Tests - Integration
@@ -39,7 +40,6 @@ jobs:
           AWS_DEFAULT_REGION    : ${{ secrets.AWS_DEFAULT_REGION    }}
           AWS_ACCOUNT_ID        : ${{ secrets.AWS_ACCOUNT_ID        }}
           AWS_ACCESS_KEY_ID     : ${{ secrets.AWS_ACCESS_KEY_ID     }}
-          HTTP_SHELL__AUTH_KEY  : ${{ secrets.HTTP_SHELL__AUTH_KEY  }}
 
       # Tear Down
       - name: Publish Code Coverage
