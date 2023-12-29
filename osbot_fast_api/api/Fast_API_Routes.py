@@ -9,7 +9,7 @@ from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 
 #DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
 
-class Fast_API_Router:
+class Fast_API_Routes:
 
     def __init__(self, app, tag):
         self.router = APIRouter()

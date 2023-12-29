@@ -1,6 +1,6 @@
 from unittest                               import TestCase
 from fastapi                                import FastAPI, APIRouter
-from osbot_fast_api.api.Fast_API_Router     import Fast_API_Router
+from osbot_fast_api.api.Fast_API_Routes     import Fast_API_Routes
 from osbot_fast_api.utils.Fast_API_Utils    import Fast_API_Utils
 
 
@@ -9,7 +9,7 @@ class test_Fast_API_Router(TestCase):
     def setUp(self):
         self.app             = FastAPI()
         self.tag             = 'test_tag'
-        self.fast_api_router = Fast_API_Router(app=self.app, tag=self.tag)
+        self.fast_api_router = Fast_API_Routes(app=self.app, tag=self.tag)
 
     def test__init__(self):
         assert type(self.fast_api_router.router) is APIRouter

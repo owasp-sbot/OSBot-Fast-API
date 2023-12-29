@@ -1,4 +1,4 @@
-from osbot_fast_api.api.Fast_API_Router import Fast_API_Router
+from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
 from osbot_fast_api.utils.Version import Version
 
 
@@ -6,7 +6,9 @@ from osbot_fast_api.utils.Version import Version
 ROUTES__CONFIG = [{ 'http_methods': ['GET'], 'http_path': '/config/status' , 'method_name': 'status' },
                   { 'http_methods': ['GET'], 'http_path': '/config/version', 'method_name': 'version'}]
 
-class Routes_Config(Fast_API_Router):
+ROUTES_PATHS__CONFIG = ['/config/status', '/config/version']
+
+class Routes_Config(Fast_API_Routes):
 
     def __init__(self, app):
         super().__init__(app, tag='config')
