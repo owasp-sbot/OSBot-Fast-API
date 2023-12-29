@@ -1,6 +1,8 @@
+import os
 from unittest import TestCase
 
 import requests
+from dotenv import load_dotenv
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import list_set
 from pydantic import BaseModel
@@ -8,10 +10,11 @@ from pydantic import BaseModel
 from osbot_fast_api.api.Fast_API import Fast_API
 from osbot_fast_api.api.routes.http_shell.Http_Shell__Client import Http_Shell__Client
 from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Http_Shell__Server, Model__Shell_Data, \
-    Model__Shell_Command
+    Model__Shell_Command, ENV__HTTP_SHELL_AUTH_KEY
 from osbot_fast_api.utils.Fast_API_Server import Fast_API_Server
 
 class test_Http_Shell__Client(TestCase):
+    auth_key        : str
     client          : Http_Shell__Client
     server_endpoint : str
     fast_api        : Fast_API
@@ -20,10 +23,12 @@ class test_Http_Shell__Client(TestCase):
     # setup local server to simular the post request
     @classmethod
     def setUpClass(cls) -> None:
+        load_dotenv()
         cls.fast_api            = Fast_API()
         cls.fast_api_server     = Fast_API_Server(app=cls.fast_api.app())
+        cls.auth_key            = os.environ.get(ENV__HTTP_SHELL_AUTH_KEY)
         cls.server_endpoint     = cls.fast_api_server.url() + 'http-shell-server'
-        cls.client              = Http_Shell__Client(server_endpoint=cls.server_endpoint)
+        cls.client              = Http_Shell__Client(server_endpoint=cls.server_endpoint, auth_key=cls.auth_key)
         cls.fast_api.add_route_post(cls.http_shell_server)
         assert cls.fast_api_server.start() is True
 
@@ -40,10 +45,9 @@ class test_Http_Shell__Client(TestCase):
         return exec_result
 
     def test__fast_api_server(self):
-        auth_key              = 'an-auth_key'                                                       # todo: add support for getting auth key from env-var
         expected_result       = 'pong'
         shell_data            = Model__Shell_Data   (method_name='ping', method_kwargs = {})
-        shell_command         = Model__Shell_Command(auth_key=auth_key, data=shell_data)
+        shell_command         = Model__Shell_Command(auth_key=self.auth_key, data=shell_data)
         shell_command_json    = shell_command.model_dump()
         response_openapi      = requests.get(self.fast_api_server.url() + 'openapi.json')
         response_shell_invoke = self.fast_api.client().post('/http-shell-server', json=shell_command_json)
@@ -95,7 +99,7 @@ class test_Http_Shell__Client(TestCase):
         assert 'bin'    in self.client.ls('/')
         assert 'bin'    in self.client.ls('' , '/')
         assert 'bash'   in self.client.ls('bin', '/')
-        assert self.client.ls('aaaa').get('stderr') == 'ls: aaaa: No such file or directory\n'
+        assert 'No such file or directory' in self.client.ls('aaaa').get('stderr')          # handle different error messages in OSX and Linux
 
     def test_memory_usage(self):
         assert self.client.memory_usage() == { 'error_message'  : 'unknown method: memory_usage',

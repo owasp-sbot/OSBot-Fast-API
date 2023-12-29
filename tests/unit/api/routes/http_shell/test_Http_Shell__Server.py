@@ -4,21 +4,40 @@ import sys
 from unittest import TestCase
 
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Misc import new_guid
 
 from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Http_Shell__Server, Model__Shell_Data, \
-    Model__Shell_Command
+    Model__Shell_Command, AUTH_MESSAGE__KEY_NOT_PROVIDED, AUTH_MESSAGE__KEY_NOT_GUID, AUTH_MESSAGE__ENV_KEY_NOT_SET, \
+    ENV__HTTP_SHELL_AUTH_KEY, AUTH_MESSAGE__AUTH_FAILED, AUTH_MESSAGE__AUTH_OK
 
 
 class test_Http_Shell__Server(TestCase):
 
     def setUp(self):
-        self.auth_key = 'an-auth-key'
+        self.auth_key = new_guid()
         self.server   = Http_Shell__Server()
+        self._set_auth_key(self.auth_key)
+        pprint(self.auth_key)
 
     def _shell_invoke(self, method_name, method_kwargs=None):
         data    = Model__Shell_Data   (method_name=method_name, method_kwargs=method_kwargs)
         command = Model__Shell_Command(auth_key=self.auth_key, data=data)
         return self.server.invoke(command).get('return_value')
+
+    def _set_auth_key(self, auth_key):
+        os.environ[ENV__HTTP_SHELL_AUTH_KEY] = auth_key
+
+    # test auth
+    def test_check_auth_key(self):
+        self._set_auth_key('')
+        assert self.server.check_auth_key(''           ) == {'auth_message': AUTH_MESSAGE__KEY_NOT_PROVIDED , 'auth_status': 'failed' }
+        assert self.server.check_auth_key('aaaa'       ) == {'auth_message': AUTH_MESSAGE__KEY_NOT_GUID     , 'auth_status': 'failed' }
+        assert self.server.check_auth_key(self.auth_key) == {'auth_message': AUTH_MESSAGE__ENV_KEY_NOT_SET  , 'auth_status': 'failed' }
+        self._set_auth_key('aaaaa')
+        assert self.server.check_auth_key(self.auth_key) == {'auth_message': AUTH_MESSAGE__AUTH_FAILED      , 'auth_status': 'failed' }
+        self._set_auth_key(self.auth_key    )
+        assert self.server.check_auth_key(self.auth_key) == {'auth_message': AUTH_MESSAGE__AUTH_OK          , 'auth_status': 'ok'     }
+
 
     # test methods
     def test_bash(self):

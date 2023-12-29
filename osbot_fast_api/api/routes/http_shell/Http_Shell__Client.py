@@ -5,12 +5,13 @@ from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Model__Shell
 
 
 class Http_Shell__Client:
-    def __init__(self, server_endpoint=None):
+    def __init__(self, server_endpoint, auth_key):
         self.server_endpoint = server_endpoint
+        self.auth_key        = auth_key
 
     def _invoke(self, method_name, method_kwargs=None):
         shell_data         =  Model__Shell_Data(method_name=method_name, method_kwargs=method_kwargs or {})
-        shell_command      =  Model__Shell_Command(auth_key='aaa', data=shell_data)
+        shell_command      =  Model__Shell_Command(auth_key=self.auth_key, data=shell_data)
         shell_command_json = shell_command.model_dump()
         response           = requests.post(self.server_endpoint, json=shell_command_json)
         return response.json()
