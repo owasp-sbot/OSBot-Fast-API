@@ -68,9 +68,9 @@ class test_Http_Shell__Client(TestCase):
     # test methods
 
     def test_bash(self):
-        assert '.py'                        in self.client.bash('ls'    ).get('stdout')
-        assert 'bin'                        in self.client.bash('ls /'  ).get('stdout')
-        assert 'bin'                        in self.client.bash('ls','/').get('stdout')
+        assert '.py'                        in self.client.bash('ls'    )
+        assert 'bin'                        in self.client.bash('ls /'  )
+        assert 'bin'                        in self.client.bash('ls','/')
         assert 'AAAAAa: command not found'  in self.client.bash('AAAAAa').get('stderr')
 
     def test_disk_space(self):
@@ -87,18 +87,15 @@ class test_Http_Shell__Client(TestCase):
         file_contents = self.client.file_contents(__file__)
         assert 'class test_Http_Shell__Client(TestCase)' in file_contents
 
+    def test_list_processes(self):
+        assert 'PID' in self.client.list_processes()
+
     def test_ls(self):
         assert '.py'    in self.client.ls()
-        assert ''       == self.client.ls('aaaa')
         assert 'bin'    in self.client.ls('/')
         assert 'bin'    in self.client.ls('' , '/')
         assert 'bash'   in self.client.ls('bin', '/')
-
-    def test_ping(self):
-        assert self.client.ping() == 'pong'
-
-    def test_list_processes(self):
-        assert 'PID' in self.client.list_processes()
+        assert self.client.ls('aaaa').get('stderr') == 'ls: aaaa: No such file or directory\n'
 
     def test_memory_usage(self):
         assert self.client.memory_usage() == { 'error_message'  : 'unknown method: memory_usage',
@@ -107,8 +104,19 @@ class test_Http_Shell__Client(TestCase):
                                                'return_value'   : None                          ,
                                                'status'         : 'error'                       }
 
+    def test_ping(self):
+        assert self.client.ping() == 'pong'
+
+    def test_ps(self):
+        assert 'PID' in self.client.ps()
+
     def test_process_run(self):
         assert 'OSBot-Fast-API' in self.client.process_run('pwd').get('stdout')
 
     def test_pwd(self):
         assert 'OSBot-Fast-API' in self.client.pwd()
+
+    def test_whoami(self):
+        username = self.client.whoami()
+        pprint('#' * 100 , '### the username is', f'###  - {username}', '###' * 100)
+        assert len(username) > 0

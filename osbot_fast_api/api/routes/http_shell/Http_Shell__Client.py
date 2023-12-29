@@ -1,4 +1,5 @@
 import requests
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Functions                             import function_source_code
 from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Model__Shell_Command, Model__Shell_Data
 
@@ -15,7 +16,10 @@ class Http_Shell__Client:
         return response.json()
 
     def bash(self, command, cwd=None):
-        return self._invoke('bash', {'command': command, 'cwd': cwd})
+        result = self._invoke('bash', {'command': command, 'cwd': cwd})
+        if result.get('status') == 'ok' and not result.get('stderr'):
+            return result.get('stdout', '').strip()
+        return result
 
     # def exec(self, executable, params=None, cwd=None):
     #     result = self.process_run(executable, params, cwd)
@@ -46,7 +50,7 @@ class Http_Shell__Client:
     # command methods
 
     def ls(self, path='', cwd='.'):  # todo: fix vuln: this method allows extra process executions via ; and |
-        return self.bash(f'ls {path}', cwd).get('stdout')
+        return self.bash(f'ls {path}', cwd)
 
     def file_contents(self, path):
         return self._invoke('file_contents', {'path': path})
@@ -65,10 +69,11 @@ class Http_Shell__Client:
         return self._invoke('ping')
 
     def ps(self):
-        return self.exec('ps')
+        return self.bash('ps')
 
     def pwd(self):
         return self._invoke('pwd')
 
+
     def whoami(self):
-        return self.exec('whoami')
+        return self.bash('whoami')
