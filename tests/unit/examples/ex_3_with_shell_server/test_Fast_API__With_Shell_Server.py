@@ -13,7 +13,6 @@ from osbot_fast_api.examples.ex_3_with_shell_server.Fast_API__With_Shell_Server 
 
 class test_Fast_API__With_Shell_Server(TestCase):
     auth_key        : str
-    server_endpoint : str
     fast_api        : Fast_API
 
     @classmethod
@@ -41,6 +40,4 @@ class test_Fast_API__With_Shell_Server(TestCase):
         code   = 'result = 40+2'
         result = self.test__invoke_method('python_exec', {'code': code})
         assert result == 42
-
-
 

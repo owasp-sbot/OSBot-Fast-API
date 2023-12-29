@@ -5,33 +5,26 @@ from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Model__Shell
 
 
 class Http_Shell__Client:
-    def __init__(self, server_endpoint, auth_key):
-        self.server_endpoint = server_endpoint
-        self.auth_key        = auth_key
+    def __init__(self, server_endpoint, auth_key, return_value_if_ok=True):
+        self.server_endpoint    = server_endpoint
+        self.auth_key           = auth_key
+        self.return_value_if_ok = return_value_if_ok
 
     def _invoke(self, method_name, method_kwargs=None):
         shell_data         =  Model__Shell_Data(method_name=method_name, method_kwargs=method_kwargs or {})
         shell_command      =  Model__Shell_Command(auth_key=self.auth_key, data=shell_data)
         shell_command_json = shell_command.model_dump()
         response           = requests.post(self.server_endpoint, json=shell_command_json)
-        return response.json()
+        response_json      = response.json()
+        if self.return_value_if_ok and response_json.get('status') == 'ok':
+            return response_json.get('return_value')
+        return response_json
 
     def bash(self, command, cwd=None):
         result = self._invoke('bash', {'command': command, 'cwd': cwd})
         if result.get('status') == 'ok' and not result.get('stderr'):
             return result.get('stdout', '').strip()
         return result
-
-    # def exec(self, executable, params=None, cwd=None):
-    #     result = self.process_run(executable, params, cwd)
-    #     std_out = result.get('stdout', '').strip()
-    #     std_err = result.get('stderr', '').strip()
-    #     std_console = std_out + std_err
-    #     if std_console:
-    #         return std_console
-    #     if result.get('errorMessage'):
-    #         return f'Error: {result.get("errorMessage")}'
-    #     return result
 
     def exec_function(self, function):
         return self.python_exec_function(function)

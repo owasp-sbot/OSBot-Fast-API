@@ -27,7 +27,7 @@ class test_Http_Shell__Client(TestCase):
         cls.fast_api_server     = Fast_API_Server(app=cls.fast_api.app())
         cls.auth_key            = os.environ.get(ENV__HTTP_SHELL_AUTH_KEY)
         cls.server_endpoint     = cls.fast_api_server.url() + 'http-shell-server'
-        cls.client              = Http_Shell__Client(server_endpoint=cls.server_endpoint, auth_key=cls.auth_key)
+        cls.client              = Http_Shell__Client(server_endpoint=cls.server_endpoint, auth_key=cls.auth_key, return_value_if_ok=False)
         cls.fast_api.add_route_post(cls.http_shell_server)
         assert cls.fast_api_server.start() is True
 
@@ -121,5 +121,4 @@ class test_Http_Shell__Client(TestCase):
 
     def test_whoami(self):
         username = self.client.whoami()
-        pprint('#' * 100 , '### the username is', f'###  - {username}', '###' * 100)
         assert len(username) > 0
