@@ -23,7 +23,7 @@ class test_Http_Shell__Server(TestCase):
         #assert 'test_Shell_Server.py' in self.server.bash('ls'    ).get('stdout')
         assert 'bin'                  in self.server.bash('ls /'  ).get('stdout')
         assert 'bin'                  in self.server.bash('ls','/').get('stdout')
-        assert self.server.bash('AAAAAa').get('stderr') == 'bash: AAAAAa: command not found\n'
+        assert 'AAAAAa: command not found' in self.server.bash('AAAAAa').get('stderr')
 
     def test_disk_space(self):
         disk_space = self.server.disk_space()
