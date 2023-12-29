@@ -17,7 +17,6 @@ class test_Http_Shell__Server(TestCase):
         self.auth_key = new_guid()
         self.server   = Http_Shell__Server()
         self._set_auth_key(self.auth_key)
-        pprint(self.auth_key)
 
     def _shell_invoke(self, method_name, method_kwargs=None):
         data    = Model__Shell_Data   (method_name=method_name, method_kwargs=method_kwargs)
@@ -70,6 +69,12 @@ class test_Http_Shell__Server(TestCase):
         assert self.server.invoke(command) == dict(error_message = "Http_Shell__Server.file_contents() missing 1 required positional argument: 'path'",
                                                    method_kwargs = {}   , method_name = 'file_contents'                                               ,
                                                    return_value  = None , status      = 'error'                                                       )
+
+        command.auth_key = 'aaaaaa'
+        data.method_name = 'ping'
+        assert self.server.invoke(command) == dict(error_message = 'failed auth: auth key was not a valid guid/uuid',
+                                                   method_kwargs = {}   , method_name   = 'ping'                    ,
+                                                   return_value  = None , status        = 'error'                   )
 
 
     def test_invoke__process_run(self):
