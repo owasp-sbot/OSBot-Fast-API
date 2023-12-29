@@ -20,7 +20,6 @@ class test_Http_Shell__Client(TestCase):
     fast_api        : Fast_API
     fast_api_server : Fast_API_Server
 
-    # setup local server to simular the post request
     @classmethod
     def setUpClass(cls) -> None:
         load_dotenv()
