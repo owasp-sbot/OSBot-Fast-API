@@ -59,11 +59,12 @@ class test_Fast_API(TestCase):
         assert routes_methods == EXPECTED_ROUTES_METHODS
 
     def test_routes_paths(self):
-        routes_paths          = self.fast_api.routes_paths()
-        assert routes_paths == EXPECTED_ROUTES_PATHS
+        assert self.fast_api.routes_paths(                     ) == []
+        assert self.fast_api.routes_paths(include_default=False) == []
+        assert self.fast_api.routes_paths(include_default=True ) == EXPECTED_ROUTES_PATHS
 
     def test_setup_routes(self):
         assert self.fast_api.setup_routes() == self.fast_api
 
     def test_user_middleware(self):
-        assert self.fast_api.user_middleware() == []
+        assert self.fast_api.user_middlewares() == []

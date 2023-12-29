@@ -15,7 +15,7 @@ EXPECTED_PACKAGES = ['osbot_fast_api'                                   ,
                      'osbot_fast_api.api'                               ,
                      'osbot_fast_api.examples.ex_1_simple'              ,
                      'osbot_fast_api.examples.ex_1_simple.static_files' ,
-                     'osbot_fast_api.api.routers'                       ]
+                     'osbot_fast_api.api.routes'                        ]
 
 class test_setup(TestCase):
 

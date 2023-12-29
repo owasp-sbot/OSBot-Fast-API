@@ -23,8 +23,6 @@ class test_Fast_API__Simple(TestCase):
         assert type(self.fast_api.app()) is FastAPI
         assert self.fast_api.enable_cors is True
 
-        print(self.fast_api.app().user_middleware)
-
     def test_path_static_folder(self):
         static_folder = self.fast_api.path_static_folder()
         assert static_folder is not None
@@ -57,10 +55,17 @@ class test_Fast_API__Simple(TestCase):
         assert folder_name(static_files.path) == 'static_files'
 
     def test_user_middleware(self):
-        middlewares = self.fast_api.user_middleware()
+        middlewares = self.fast_api.user_middlewares()
         middleware  = middlewares[0]
+
         assert len(middlewares)  == 1
-        assert str(middleware) == "Middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, allow_methods=['GET', 'POST', 'HEAD'], allow_headers=['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'], expose_headers=['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'])"
+        assert middleware        == {'function_name': None                                       ,
+                                     'params'       : { 'allow_credentials': True               ,
+                                                        'allow_headers': ['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'],
+                                                        'allow_methods': ['GET', 'POST', 'HEAD'],
+                                                        'allow_origins': ['*'                  ],
+                                                        'expose_headers': ['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization']},
+                                     'type'          : 'CORSMiddleware'                         }
 
 
 

@@ -1,10 +1,13 @@
+import types
+
 import uvicorn
 from fastapi                                        import FastAPI
+from osbot_utils.utils.Dev import pprint
 from starlette.middleware.cors                      import CORSMiddleware
 from starlette.responses                            import RedirectResponse
 from starlette.staticfiles                          import StaticFiles
 from osbot_utils.utils.Files                        import path_combine
-from osbot_utils.utils.Misc import list_set, list_remove_list
+from osbot_utils.utils.Misc import list_set, list_remove_list, obj_info
 from osbot_utils.decorators.lists.index_by          import index_by
 from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
 from starlette.testclient                           import TestClient
@@ -13,13 +16,24 @@ from osbot_fast_api.api.routes.Routes_Config        import Routes_Config
 from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 from osbot_fast_api.utils._extra_osbot_utils import list_minus_list
 
-DEFAULT_ROUTES_PATHS = ['/', '/status/status', '/status/version']
+DEFAULT_ROUTES_PATHS = ['/', '/config/status', '/config/version']
 
 class Fast_API:
 
     def __init__(self, enable_cors=False):
         self.enable_cors = enable_cors          # todo: refactor to config class
         self.fast_api_setup()
+
+    def add_route(self,function, methods):
+        path = '/' + function.__name__.replace('_', '-')
+        self.app().add_api_route(path=path, endpoint=function, methods=methods)
+        return self
+
+    def add_route_get(self, function):
+        return self.add_route(function=function, methods=['GET'])
+
+    def add_route_post(self, function):
+        return self.add_route(function=function, methods=['POST'])
 
     def add_routes(self, class_routes):
         class_routes(self.app())
@@ -42,10 +56,12 @@ class Fast_API:
         return None
 
     def fast_api_setup(self):
-        self.setup_middleware    ()        # todo: add support for only adding this when running in Localhost
-        self.setup_default_routes()
-        self.setup_static_routes ()
-        self.setup_routes        (self.app())   # overwrite to add routes
+        self.setup                    ()        # overwrite to add routes
+        self.setup_middlewares        ()        # overwrite to add middlewares
+        self.setup_default_middlewares()
+        self.setup_default_routes     ()
+        self.setup_static_routes      ()
+        self.setup_routes             ()        # overwrite to add routes
         return self
 
     @index_by
@@ -62,6 +78,11 @@ class Fast_API:
             return paths
         return list_minus_list(list_a=paths, list_b=DEFAULT_ROUTES_PATHS)
 
+    def setup            (self): return self     # overwrite for further setup
+    def setup_middlewares(self): return self     # overwrite to add middlewares
+    def setup_routes     (self): return self     # overwrite to add rules
+
+
     def setup_default_routes(self):
         self.setup_add_root_route()
         self.add_routes(Routes_Config)
@@ -71,8 +92,6 @@ class Fast_API:
             return RedirectResponse(url="/docs")
         self.app_router().get("/")(redirect_to_docs)
 
-    def setup_routes(self, app=None):                         # overwrite to add class
-        return self
 
     def setup_static_routes(self):
         path_static_folder = self.path_static_folder()
@@ -81,7 +100,7 @@ class Fast_API:
             path_name          = "static"
             self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
 
-    def setup_middleware(self):
+    def setup_default_middlewares(self):
         if self.enable_cors:
             self.setup_middleware__cors()
 
@@ -94,8 +113,22 @@ class Fast_API:
                                   expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
 
 
-    def user_middleware(self):
-        return self.app().user_middleware
+    def user_middlewares(self):
+        middlewares = []
+        data = self.app().user_middleware
+        for item in data:
+                type_name = item.cls.__name__
+                options   = item.options
+                if isinstance(options.get('dispatch'),types.FunctionType):
+                    function_name = options.get('dispatch').__name__
+                    del options['dispatch']
+                else:
+                    function_name = None
+                middleware = { 'type'         : type_name     ,
+                               'function_name': function_name ,
+                               'params'       : options       }
+                middlewares.append(middleware)
+        return middlewares
 
     # def run_in_lambda(self):
     #     lambda_host = '127.0.0.1'
