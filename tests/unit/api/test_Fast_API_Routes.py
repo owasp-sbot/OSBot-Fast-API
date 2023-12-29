@@ -17,22 +17,32 @@ class test_Fast_API_Router(TestCase):
         assert self.fast_api_router.tag          == self.tag
 
     def test_add_route(self):
-        expected_endpoints =[ { 'http_methods': ['GET' ], 'http_path': '/get-endpoint' , 'method_name': 'an_endpoint'},
-                              { 'http_methods': ['POST'], 'http_path': '/post-endpoint', 'method_name': 'an_endpoint'}]
-        def an_endpoint():
-            pass
-        assert self.fast_api_router.add_route(path='/get-endpoint', function=an_endpoint, methods=['GET' ]) is self.fast_api_router
-        assert self.fast_api_router.add_route(path='/post-endpoint', function=an_endpoint, methods=['POST']) is self.fast_api_router
-        assert self.fast_api_router.routes() == expected_endpoints
+        expected_endpoints = [{ 'http_methods': ['GET' ], 'http_path': '/get-endpoint' , 'method_name': 'get_endpoint' },
+                              { 'http_methods': ['POST'], 'http_path': '/post-endpoint', 'method_name': 'post_endpoint'}]
+        expected_paths     = ['/get-endpoint', '/post-endpoint']
+        expected_methods   = ['get_endpoint', 'post_endpoint'  ]
+        def get_endpoint() : pass
+        def post_endpoint(): pass
+        assert self.fast_api_router.add_route(function=get_endpoint , methods=['GET' ]) is self.fast_api_router
+        assert self.fast_api_router.add_route(function=post_endpoint, methods=['POST']) is self.fast_api_router
+        assert self.fast_api_router.routes        () == expected_endpoints
+        assert self.fast_api_router.routes_paths  () == expected_paths
+        assert self.fast_api_router.routes_methods() == expected_methods
 
     def test_add_route_get(self):
-        expected_endpoints =  [ { 'http_methods': ['GET'], 'http_path': '/get-endpoint', 'method_name': '<lambda>'}]
-        assert self.fast_api_router.add_route_get(path='/get-endpoint', function=lambda:{}) is self.fast_api_router
-        assert self.fast_api_router.routes() == expected_endpoints
+        def get_endpoint(): pass
+        expected_endpoints = [ { 'http_methods': ['GET'], 'http_path': '/get-endpoint', 'method_name': 'get_endpoint'}]
+        expected_paths     = ['/get-endpoint']
+        expected_methods   = ['get_endpoint' ]
+        assert self.fast_api_router.add_route_get(get_endpoint) is self.fast_api_router
+        assert self.fast_api_router.routes        () == expected_endpoints
+        assert self.fast_api_router.routes_paths  () == expected_paths
+        assert self.fast_api_router.routes_methods() == expected_methods
 
     def test_add_route_post(self):
-        expected_endpoints =  [ { 'http_methods': ['POST'], 'http_path': '/post-endpoint', 'method_name': '<lambda>'}]
-        assert self.fast_api_router.add_route_post(path='/post-endpoint', function=lambda:{}) is self.fast_api_router
+        def post_endpoint(): pass
+        expected_endpoints =  [ { 'http_methods': ['POST'], 'http_path': '/post-endpoint', 'method_name': 'post_endpoint'}]
+        assert self.fast_api_router.add_route_post(post_endpoint) is self.fast_api_router
         assert self.fast_api_router.routes() == expected_endpoints
 
     def test_fast_api_utils(self):
@@ -40,3 +50,5 @@ class test_Fast_API_Router(TestCase):
 
     def test_routes(self):
         assert self.fast_api_router.routes() == []
+
+

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from osbot_utils.decorators.lists.index_by import index_by
 
-from osbot_utils.utils.Misc import lower
+from osbot_utils.utils.Misc import lower, obj_info
 
 from osbot_utils.utils.Str import str_safe
 
@@ -18,15 +18,16 @@ class Fast_API_Routes:
         self.tag    = tag
         self.setup()
 
-    def add_route(self, path, function, methods):
+    def add_route(self,function, methods):
+        path = '/' + function.__name__.replace('_', '-')
         self.router.add_api_route(path=path, endpoint=function, methods=methods)
         return self
 
-    def add_route_get(self, path, function):
-        return self.add_route(path=path, function=function, methods=['GET'])
+    def add_route_get(self, function):
+        return self.add_route(function=function, methods=['GET'])
 
-    def add_route_post(self, path, function):
-        return self.add_route(path=path, function=function, methods=['POST'])
+    def add_route_post(self, function):
+        return self.add_route(function=function, methods=['POST'])
 
     def fast_api_utils(self):
         return Fast_API_Utils(self.app)
@@ -35,18 +36,11 @@ class Fast_API_Routes:
     def routes(self):
         return self.fast_api_utils().fastapi_routes(router=self.router)
 
-    # @index_by
-    # def routes(self, include_prefix=False):
-    #     if include_prefix is False:
-    #         return fastapi_routes(self.router)
-    #     routes = []
-    #     for route in fastapi_routes(self.router):
-    #         route['http_path'] = f'{self.prefix}{route["http_path"]}'
-    #         routes.append(route)
-    #     return routes
+    def routes_methods(self):
+        return list(self.routes(index_by='method_name'))
 
-    # def routes_paths(self):
-    #     return list(self.routes(index_by='http_path'))
+    def routes_paths(self):
+        return list(self.routes(index_by='http_path'))
 
     def setup(self):
         self.setup_routes()
