@@ -6,7 +6,7 @@ from osbot_utils.utils.Files                                import folder_exists
 from osbot_fast_api.api.Fast_API                            import Fast_API
 from osbot_fast_api.api.routes.Routes_Config                import ROUTES__CONFIG
 from osbot_fast_api.examples.ex_1_simple                    import static_files
-from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, \
+from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple   import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, \
     EX_1_ROUTES
 
 
@@ -22,6 +22,18 @@ class test_Fast_API__Simple(TestCase):
         assert isinstance(self.fast_api, Fast_API        )
         assert type(self.fast_api.app()) is FastAPI
         assert self.fast_api.enable_cors is True
+
+    def test_client__an_post(self):
+        result_1 = self.client.post('/an-post')
+        result_2 = self.client.get ('/an-post')
+
+        assert result_1.status_code == 200
+        assert result_1.json()      == 'an post method'
+        assert result_2.status_code == 405
+        assert result_2.json()      == {'detail': 'Method Not Allowed'}
+
+
+
 
     def test_path_static_folder(self):
         static_folder = self.fast_api.path_static_folder()
@@ -45,6 +57,9 @@ class test_Fast_API__Simple(TestCase):
     def test_routes(self):
         routes = self.fast_api.routes()
         assert (routes ==  [ROUTE_REDIRECT_TO_DOCS] + ROUTES__CONFIG + EX_1_ROUTES)
+
+    def test_routes_paths(self):
+        assert self.fast_api.routes_paths() == ['/an-post', '/static']
 
     def test_static_file(self):
         response = self.client.get('/static/aaa.txt')

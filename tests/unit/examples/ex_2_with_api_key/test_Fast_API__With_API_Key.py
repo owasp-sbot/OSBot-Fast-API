@@ -32,6 +32,18 @@ class test_Fast_API__With_API_Key(TestCase):
         assert response_2.json()                      == {'message': 'Secure data accessed'}
         assert response_2.headers.get('extra_header') == 'goes here'
 
+        headers    = {EX_2_API_KEY_NAME : 'aaaaaa'}
+        response_3 = self.client.get(url='/secure-data', headers=headers)
+        assert response_3.status_code                 == 403
+        assert response_3.json()                      == {'detail': 'Invalid API Key'}
+        assert response_3.headers.get('extra_header') == 'goes here'
+
+    def test_client__the_answer(self):
+        response = self.client.get('/the-answer')
+        assert response.status_code == 200
+        assert response.json()      == 42
+        assert response.headers.get('extra_header') == 'goes here'
+
     def test_setup_middlewares(self):
         assert self.fast_api.user_middlewares() == [{'function_name': 'an_middleware', 'params': {}, 'type': 'BaseHTTPMiddleware'}]
 

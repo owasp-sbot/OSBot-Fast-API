@@ -8,9 +8,6 @@ EX_2_API_KEY_VALUE         = 'ex_2_test_api_key'
 
 class Fast_API__With_API_Key(Fast_API):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
 
     def add_secure_method(self):
         app = self.app()
