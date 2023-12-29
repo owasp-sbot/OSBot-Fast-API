@@ -4,7 +4,11 @@ description: 'Run Python Tests'
 inputs:
   package_name:
     description: 'Package name for coverage'
-    required: true  
+    required: true
+  HTTP_SHELL__AUTH_KEY:
+    description: 'HTTP_SHELL__AUTH_KEY'
+    required: true
+
 
 runs:
     using: 'composite'
@@ -14,4 +18,5 @@ runs:
         run: |
           coverage run --source=${{ inputs.package_name }} -m pytest -v -s --durations=0 --ignore=tests_* tests/unit
         env:
-          COVERAGE_FILE: .coverage.unit
+          COVERAGE_FILE        : .coverage.unit
+          HTTP_SHELL__AUTH_KEY : ${{ inputs.HTTP_SHELL__AUTH_KEY  }}
