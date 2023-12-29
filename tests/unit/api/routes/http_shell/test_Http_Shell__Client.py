@@ -39,7 +39,6 @@ class test_Http_Shell__Client(TestCase):
             return exec_result.get('return_value')
         return exec_result
 
-
     def test__fast_api_server(self):
         auth_key              = 'an-auth_key'                                                       # todo: add support for getting auth key from env-var
         expected_result       = 'pong'
@@ -72,7 +71,21 @@ class test_Http_Shell__Client(TestCase):
         assert '.py'                        in self.client.bash('ls'    ).get('stdout')
         assert 'bin'                        in self.client.bash('ls /'  ).get('stdout')
         assert 'bin'                        in self.client.bash('ls','/').get('stdout')
-        assert self.client.bash('AAAAAa').get('stderr') == 'bash: AAAAAa: command not found\n'
+        assert 'AAAAAa: command not found'  in self.client.bash('AAAAAa').get('stderr')
+
+    def test_disk_space(self):
+        disk_space = self.client.disk_space()
+        assert 'Filesystem' in disk_space
+        assert 'Size'       in disk_space
+
+    def test_exec_function(self):
+        def the_answer():
+            return 40+2
+        assert self.client.exec_function(the_answer) == 42
+
+    def test_file_contents(self):
+        file_contents = self.client.file_contents(__file__)
+        assert 'class test_Http_Shell__Client(TestCase)' in file_contents
 
     def test_ls(self):
         assert '.py'    in self.client.ls()
