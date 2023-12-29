@@ -7,10 +7,8 @@ from osbot_utils.utils.Files                        import path_combine
 from osbot_utils.utils.Misc                         import list_set
 from osbot_utils.decorators.lists.index_by          import index_by
 from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
-from starlette.testclient import TestClient
-
-from osbot_fast_api.api.routers.Router_Status import Router_Status
-#from osbot_fast_api.Fast_API_Utils import fastapi_routes
+from starlette.testclient                           import TestClient
+from osbot_fast_api.api.routes.Routes_Config        import Routes_Config
 
 from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 
@@ -20,6 +18,10 @@ class Fast_API:
     def __init__(self, enable_cors=False):
         self.enable_cors = enable_cors          # todo: refactor to config class
         self.fast_api_setup()
+
+    def add_routes(self, class_routes):
+        class_routes(self.app())
+        return self
 
     @cache_on_self
     def app(self):
@@ -41,7 +43,7 @@ class Fast_API:
         self.setup_middleware    ()        # todo: add support for only adding this when running in Localhost
         self.setup_default_routes()
         self.setup_static_routes ()
-        self.setup_routes        ()
+        self.setup_routes        (self.app())   # overwrite to add routes
         return self
 
     @index_by
@@ -54,17 +56,16 @@ class Fast_API:
     def routes_paths(self):
         return list_set(self.routes(index_by='http_path'))
 
-
     def setup_default_routes(self):
         self.setup_add_root_route()
+        self.add_routes(Routes_Config)
 
     def setup_add_root_route(self):
         def redirect_to_docs():
             return RedirectResponse(url="/docs")
         self.app_router().get("/")(redirect_to_docs)
 
-    def setup_routes(self):
-        Router_Status(self.app())
+    def setup_routes(self, app=None):                         # overwrite to add class
         return self
 
     def setup_static_routes(self):

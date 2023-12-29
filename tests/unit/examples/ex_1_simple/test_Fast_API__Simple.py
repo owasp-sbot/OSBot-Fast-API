@@ -1,12 +1,11 @@
-from unittest import TestCase
-
-from fastapi import FastAPI
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import folder_exists, folder_name, files_names, files_list, parent_folder
-
-from osbot_fast_api.api.Fast_API                          import Fast_API
-from osbot_fast_api.api.routers.Router_Status             import ROUTER_STATUS__ROUTES
-from osbot_fast_api.examples.ex_1_simple import static_files
+from unittest                                               import TestCase
+from fastapi                                                import FastAPI
+from osbot_fast_api.utils.Fast_API_Utils                    import ROUTE_REDIRECT_TO_DOCS
+from osbot_utils.utils.Dev                                  import pprint
+from osbot_utils.utils.Files                                import folder_exists, folder_name, files_names, files_list, parent_folder
+from osbot_fast_api.api.Fast_API                            import Fast_API
+from osbot_fast_api.api.routes.Routes_Config                import ROUTES__CONFIG
+from osbot_fast_api.examples.ex_1_simple                    import static_files
 from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, \
     EX_1_ROUTES
 
@@ -47,7 +46,7 @@ class test_Fast_API__Simple(TestCase):
 
     def test_routes(self):
         routes = self.fast_api.routes()
-        assert (routes == EX_1_ROUTES + ROUTER_STATUS__ROUTES)
+        assert (routes ==  [ROUTE_REDIRECT_TO_DOCS] + ROUTES__CONFIG + EX_1_ROUTES)
 
     def test_static_file(self):
         response = self.client.get('/static/aaa.txt')

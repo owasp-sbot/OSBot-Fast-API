@@ -1,16 +1,14 @@
 from unittest import TestCase
 
 from fastapi import FastAPI
-from osbot_utils.utils.Dev import pprint
-from starlette.testclient import TestClient
-
+from starlette.testclient                       import TestClient
 from osbot_fast_api.api.Fast_API                import Fast_API
-from osbot_fast_api.api.routers.Router_Status   import ROUTER_STATUS__ROUTES
+from osbot_fast_api.api.routes.Routes_Config    import ROUTES__CONFIG
 from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
 
 EXPECTED_ROUTES_METHODS = ['redirect_to_docs', 'status', 'version']
-EXPECTED_ROUTES_PATHS   = ['/', '/status/status', '/status/version']
+EXPECTED_ROUTES_PATHS   = ['/', '/config/status', '/config/version']
 
 class test_Fast_API(TestCase):
 
@@ -52,7 +50,7 @@ class test_Fast_API(TestCase):
         assert dict(response.headers) == {'content-length': '0', 'location': '/docs'}
 
     def test_routes(self):
-        expected_routes = FAST_API_DEFAULT_ROUTES + ROUTER_STATUS__ROUTES
+        expected_routes = FAST_API_DEFAULT_ROUTES + ROUTES__CONFIG
         routes          = self.fast_api.routes(include_default=True)
         assert routes == expected_routes
 
