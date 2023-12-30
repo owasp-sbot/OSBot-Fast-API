@@ -12,8 +12,7 @@ runs:
     steps:
       - name: Combine coverage data
         shell: bash
-        run: |
-            ls -la
+        run: |            
             coverage combine .coverage.unit .coverage.docker .coverage.integration
 
       - name: Print coverage report

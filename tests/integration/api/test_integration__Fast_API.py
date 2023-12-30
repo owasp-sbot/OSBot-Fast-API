@@ -26,6 +26,6 @@ class test_integration__Fast_API(TestCase):
 
 
     def test_version(self):
-        response = self.fast_api_server.requests_get('/status/version')
+        response = self.fast_api_server.requests_get('/config/version')
         assert response.status_code == 200
         assert response.json()      == {'version': Version().value() }

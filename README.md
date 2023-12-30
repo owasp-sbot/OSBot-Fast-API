@@ -1,2 +1,2 @@
 # OSBot-Fast-API
-OSBot helpers for FastAPI
+OSBot helpers for FastAPI..

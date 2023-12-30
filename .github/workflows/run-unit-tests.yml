@@ -19,6 +19,7 @@ jobs:
         uses: ./.github/actions/run-tests__unit
         with:
           package_name          : ${{ secrets.PACKAGE_NAME          }}
+          HTTP_SHELL__AUTH_KEY  : ${{ secrets.HTTP_SHELL__AUTH_KEY  }}
 
       # Tests - Integration
       - name: Run Tests - Integration
