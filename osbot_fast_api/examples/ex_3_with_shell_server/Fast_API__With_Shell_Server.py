@@ -9,5 +9,7 @@ class Fast_API__With_Shell_Server(Fast_API):
 
     def setup_routes(self):
         self.add_route_post(self.http_shell)
+        self.add_shell_server()
+
 
 

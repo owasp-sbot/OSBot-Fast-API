@@ -12,6 +12,7 @@ from osbot_utils.decorators.lists.index_by          import index_by
 from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
 from starlette.testclient                           import TestClient
 from osbot_fast_api.api.routes.Routes_Config        import Routes_Config
+from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
 
 from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 from osbot_fast_api.utils._extra_osbot_utils import list_minus_list
@@ -23,6 +24,11 @@ class Fast_API:
     def __init__(self, enable_cors=False):
         self.enable_cors = enable_cors          # todo: refactor to config class
         self.fast_api_setup()
+
+    def add_shell_server(self):
+        def shell_server(shell_command: Model__Shell_Command):
+            return Http_Shell__Server().invoke(shell_command)
+        self.add_route_post(shell_server)
 
     def add_route(self,function, methods):
         path = '/' + function.__name__.replace('_', '-')

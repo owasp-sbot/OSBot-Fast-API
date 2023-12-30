@@ -43,3 +43,8 @@ class test_Fast_API__With_Shell_Server__Live_Server(TestCase):
             return 40 + 2
         assert self.client.exec_function(the_answer) == 42
 
+    def test_add_shell_server(self):
+        server_endpoint = self.fast_api_server.url() + 'shell-server'
+        shell_client = Http_Shell__Client(server_endpoint=server_endpoint, auth_key=self.auth_key)
+        assert shell_client.ping() == 'pong'
+
