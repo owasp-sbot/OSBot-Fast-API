@@ -1,21 +1,17 @@
 import types
 
-import uvicorn
-from fastapi                                        import FastAPI
-from osbot_utils.utils.Dev import pprint
-from starlette.middleware.cors                      import CORSMiddleware
-from starlette.responses                            import RedirectResponse
-from starlette.staticfiles                          import StaticFiles
-from osbot_utils.utils.Files                        import path_combine
-from osbot_utils.utils.Misc import list_set, list_remove_list, obj_info
-from osbot_utils.decorators.lists.index_by          import index_by
-from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
-from starlette.testclient                           import TestClient
-from osbot_fast_api.api.routes.Routes_Config        import Routes_Config
-from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
-
-from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
-from osbot_fast_api.utils._extra_osbot_utils import list_minus_list
+from fastapi                                            import FastAPI
+from starlette.middleware.cors                          import CORSMiddleware
+from starlette.responses                                import RedirectResponse
+from starlette.staticfiles                              import StaticFiles
+from osbot_utils.utils.Misc                             import list_set
+from osbot_utils.decorators.lists.index_by              import index_by
+from osbot_utils.decorators.methods.cache_on_self       import cache_on_self
+from starlette.testclient                               import TestClient
+from osbot_fast_api.api.routes.Routes_Config            import Routes_Config
+from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
+from osbot_fast_api.utils.Fast_API_Utils                import Fast_API_Utils
+from osbot_fast_api.utils._extra_osbot_utils            import list_minus_list
 
 DEFAULT_ROUTES_PATHS = ['/', '/config/status', '/config/version']
 

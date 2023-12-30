@@ -1,5 +1,5 @@
-from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
+from osbot_fast_api.api.Fast_API                        import Fast_API
+from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
 
 
 class Fast_API__With_Shell_Server(Fast_API):

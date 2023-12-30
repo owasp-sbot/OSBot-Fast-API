@@ -1,7 +1,6 @@
 import requests
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Functions                             import function_source_code
-from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Model__Shell_Command, Model__Shell_Data
+from osbot_utils.utils.Functions                        import function_source_code
+from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Model__Shell_Data
 
 
 class Http_Shell__Client:

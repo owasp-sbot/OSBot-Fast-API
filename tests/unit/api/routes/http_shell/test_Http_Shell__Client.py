@@ -1,17 +1,14 @@
 import os
-from unittest import TestCase
-
 import requests
-from dotenv import load_dotenv
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import list_set
-from pydantic import BaseModel
-
-from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.routes.http_shell.Http_Shell__Client import Http_Shell__Client
-from osbot_fast_api.api.routes.http_shell.Http_Shell__Server import Http_Shell__Server, Model__Shell_Data, \
+from unittest                                           import TestCase
+from dotenv                                             import load_dotenv
+from osbot_utils.utils.Misc                             import list_set
+from osbot_fast_api.utils.Fast_API_Server               import Fast_API_Server
+from osbot_fast_api.api.Fast_API                        import Fast_API
+from osbot_fast_api.utils.http_shell.Http_Shell__Client import Http_Shell__Client
+from osbot_fast_api.utils.http_shell.Http_Shell__Server import Http_Shell__Server, Model__Shell_Data, \
     Model__Shell_Command, ENV__HTTP_SHELL_AUTH_KEY
-from osbot_fast_api.utils.Fast_API_Server import Fast_API_Server
+
 
 class test_Http_Shell__Client(TestCase):
     auth_key        : str
