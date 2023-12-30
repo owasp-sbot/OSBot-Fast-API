@@ -23,7 +23,7 @@ class test_Fast_API__With_Shell_Server(TestCase):
         response              = self.fast_api.client().post('/http-shell', json=shell_command_json).json()
         if response.get('status') == 'ok':
             return response.get('return_value')
-        return response
+        #return response
 
     def test_routes_paths(self):
         assert self.fast_api.routes_paths() == ['/http-shell', '/shell-server']

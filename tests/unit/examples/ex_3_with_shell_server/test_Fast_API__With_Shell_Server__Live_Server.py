@@ -37,6 +37,7 @@ class test_Fast_API__With_Shell_Server__Live_Server(TestCase):
     def test_exec__function(self):
         def the_answer():
             return 40 + 2
+        assert the_answer()                          == 42
         assert self.client.exec_function(the_answer) == 42
 
     def test_add_shell_server(self):

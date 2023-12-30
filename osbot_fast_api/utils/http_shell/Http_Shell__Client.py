@@ -1,12 +1,16 @@
+import os
+
 import requests
+from dotenv import load_dotenv
 from osbot_utils.utils.Functions                        import function_source_code
-from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Model__Shell_Data
+from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Model__Shell_Data, \
+    ENV__HTTP_SHELL_AUTH_KEY
 
 
 class Http_Shell__Client:
-    def __init__(self, server_endpoint, auth_key, return_value_if_ok=True):
+    def __init__(self, server_endpoint, auth_key=None, return_value_if_ok=True):
         self.server_endpoint    = server_endpoint
-        self.auth_key           = auth_key
+        self.auth_key           = auth_key or self.auth_key()
         self.return_value_if_ok = return_value_if_ok
 
     def _invoke(self, method_name, method_kwargs=None):
@@ -18,6 +22,10 @@ class Http_Shell__Client:
         if self.return_value_if_ok and response_json.get('status') == 'ok':
             return response_json.get('return_value')
         return response_json
+
+    def auth_key(self):
+        load_dotenv()
+        return os.environ.get(ENV__HTTP_SHELL_AUTH_KEY)
 
     def bash(self, command, cwd=None):
         result = self._invoke('bash', {'command': command, 'cwd': cwd})

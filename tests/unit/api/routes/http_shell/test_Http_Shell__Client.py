@@ -61,9 +61,11 @@ class test_Http_Shell__Client(TestCase):
                                                          'allow'          : 'POST'              ,
                                                          'content-length' : '31'                ,
                                                          'content-type'   : 'application/json'   }
-
         assert list_set(response_openapi.json().get('paths')) == self.fast_api.routes_paths(include_default=True)
 
+
+    def test_auth_key(self):
+        assert Http_Shell__Client(None).auth_key == os.environ.get(ENV__HTTP_SHELL_AUTH_KEY)
 
     # test methods
 
@@ -81,6 +83,7 @@ class test_Http_Shell__Client(TestCase):
     def test_exec_function(self):
         def the_answer():
             return 40+2
+        assert the_answer()                          == 42
         assert self.client.exec_function(the_answer) == 42
 
     def test_file_contents(self):
