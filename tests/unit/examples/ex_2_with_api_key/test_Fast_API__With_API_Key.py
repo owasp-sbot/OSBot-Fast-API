@@ -1,8 +1,5 @@
 from unittest import TestCase
 
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import obj_info
-
 from osbot_fast_api.examples.ex_2_with_api_key.Fast_API__With_API_Key import Fast_API__With_API_Key, \
     ROUTES_PATHS__WITH_API_KEY, EX_2_API_KEY_NAME, EX_2_API_KEY_VALUE
 

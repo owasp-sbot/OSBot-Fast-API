@@ -120,7 +120,7 @@ class Fast_API:
         data = self.app().user_middleware
         for item in data:
                 type_name = item.cls.__name__
-                options   = item.options
+                options   = item.kwargs
                 if isinstance(options.get('dispatch'),types.FunctionType):
                     function_name = options.get('dispatch').__name__
                     del options['dispatch']
