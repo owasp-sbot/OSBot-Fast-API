@@ -1,11 +1,13 @@
 from unittest import TestCase
 
 from fastapi import FastAPI
+from flask import Flask
 from starlette.testclient                       import TestClient
 from osbot_fast_api.api.Fast_API                import Fast_API
 from osbot_fast_api.api.routes.Routes_Config    import ROUTES__CONFIG
 from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
+from osbot_utils.utils.Dev import pprint
 
 EXPECTED_ROUTES_METHODS = ['redirect_to_docs', 'status', 'version']
 EXPECTED_ROUTES_PATHS   = ['/', '/config/status', '/config/version']
@@ -18,6 +20,19 @@ class test_Fast_API(TestCase):
 
     def test__init__(self):
         assert type(self.fast_api.app()) is FastAPI
+
+    def test_add_flask_app(self):
+        path      = '/flask-app'
+        flask_app = Flask(__name__)
+
+        @flask_app.route('/flask-route')
+        def hello_flask():
+            return "Hello from Flask!"
+
+        with self.fast_api as _:
+            _.add_flask_app(path, flask_app)
+            assert _.routes_paths() == ['/flask-app']
+            assert _.client().get('/flask-app/flask-route').text == 'Hello from Flask!'
 
     def test_app(self):
         app = self.fast_api.app()
