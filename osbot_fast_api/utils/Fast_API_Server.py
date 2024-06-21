@@ -19,6 +19,13 @@ class Fast_API_Server:
         self.server    : Server  = None
         self.thread    : Thread  = None
 
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
+
     def is_port_open(self):
         return is_port_open(host=FAST_API__HOST, port=self.port)
 
