@@ -12,9 +12,8 @@ repository  = "https://github.com/owasp-sbot/OSBot-Fast-API"
 python          = "^3.11"
 fastapi         = "*"
 osbot-utils     = "*"
-# uvicorn
-# requests
-# httpx
+uvicorn         = "*"
+requests        = "*"
 
 [build-system]
 requires        = ["poetry-core>=1.0.0"]
