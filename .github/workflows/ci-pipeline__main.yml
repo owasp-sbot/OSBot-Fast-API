@@ -7,7 +7,7 @@ on:
 env:
   GIT__BRANCH         : 'main'
   PACKAGE_NAME        : 'osbot_fast_api'
-  RELEASE_TYPE        : 'minor'
+  RELEASE_TYPE        : 'major'
 
 jobs:
 
