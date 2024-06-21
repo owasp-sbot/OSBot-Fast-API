@@ -10,7 +10,7 @@ from osbot_fast_api.utils.Fast_API_Utils      import ROUTE_REDIRECT_TO_DOCS
 class test_Fast_API_Utils(TestCase):
 
     def setUp(self):
-        self.fast_api       = Fast_API()
+        self.fast_api       = Fast_API().setup()
         self.fast_api_utils = self.fast_api.fast_api_utils()
 
     def test_fastapi_routes(self):

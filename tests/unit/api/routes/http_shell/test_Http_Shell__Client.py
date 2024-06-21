@@ -20,7 +20,7 @@ class test_Http_Shell__Client(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         load_dotenv()
-        cls.fast_api            = Fast_API()
+        cls.fast_api            = Fast_API().setup()
         cls.fast_api_server     = Fast_API_Server(app=cls.fast_api.app())
         cls.auth_key            = os.environ.get(ENV__HTTP_SHELL_AUTH_KEY)
         cls.server_endpoint     = cls.fast_api_server.url() + 'http-shell-server'

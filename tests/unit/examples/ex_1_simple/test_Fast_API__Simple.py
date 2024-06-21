@@ -14,7 +14,7 @@ class test_Fast_API__Simple(TestCase):
 
     def setUp(self):
         self.enable_cors = True
-        self.fast_api    = Fast_API__Simple(enable_cors=self.enable_cors)
+        self.fast_api    = Fast_API__Simple(enable_cors=self.enable_cors).setup()
         self.client       = self.fast_api.client()
 
     def test__init__(self):

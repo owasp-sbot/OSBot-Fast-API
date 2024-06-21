@@ -7,7 +7,7 @@ from osbot_fast_api.examples.ex_2_with_api_key.Fast_API__With_API_Key import Fas
 class test_Fast_API__With_API_Key(TestCase):
 
     def setUp(self):
-        self.fast_api = Fast_API__With_API_Key()
+        self.fast_api = Fast_API__With_API_Key().setup()
         self.client   = self.fast_api.client()
 
 

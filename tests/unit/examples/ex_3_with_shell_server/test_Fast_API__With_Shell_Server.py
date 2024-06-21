@@ -14,7 +14,7 @@ class test_Fast_API__With_Shell_Server(TestCase):
     def setUpClass(cls) -> None:
         load_dotenv()
         cls.auth_key = os.environ.get(ENV__HTTP_SHELL_AUTH_KEY)
-        cls.fast_api = Fast_API__With_Shell_Server()
+        cls.fast_api = Fast_API__With_Shell_Server().setup()
 
     def test__invoke_method(self, method_name='ping', method_kwargs=None):
         shell_data            = Model__Shell_Data   (method_name=method_name, method_kwargs = method_kwargs or {})
