@@ -1,0 +1,38 @@
+name       : CI Pipeline - DEV
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  GIT__BRANCH         : 'dev'
+  PACKAGE_NAME        : 'osbot_fast_api'
+
+jobs:
+
+  run-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Poetry - Install Dependencies
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__install@dev
+        with:
+          pip_install: '-r requirements-test.txt'
+
+      - name: Run Unit Tests (using Poetry)
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__run-unit-tests@dev
+
+
+  increment-tag:
+    name: Increment Tag - DEV
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Increment Tag (for DEV)
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/git__increment-tag@dev
+        with:
+          release_type : 'minor'
+    needs:
+      - run-unit-tests
+

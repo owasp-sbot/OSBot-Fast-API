@@ -1,0 +1,57 @@
+name       : CI Pipeline - MAIN
+on:
+  push:
+    branches:
+      - main
+
+env:
+  GIT__BRANCH         : 'main'
+  PACKAGE_NAME        : 'osbot_fast_api'
+  RELEASE_TYPE        : 'minor'
+
+jobs:
+
+  run-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Poetry - Install Dependencies
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__install@dev
+        with:
+          pip_install: '-r requirements-test.txt'
+
+      - name: Run Unit Tests (using Poetry)
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__run-unit-tests@dev
+
+  increment-tag:
+    name: Increment Tag - MAIN
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Increment Tag (for MAIN)
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/git__increment-tag@dev
+        with:
+          release_type : ${{ env.RELEASE_TYPE }}
+
+    needs:
+      - run-unit-tests
+
+  publish-to-pypi:
+    permissions:
+      id-token: write
+    name: "Publish to PYPI"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GIT_HUB__ACCESS_TOKEN }}
+
+      - name: Git Update Current Branch
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/git__update_branch@dev
+
+      - name: publish-to-pypi
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pypi__publish@dev
+    needs:
+      - increment-tag

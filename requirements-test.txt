@@ -1,0 +1,15 @@
+# for testing
+pytest
+coverage
+
+# for flask testing
+flask_testing
+blinker
+bs4
+
+# for playwright
+osbot-playwright
+playwright
+psutil
+
+
