@@ -1,7 +1,8 @@
 import types
 
 from fastapi                                            import FastAPI
-from osbot_utils.base_classes.Type_Safe import Type_Safe
+from starlette.middleware.wsgi                          import WSGIMiddleware
+from osbot_utils.base_classes.Type_Safe                 import Type_Safe
 from starlette.middleware.cors                          import CORSMiddleware
 from starlette.responses                                import RedirectResponse
 from starlette.staticfiles                              import StaticFiles
@@ -18,6 +19,10 @@ DEFAULT_ROUTES_PATHS = ['/', '/config/status', '/config/version']
 
 class Fast_API(Type_Safe):
     enable_cors : bool
+
+    def add_flask_app(self, path, flask_app):
+        self.app().mount(path, WSGIMiddleware(flask_app))
+        return self
 
     def add_shell_server(self):
         def shell_server(shell_command: Model__Shell_Command):
