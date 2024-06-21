@@ -13,7 +13,7 @@ EXPECTED_ROUTES_PATHS   = ['/', '/config/status', '/config/version']
 class test_Fast_API(TestCase):
 
     def setUp(self):
-        self.fast_api = Fast_API()
+        self.fast_api = Fast_API().setup()
         self.client   = self.fast_api.client()
 
     def test__init__(self):

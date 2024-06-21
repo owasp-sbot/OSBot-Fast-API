@@ -1,6 +1,8 @@
 import types
 
 from fastapi                                            import FastAPI
+from starlette.middleware.wsgi                          import WSGIMiddleware
+from osbot_utils.base_classes.Type_Safe                 import Type_Safe
 from starlette.middleware.cors                          import CORSMiddleware
 from starlette.responses                                import RedirectResponse
 from starlette.staticfiles                              import StaticFiles
@@ -15,11 +17,12 @@ from osbot_fast_api.utils._extra_osbot_utils            import list_minus_list
 
 DEFAULT_ROUTES_PATHS = ['/', '/config/status', '/config/version']
 
-class Fast_API:
+class Fast_API(Type_Safe):
+    enable_cors : bool
 
-    def __init__(self, enable_cors=False):
-        self.enable_cors = enable_cors          # todo: refactor to config class
-        self.fast_api_setup()
+    def add_flask_app(self, path, flask_app):
+        self.app().mount(path, WSGIMiddleware(flask_app))
+        return self
 
     def add_shell_server(self):
         def shell_server(shell_command: Model__Shell_Command):
@@ -57,8 +60,7 @@ class Fast_API:
     def path_static_folder(self):        # override this to add support for serving static files from this directory
         return None
 
-    def fast_api_setup(self):
-        self.setup                    ()        # overwrite to add routes
+    def setup(self):
         self.setup_middlewares        ()        # overwrite to add middlewares
         self.setup_default_middlewares()
         self.setup_default_routes     ()
@@ -80,7 +82,6 @@ class Fast_API:
             return paths
         return list_minus_list(list_a=paths, list_b=DEFAULT_ROUTES_PATHS)
 
-    def setup            (self): return self     # overwrite for further setup
     def setup_middlewares(self): return self     # overwrite to add middlewares
     def setup_routes     (self): return self     # overwrite to add rules
 
@@ -120,7 +121,7 @@ class Fast_API:
         data = self.app().user_middleware
         for item in data:
                 type_name = item.cls.__name__
-                options   = item.options
+                options   = item.kwargs
                 if isinstance(options.get('dispatch'),types.FunctionType):
                     function_name = options.get('dispatch').__name__
                     del options['dispatch']

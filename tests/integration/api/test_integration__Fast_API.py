@@ -14,7 +14,7 @@ class test_integration__Fast_API(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.fast_api        = Fast_API()
+        cls.fast_api        = Fast_API().setup()
         cls.fast_api_server = Fast_API_Server(app=cls.fast_api.app())
         cls.fast_api_server.start()
         assert cls.fast_api_server.is_port_open() is True

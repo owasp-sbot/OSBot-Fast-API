@@ -1,10 +1,7 @@
 import os
 from unittest import TestCase
 from unittest.mock import patch
-
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import parent_folder
-from osbot_utils.utils.Misc import obj_info
 
 import osbot_fast_api
 from osbot_fast_api.utils.Version import Version

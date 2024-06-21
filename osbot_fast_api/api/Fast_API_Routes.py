@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from osbot_utils.decorators.lists.index_by import index_by
 
-from osbot_utils.utils.Misc import lower, obj_info
+from osbot_utils.utils.Misc import lower
 
 from osbot_utils.utils.Str import str_safe
 

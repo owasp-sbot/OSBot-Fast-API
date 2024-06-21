@@ -2,8 +2,6 @@ from threading import Thread
 from unittest import TestCase
 
 from fastapi import FastAPI
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import obj_info
 from uvicorn import Config, Server
 
 from osbot_fast_api.utils.Fast_API_Server import Fast_API_Server, FAST_API__LOG_LEVEL, FAST_API__HOST
