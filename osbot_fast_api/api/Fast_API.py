@@ -1,7 +1,8 @@
 import types
 
 from fastapi                                            import FastAPI
-from starlette.middleware.wsgi                          import WSGIMiddleware
+from starlette.middleware.wsgi                          import WSGIMiddleware       # todo replace this with a2wsgi
+from osbot_fast_api.utils.Version                       import Version
 from osbot_utils.base_classes.Type_Safe                 import Type_Safe
 from starlette.middleware.cors                          import CORSMiddleware
 from starlette.responses                                import RedirectResponse
@@ -132,6 +133,9 @@ class Fast_API(Type_Safe):
                                'params'       : options       }
                 middlewares.append(middleware)
         return middlewares
+
+    def version__fast_api_server(self):
+        return Version().value()
 
     # def run_in_lambda(self):
     #     lambda_host = '127.0.0.1'

@@ -1,7 +1,6 @@
-import threading
-from urllib.parse import urljoin
-
 import requests
+import threading
+from urllib.parse           import urljoin
 from threading              import Thread
 from fastapi                import FastAPI
 from osbot_utils.utils.Http import wait_for_port, wait_for_port_closed, is_port_open

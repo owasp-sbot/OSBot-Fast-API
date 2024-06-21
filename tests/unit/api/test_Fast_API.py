@@ -22,9 +22,17 @@ class test_Fast_API(TestCase):
         assert type(self.fast_api.app()) is FastAPI
 
     def test_add_flask_app(self):
-        #flask_app = Flask()
+        path      = '/flask-app'
+        flask_app = Flask(__name__)
+
+        @flask_app.route('/flask-route')
+        def hello_flask():
+            return "Hello from Flask!"
+
         with self.fast_api as _:
-            pprint(_.routes_paths())
+            _.add_flask_app(path, flask_app)
+            assert _.routes_paths() == ['/flask-app']
+            assert _.client().get('/flask-app/flask-route').text == 'Hello from Flask!'
 
     def test_app(self):
         app = self.fast_api.app()
