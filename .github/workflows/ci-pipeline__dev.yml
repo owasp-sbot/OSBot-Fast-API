@@ -23,7 +23,7 @@ jobs:
       - name: Run Unit Tests (using Poetry)
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__run-unit-tests@dev
         env:
-          ENV__HTTP_SHELL_AUTH_KEY : ${{ secrets.HTTP_SHELL__AUTH_KEY }}
+          HTTP_SHELL__AUTH_KEY : ${{ secrets.HTTP_SHELL__AUTH_KEY }}
 
 
   increment-tag:
