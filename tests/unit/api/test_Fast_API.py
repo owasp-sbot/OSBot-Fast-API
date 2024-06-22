@@ -11,6 +11,7 @@ from osbot_utils.utils.Dev import pprint
 
 EXPECTED_ROUTES_METHODS = ['redirect_to_docs', 'status', 'version']
 EXPECTED_ROUTES_PATHS   = ['/', '/config/status', '/config/version']
+EXPECTED_DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
 
 class test_Fast_API(TestCase):
 
@@ -31,7 +32,7 @@ class test_Fast_API(TestCase):
 
         with self.fast_api as _:
             _.add_flask_app(path, flask_app)
-            assert _.routes_paths() == ['/flask-app']
+            assert _.routes_paths(expand_mounts=True) == EXPECTED_ROUTES_PATHS + ['/flask-app']
             assert _.client().get('/flask-app/flask-route').text == 'Hello from Flask!'
 
     def test_app(self):
@@ -74,9 +75,9 @@ class test_Fast_API(TestCase):
         assert routes_methods == EXPECTED_ROUTES_METHODS
 
     def test_routes_paths(self):
-        assert self.fast_api.routes_paths(                     ) == []
-        assert self.fast_api.routes_paths(include_default=False) == []
-        assert self.fast_api.routes_paths(include_default=True ) == EXPECTED_ROUTES_PATHS
+        assert self.fast_api.routes_paths(                     ) == EXPECTED_ROUTES_PATHS
+        assert self.fast_api.routes_paths(include_default=False) == EXPECTED_ROUTES_PATHS
+        assert self.fast_api.routes_paths(include_default=True ) == EXPECTED_ROUTES_PATHS + EXPECTED_DEFAULT_ROUTES
 
     def test_setup_routes(self):
         assert self.fast_api.setup_routes() == self.fast_api

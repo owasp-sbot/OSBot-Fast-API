@@ -7,6 +7,8 @@ from osbot_utils.base_classes.Type_Safe                 import Type_Safe
 from starlette.middleware.cors                          import CORSMiddleware
 from starlette.responses                                import RedirectResponse
 from starlette.staticfiles                              import StaticFiles
+
+from osbot_utils.utils.Lists import list_index_by
 from osbot_utils.utils.Misc                             import list_set
 from osbot_utils.decorators.lists.index_by              import index_by
 from osbot_utils.decorators.methods.cache_on_self       import cache_on_self
@@ -14,7 +16,6 @@ from starlette.testclient                               import TestClient
 from osbot_fast_api.api.routes.Routes_Config            import Routes_Config
 from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
 from osbot_fast_api.utils.Fast_API_Utils                import Fast_API_Utils
-from osbot_fast_api.utils._extra_osbot_utils            import list_minus_list
 
 DEFAULT_ROUTES_PATHS = ['/', '/config/status', '/config/version']
 
@@ -70,18 +71,20 @@ class Fast_API(Type_Safe):
         return self
 
     @index_by
-    def routes(self, include_default=False):
-        return self.fast_api_utils().fastapi_routes(include_default=include_default)
+    def routes(self, include_default=False, expand_mounts=False):
+        return self.fast_api_utils().fastapi_routes(include_default=include_default, expand_mounts=expand_mounts)
 
     def routes_methods(self):
         return list_set(self.routes(index_by='method_name'))
 
 
-    def routes_paths(self, include_default=False):
-        paths = list_set(self.routes(index_by='http_path'))
-        if include_default:
-            return paths
-        return list_minus_list(list_a=paths, list_b=DEFAULT_ROUTES_PATHS)
+    def routes_paths(self, include_default=False, expand_mounts=False):
+        routes_paths = self.routes(include_default=include_default, expand_mounts=expand_mounts)
+        return list_set(list_index_by(routes_paths, 'http_path'))
+        # paths = list_set(self.routes(index_by='http_path'))
+        # if include_default:
+        #     return paths
+        # return list_minus_list(list_a=paths, list_b=DEFAULT_ROUTES_PATHS)
 
     def setup_middlewares(self): return self     # overwrite to add middlewares
     def setup_routes     (self): return self     # overwrite to add rules

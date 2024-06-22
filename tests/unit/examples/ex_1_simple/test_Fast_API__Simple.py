@@ -8,6 +8,7 @@ from osbot_fast_api.api.routes.Routes_Config                import ROUTES__CONFI
 from osbot_fast_api.examples.ex_1_simple                    import static_files
 from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple   import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, \
     EX_1_ROUTES
+from tests.unit.api.test_Fast_API import EXPECTED_ROUTES_PATHS
 
 
 class test_Fast_API__Simple(TestCase):
@@ -59,7 +60,7 @@ class test_Fast_API__Simple(TestCase):
         assert (routes ==  [ROUTE_REDIRECT_TO_DOCS] + ROUTES__CONFIG + EX_1_ROUTES)
 
     def test_routes_paths(self):
-        assert self.fast_api.routes_paths() == ['/an-post', '/static']
+        assert self.fast_api.routes_paths(expand_mounts=True) == sorted(EXPECTED_ROUTES_PATHS + ['/an-post', '/static'])
 
     def test_static_file(self):
         response = self.client.get('/static/aaa.txt')
