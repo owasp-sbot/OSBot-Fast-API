@@ -9,9 +9,7 @@ ROUTES__CONFIG = [{ 'http_methods': ['GET'], 'http_path': '/config/status' , 'me
 ROUTES_PATHS__CONFIG = ['/config/status', '/config/version']
 
 class Routes_Config(Fast_API_Routes):
-
-    def __init__(self, app):
-        super().__init__(app, tag='config')
+    tag : str = 'config'
 
     def status(self):
         return {'status':'ok'}

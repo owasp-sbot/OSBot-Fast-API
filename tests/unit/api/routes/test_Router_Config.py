@@ -10,7 +10,7 @@ class test_Routes_Config(TestCase):
 
     def setUp(self):
         self.app           = FastAPI()
-        self.routes_config = Routes_Config(app=self.app)
+        self.routes_config = Routes_Config(app=self.app).setup()
         self.client        = TestClient(self.app)
 
     def test__init__(self):

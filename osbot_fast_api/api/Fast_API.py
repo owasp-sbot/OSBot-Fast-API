@@ -43,7 +43,7 @@ class Fast_API(Type_Safe):
         return self.add_route(function=function, methods=['POST'])
 
     def add_routes(self, class_routes):
-        class_routes(self.app())
+        class_routes(app=self.app()).setup()
         return self
 
     @cache_on_self
