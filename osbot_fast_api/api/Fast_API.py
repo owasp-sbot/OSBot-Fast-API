@@ -47,8 +47,8 @@ class Fast_API(Type_Safe):
         return self
 
     @cache_on_self
-    def app(self):
-        return FastAPI()
+    def app(self, **kwargs):
+        return FastAPI(**kwargs)
 
     def app_router(self):
         return self.app().router
