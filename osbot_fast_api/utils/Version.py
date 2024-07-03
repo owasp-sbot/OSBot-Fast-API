@@ -17,3 +17,5 @@ class Version:
     def value(self):
         version = file_contents(self.path_version_file()) or ""
         return version.strip()
+
+version__osbot_fast_api = Version().value()
