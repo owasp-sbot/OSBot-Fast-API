@@ -71,7 +71,7 @@ class test_Http_Shell__Client(TestCase):
     # test methods
 
     def test_bash(self):
-        assert '.py'                        in self.client.bash('ls'    )
+        assert 'unit'                       in self.client.bash('ls'    )
         assert 'bin'                        in self.client.bash('ls /'  )
         assert 'bin'                        in self.client.bash('ls','/')
         assert 'AAAAAa: command not found'  in self.client.bash('AAAAAa').get('stderr')
@@ -95,7 +95,7 @@ class test_Http_Shell__Client(TestCase):
         assert 'PID' in self.client.list_processes()
 
     def test_ls(self):
-        assert '.py'    in self.client.ls()
+        assert 'unit'   in self.client.ls()
         assert 'bin'    in self.client.ls('/')
         assert 'bin'    in self.client.ls('' , '/')
         assert 'bash'   in self.client.ls('bin', '/')

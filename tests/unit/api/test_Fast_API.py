@@ -3,7 +3,7 @@ from unittest import TestCase
 from fastapi import FastAPI
 from flask import Flask
 from starlette.testclient                       import TestClient
-from osbot_fast_api.api.Fast_API                import Fast_API
+from osbot_fast_api.api.Fast_API import Fast_API, DEFAULT__NAME__FAST_API
 from osbot_fast_api.api.routes.Routes_Config    import ROUTES__CONFIG
 from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
@@ -83,4 +83,6 @@ class test_Fast_API(TestCase):
         assert self.fast_api.setup_routes() == self.fast_api
 
     def test_user_middleware(self):
-        assert self.fast_api.user_middlewares() == []
+        assert self.fast_api.user_middlewares() == [{'function_name': None                              ,
+                                                     'params'       : {'name': DEFAULT__NAME__FAST_API },
+                                                     'type'         : 'Fast_API__Request_Intercept'    }]

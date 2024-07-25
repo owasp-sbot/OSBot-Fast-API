@@ -2,6 +2,8 @@ import types
 
 from fastapi                                            import FastAPI
 from starlette.middleware.wsgi                          import WSGIMiddleware       # todo replace this with a2wsgi
+
+from osbot_fast_api.api.middlewares.Fast_API__Request_Intercept import Fast_API__Request_Intercept
 from osbot_fast_api.utils.Version                       import Version
 from osbot_utils.base_classes.Type_Safe                 import Type_Safe
 from starlette.middleware.cors                          import CORSMiddleware
@@ -17,7 +19,8 @@ from osbot_fast_api.api.routes.Routes_Config            import Routes_Config
 from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
 from osbot_fast_api.utils.Fast_API_Utils                import Fast_API_Utils
 
-DEFAULT_ROUTES_PATHS = ['/', '/config/status', '/config/version']
+DEFAULT_ROUTES_PATHS    = ['/', '/config/status', '/config/version']
+DEFAULT__NAME__FAST_API = 'Fast_API'
 
 class Fast_API(Type_Safe):
     enable_cors : bool
@@ -30,6 +33,11 @@ class Fast_API(Type_Safe):
         def shell_server(shell_command: Model__Shell_Command):
             return Http_Shell__Server().invoke(shell_command)
         self.add_route_post(shell_server)
+
+    def add_request_interceptor(self, name=None):
+        kwargs = dict(name=(name or DEFAULT__NAME__FAST_API))
+        self.app().add_middleware(Fast_API__Request_Intercept, **kwargs)
+        return self
 
     def add_route(self,function, methods):
         path = '/' + function.__name__.replace('_', '-')
@@ -86,7 +94,10 @@ class Fast_API(Type_Safe):
         #     return paths
         # return list_minus_list(list_a=paths, list_b=DEFAULT_ROUTES_PATHS)
 
-    def setup_middlewares(self): return self     # overwrite to add middlewares
+    def setup_middlewares(self):                 # overwrite to add more middlewares
+        self.add_request_interceptor()
+        return self
+
     def setup_routes     (self): return self     # overwrite to add rules
 
 
