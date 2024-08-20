@@ -50,18 +50,19 @@ class test_Http_Shell__Client(TestCase):
         response_shell_invoke = self.fast_api.client().post('/http-shell-server', json=shell_command_json)
         response_options      = requests.options(self.server_endpoint)
         options_headers       = response_options.headers
-
+        fast_api_request_id   = options_headers.get('fast-api-request-id')
         del options_headers['date']
 
         assert response_shell_invoke.json()         == expected_result
         assert self.fast_api.routes_paths()         == ['/', '/config/status', '/config/version', '/http-shell-server']
         assert self.fast_api_server.port            >  19999
         assert self.fast_api_server.is_port_open()  is True
-        assert response_options.json()              == { "detail"         : "Method Not Allowed" }
-        assert options_headers                      == { 'server'         : 'uvicorn'           ,
-                                                         'allow'          : 'POST'              ,
-                                                         'content-length' : '31'                ,
-                                                         'content-type'   : 'application/json'   }
+        assert response_options.json()              == { "detail"             : "Method Not Allowed" }
+        assert options_headers                      == { 'server'             : 'uvicorn'            ,
+                                                         'allow'              : 'POST'               ,
+                                                         'content-length'     : '31'                 ,
+                                                         'content-type'       : 'application/json'   ,
+                                                         'fast-api-request-id': fast_api_request_id  }
         assert list_set(response_openapi.json().get('paths')) == self.fast_api.routes_paths(include_default=False)
 
 

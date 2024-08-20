@@ -17,6 +17,7 @@ class test_Fast_API__Simple(TestCase):
         self.enable_cors = True
         self.fast_api    = Fast_API__Simple(enable_cors=self.enable_cors).setup()
         self.client       = self.fast_api.client()
+        self.fast_api.http_events.add_header_request_id = False
 
     def test__init__(self):
         assert isinstance(self.fast_api, Fast_API__Simple)
@@ -47,7 +48,8 @@ class test_Fast_API__Simple(TestCase):
         response = self.client.get('/docs')
         assert response.status_code == 200
         assert '<title>FastAPI - Swagger UI</title>' in response.text
-        assert dict(response.headers) == {'content-length': '939', 'content-type': 'text/html; charset=utf-8'}
+        assert dict(response.headers) == {'content-length': '931', 'content-type': 'text/html; charset=utf-8'}
+
 
     def test_route__root(self):
         response = self.client.get('/', follow_redirects=False)
@@ -73,9 +75,9 @@ class test_Fast_API__Simple(TestCase):
     def test_user_middleware(self):
         middlewares = self.fast_api.user_middlewares()
         middleware_1  = middlewares[0]
-        middleware_2 = middlewares [1]
+        middleware_2  = middlewares[1]
 
-        assert len(middlewares)  == 2
+        assert len(middlewares)  == 4
         assert middleware_1      == {'function_name': None                                      ,
                                      'params'       : { 'allow_credentials': True               ,
                                                         'allow_headers': ['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'],
@@ -83,9 +85,10 @@ class test_Fast_API__Simple(TestCase):
                                                         'allow_origins': ['*'                  ],
                                                         'expose_headers': ['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization']},
                                      'type'          : 'CORSMiddleware'                         }
-        assert middleware_2      == { 'function_name': None                                     ,
-                                      'params'       : {'name': DEFAULT__NAME__FAST_API         },
-                                      'type'         : 'Fast_API__Request_Intercept'            }
+        assert middleware_2      == { 'function_name': None                                       ,
+                                      'params'       : {'http_events': self.fast_api.http_events },
+                                      'type'         : 'Middleware__Http_Request'                }
+
 
 
 
@@ -94,4 +97,4 @@ class test_Fast_API__Simple(TestCase):
     def test_bug___CORS_headers_are_not_showing_in_headers(self):
         assert self.enable_cors is True
         response = self.client.get('/docs')
-        assert dict(response.headers) == {'content-length': '939', 'content-type': 'text/html; charset=utf-8'} # bug: the cors heaaders should show here
+        assert dict(response.headers) == {'content-length': '931', 'content-type': 'text/html; charset=utf-8'} # bug: the cors heaaders should show here

@@ -1,6 +1,5 @@
 from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
-from osbot_fast_api.utils.Version import Version
-
+from osbot_fast_api.utils.Version import Version, version__osbot_fast_api
 
 # todo fix bug that is causing the route to be added multiple times
 ROUTES__CONFIG = [{ 'http_methods': ['GET'], 'http_path': '/config/status' , 'method_name': 'status' },
@@ -15,7 +14,7 @@ class Routes_Config(Fast_API_Routes):
         return {'status':'ok'}
 
     def version(self):
-        return {'version': Version().value()}
+        return {'version': version__osbot_fast_api}
 
     def setup_routes(self):
         self.router.get("/status" )(self.status )

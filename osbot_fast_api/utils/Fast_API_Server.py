@@ -18,6 +18,7 @@ class Fast_API_Server:
         self.config    : Config  = Config(app=self.app, host=FAST_API__HOST, port=self.port, log_level=self.log_level)
         self.server    : Server  = None
         self.thread    : Thread  = None
+        self.running   : bool    = False
 
     def __enter__(self):
         self.start()
@@ -38,12 +39,15 @@ class Fast_API_Server:
         self.thread = threading.Thread(target=run)
         self.thread.start()
         wait_for_port(host=FAST_API__HOST, port=self.port)
+        self.running = True
         return True
 
     def stop(self):
         self.server.should_exit = True
         self.thread.join()
-        return wait_for_port_closed(host=FAST_API__HOST, port=self.port)
+        result = wait_for_port_closed(host=FAST_API__HOST, port=self.port)
+        self.running = False
+        return result
 
     def requests_get(self, path=''):
         url = urljoin(self.url(), path)

@@ -1,29 +1,42 @@
 import types
 
-from fastapi                                            import FastAPI
-from starlette.middleware.wsgi                          import WSGIMiddleware       # todo replace this with a2wsgi
+from fastapi                                                                import FastAPI
+from starlette.middleware.wsgi                                              import WSGIMiddleware       # todo replace this with a2wsgi
 
-from osbot_fast_api.api.middlewares.Fast_API__Request_Intercept import Fast_API__Request_Intercept
-from osbot_fast_api.utils.Version                       import Version
-from osbot_utils.base_classes.Type_Safe                 import Type_Safe
-from starlette.middleware.cors                          import CORSMiddleware
-from starlette.responses                                import RedirectResponse
-from starlette.staticfiles                              import StaticFiles
+from osbot_fast_api.api.Fast_API__Http_Events import Fast_API__Http_Events
+from osbot_fast_api.api.middlewares.Middleware__Http_Request                import Middleware__Http_Request
+from osbot_fast_api.api.middlewares.Middleware__Http_Request__Duration      import Middleware__Http_Request__Duration
+from osbot_fast_api.api.middlewares.Middleware__Http_Request__Trace_Calls   import Middleware__Http_Request__Trace_Calls
+from osbot_fast_api.utils.Version                                           import Version
+from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
+from starlette.middleware.cors                                              import CORSMiddleware
+from starlette.responses                                                    import RedirectResponse
+from starlette.staticfiles                                                  import StaticFiles
 
-from osbot_utils.utils.Lists import list_index_by
-from osbot_utils.utils.Misc                             import list_set
-from osbot_utils.decorators.lists.index_by              import index_by
-from osbot_utils.decorators.methods.cache_on_self       import cache_on_self
-from starlette.testclient                               import TestClient
-from osbot_fast_api.api.routes.Routes_Config            import Routes_Config
-from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
-from osbot_fast_api.utils.Fast_API_Utils                import Fast_API_Utils
+from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Lists                                                import list_index_by
+from osbot_utils.utils.Misc                                                 import list_set
+from osbot_utils.decorators.lists.index_by                                  import index_by
+from osbot_utils.decorators.methods.cache_on_self                           import cache_on_self
+from starlette.testclient                                                   import TestClient
+from osbot_fast_api.api.routes.Routes_Config                                import Routes_Config
+from osbot_fast_api.utils.http_shell.Http_Shell__Server                     import Model__Shell_Command, Http_Shell__Server
+from osbot_fast_api.utils.Fast_API_Utils                                    import Fast_API_Utils
+from osbot_utils.utils.Objects import obj_info
 
 DEFAULT_ROUTES_PATHS    = ['/', '/config/status', '/config/version']
 DEFAULT__NAME__FAST_API = 'Fast_API'
 
 class Fast_API(Type_Safe):
-    enable_cors : bool
+    base_path    : str  = '/'
+    enable_cors  : bool = False
+    name         : str  = None
+    http_events  : Fast_API__Http_Events
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.name                      = self.__class__.__name__
+        self.http_events.fast_api_name = self.name
 
     def add_flask_app(self, path, flask_app):
         self.app().mount(path, WSGIMiddleware(flask_app))
@@ -33,11 +46,6 @@ class Fast_API(Type_Safe):
         def shell_server(shell_command: Model__Shell_Command):
             return Http_Shell__Server().invoke(shell_command)
         self.add_route_post(shell_server)
-
-    def add_request_interceptor(self, name=None):
-        kwargs = dict(name=(name or DEFAULT__NAME__FAST_API))
-        self.app().add_middleware(Fast_API__Request_Intercept, **kwargs)
-        return self
 
     def add_route(self,function, methods):
         path = '/' + function.__name__.replace('_', '-')
@@ -70,9 +78,11 @@ class Fast_API(Type_Safe):
     def path_static_folder(self):        # override this to add support for serving static files from this directory
         return None
 
+    def mount(self, parent_app):
+        parent_app.mount(self.base_path, self.app())
+
     def setup(self):
         self.setup_middlewares        ()        # overwrite to add middlewares
-        self.setup_default_middlewares()
         self.setup_default_routes     ()
         self.setup_static_routes      ()
         self.setup_routes             ()        # overwrite to add routes
@@ -81,6 +91,14 @@ class Fast_API(Type_Safe):
     @index_by
     def routes(self, include_default=False, expand_mounts=False):
         return self.fast_api_utils().fastapi_routes(include_default=include_default, expand_mounts=expand_mounts)
+
+    def route_remove(self, path):
+        for route in self.app().routes:
+            if getattr(route, 'path', '') == path:
+                self.app().routes.remove(route)
+                print(f'removed route: {path} : {route}')
+                return True
+        return False
 
     def routes_methods(self):
         return list_set(self.routes(index_by='method_name'))
@@ -95,7 +113,9 @@ class Fast_API(Type_Safe):
         # return list_minus_list(list_a=paths, list_b=DEFAULT_ROUTES_PATHS)
 
     def setup_middlewares(self):                 # overwrite to add more middlewares
-        self.add_request_interceptor()
+        self.setup_middleware__http_events()
+        if self.enable_cors:
+            self.setup_middleware__cors()
         return self
 
     def setup_routes     (self): return self     # overwrite to add rules
@@ -118,10 +138,6 @@ class Fast_API(Type_Safe):
             path_name          = "static"
             self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
 
-    def setup_default_middlewares(self):
-        if self.enable_cors:
-            self.setup_middleware__cors()
-
     def setup_middleware__cors(self):               # todo: double check that this is working see bug test
         self.app().add_middleware(CORSMiddleware,
                                   allow_origins     = ["*"]                         ,
@@ -130,6 +146,12 @@ class Fast_API(Type_Safe):
                                   allow_headers     = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"],
                                   expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
 
+    def setup_middleware__http_events(self, ):
+        # note the invocation order is the reverse of the order they are added
+        self.app().add_middleware(Middleware__Http_Request__Trace_Calls, http_events=self.http_events)
+        self.app().add_middleware(Middleware__Http_Request__Duration   , http_events=self.http_events)
+        self.app().add_middleware(Middleware__Http_Request             , http_events=self.http_events)
+        return self
 
     def user_middlewares(self):
         middlewares = []

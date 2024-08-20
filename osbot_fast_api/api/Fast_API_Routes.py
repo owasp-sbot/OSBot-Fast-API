@@ -13,7 +13,7 @@ from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 
 class Fast_API_Routes(Type_Safe):
     router : APIRouter
-    app    : FastAPI
+    app    : FastAPI = None
     prefix : str
     tag    : str
 

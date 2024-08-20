@@ -3,11 +3,12 @@ from unittest import TestCase
 from fastapi import FastAPI
 from flask import Flask
 from starlette.testclient                       import TestClient
-from osbot_fast_api.api.Fast_API import Fast_API, DEFAULT__NAME__FAST_API
+from osbot_fast_api.api.Fast_API                import Fast_API, DEFAULT__NAME__FAST_API
 from osbot_fast_api.api.routes.Routes_Config    import ROUTES__CONFIG
 from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
 from osbot_utils.utils.Dev import pprint
+from tests.unit.fast_api__for_tests import fast_api, fast_api_client
 
 EXPECTED_ROUTES_METHODS = ['redirect_to_docs', 'status', 'version']
 EXPECTED_ROUTES_PATHS   = ['/', '/config/status', '/config/version']
@@ -16,8 +17,8 @@ EXPECTED_DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/
 class test_Fast_API(TestCase):
 
     def setUp(self):
-        self.fast_api = Fast_API().setup()
-        self.client   = self.fast_api.client()
+        self.fast_api = fast_api        #Fast_API().setup()
+        self.client   = fast_api_client # self.fast_api.client()
 
     def test__init__(self):
         assert type(self.fast_api.app()) is FastAPI
@@ -34,6 +35,9 @@ class test_Fast_API(TestCase):
             _.add_flask_app(path, flask_app)
             assert _.routes_paths(expand_mounts=True) == EXPECTED_ROUTES_PATHS + ['/flask-app']
             assert _.client().get('/flask-app/flask-route').text == 'Hello from Flask!'
+            assert _.route_remove('/flask-app') is True
+            assert _.route_remove('/flask-app') is False
+            assert _.routes_paths(expand_mounts=True) == EXPECTED_ROUTES_PATHS
 
     def test_app(self):
         app = self.fast_api.app()
@@ -63,7 +67,8 @@ class test_Fast_API(TestCase):
         response = self.client.get('/', follow_redirects=False)
         assert response.status_code == 307
         assert response.headers.get('location') == '/docs'
-        assert dict(response.headers) == {'content-length': '0', 'location': '/docs'}
+        fast_api_request_id = response.headers.get('fast-api-request-id')
+        assert dict(response.headers) == {'content-length': '0', 'location': '/docs', 'fast-api-request-id': fast_api_request_id}
 
     def test_routes(self):
         expected_routes = FAST_API_DEFAULT_ROUTES + ROUTES__CONFIG
@@ -83,6 +88,8 @@ class test_Fast_API(TestCase):
         assert self.fast_api.setup_routes() == self.fast_api
 
     def test_user_middleware(self):
-        assert self.fast_api.user_middlewares() == [{'function_name': None                              ,
-                                                     'params'       : {'name': DEFAULT__NAME__FAST_API },
-                                                     'type'         : 'Fast_API__Request_Intercept'    }]
+        http_events = self.fast_api.http_events
+        params = {'http_events' : http_events}
+        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': params, 'type': 'Middleware__Http_Request'             },
+                                                    {'function_name': None, 'params': params, 'type': 'Middleware__Http_Request__Duration'   },
+                                                    {'function_name': None, 'params': params, 'type': 'Middleware__Http_Request__Trace_Calls'}]
