@@ -1,7 +1,6 @@
 import os
-
 import requests
-from dotenv import load_dotenv
+from osbot_utils.utils.Env import                       load_dotenv
 from osbot_utils.utils.Functions                        import function_source_code
 from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Model__Shell_Data, \
     ENV__HTTP_SHELL_AUTH_KEY

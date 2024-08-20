@@ -1,8 +1,9 @@
 import os
 import requests
 from unittest                                           import TestCase
-from dotenv                                             import load_dotenv
-from osbot_utils.utils.Misc import list_set, random_guid
+
+from osbot_utils.utils.Env import load_dotenv
+from osbot_utils.utils.Misc                             import list_set
 from osbot_fast_api.utils.Fast_API_Server               import Fast_API_Server
 from osbot_fast_api.api.Fast_API                        import Fast_API
 from osbot_fast_api.utils.http_shell.Http_Shell__Client import Http_Shell__Client

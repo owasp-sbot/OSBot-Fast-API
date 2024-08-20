@@ -1,10 +1,10 @@
 import os
 from unittest                                                                   import TestCase
-from dotenv                                                                     import load_dotenv
 from osbot_fast_api.api.Fast_API                                                import Fast_API
 from osbot_fast_api.utils.http_shell.Http_Shell__Server                         import Model__Shell_Data, ENV__HTTP_SHELL_AUTH_KEY, Model__Shell_Command
 from osbot_fast_api.examples.ex_3_with_shell_server.Fast_API__With_Shell_Server import Fast_API__With_Shell_Server
-from tests.unit.api.test_Fast_API import EXPECTED_ROUTES_PATHS
+from osbot_utils.utils.Env                                                      import load_dotenv
+from tests.unit.api.test_Fast_API                                               import EXPECTED_ROUTES_PATHS
 
 
 class test_Fast_API__With_Shell_Server(TestCase):

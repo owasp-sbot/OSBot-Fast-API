@@ -2,6 +2,9 @@
 pytest
 coverage
 
+#for fastapi
+httpx
+
 # for flask testing
 flask_testing
 blinker
