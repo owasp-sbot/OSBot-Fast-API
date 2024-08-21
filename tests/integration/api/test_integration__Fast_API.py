@@ -9,8 +9,8 @@ from osbot_fast_api.utils.Version import Version
 
 
 class test_integration__Fast_API(TestCase):
-    fast_api        : Fast_API
-    fast_api_server : Fast_API_Server
+    fast_api        : Fast_API           = None
+    fast_api_server : Fast_API_Server    = None
 
     @classmethod
     def setUpClass(cls) -> None:

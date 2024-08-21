@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from osbot_fast_api.examples.ex_2_with_api_key.Fast_API__With_API_Key import Fast_API__With_API_Key, \
     ROUTES_PATHS__WITH_API_KEY, EX_2_API_KEY_NAME, EX_2_API_KEY_VALUE
+from tests.unit.api.test_Fast_API import EXPECTED_ROUTES_PATHS
 
 
 class test_Fast_API__With_API_Key(TestCase):
@@ -45,4 +46,4 @@ class test_Fast_API__With_API_Key(TestCase):
         assert self.fast_api.user_middlewares() == [{'function_name': 'an_middleware', 'params': {}, 'type': 'BaseHTTPMiddleware'}]
 
     def test_setup_routes(self):
-        assert self.fast_api.routes_paths() == ROUTES_PATHS__WITH_API_KEY
+        assert self.fast_api.routes_paths() == sorted(EXPECTED_ROUTES_PATHS + ROUTES_PATHS__WITH_API_KEY)

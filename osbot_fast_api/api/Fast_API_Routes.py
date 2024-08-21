@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, FastAPI
+from osbot_utils.base_classes.Type_Safe import Type_Safe
+
 from osbot_utils.decorators.lists.index_by import index_by
 
 from osbot_utils.utils.Misc import lower
@@ -9,14 +11,15 @@ from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 
 #DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
 
-class Fast_API_Routes:
+class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
+    router : APIRouter
+    app    : FastAPI = None
+    prefix : str
+    tag    : str
 
-    def __init__(self, app, tag):
-        self.router = APIRouter()
-        self.app    = app
-        self.prefix = f'/{lower(str_safe(tag))}'
-        self.tag    = tag
-        self.setup()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prefix = f'/{lower(str_safe(self.tag))}'
 
     def add_route(self,function, methods):
         path = '/' + function.__name__.replace('_', '-')
@@ -45,6 +48,7 @@ class Fast_API_Routes:
     def setup(self):
         self.setup_routes()
         self.app.include_router(self.router, prefix=self.prefix, tags=[self.tag])
+        return self
 
     def setup_routes(self):     # overwrite this to add routes to self.router
         pass

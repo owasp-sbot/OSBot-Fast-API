@@ -1,12 +1,11 @@
 import os
-from dotenv                                                                     import load_dotenv
 from unittest                                                                   import TestCase
 from osbot_fast_api.api.Fast_API                                                import Fast_API
 from osbot_fast_api.utils.Fast_API_Server                                       import Fast_API_Server
 from osbot_fast_api.utils.http_shell.Http_Shell__Client                         import Http_Shell__Client
 from osbot_fast_api.utils.http_shell.Http_Shell__Server                         import ENV__HTTP_SHELL_AUTH_KEY
 from osbot_fast_api.examples.ex_3_with_shell_server.Fast_API__With_Shell_Server import Fast_API__With_Shell_Server
-
+from osbot_utils.utils.Env                                                      import load_dotenv
 
 
 class test_Fast_API__With_Shell_Server__Live_Server(TestCase):

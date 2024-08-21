@@ -39,3 +39,20 @@ jobs:
     needs:
       - run-unit-tests
 
+  publish-to-pypi:
+    permissions:
+      id-token: write
+    name: "Publish to PYPI"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Git Update Current Branch
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/git__update_branch@dev
+
+      - name: publish-to-pypi
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pypi__publish@dev
+    needs:
+      - increment-tag
+

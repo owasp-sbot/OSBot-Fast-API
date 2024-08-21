@@ -1,9 +1,10 @@
 import os
 from unittest                                                                   import TestCase
-from dotenv                                                                     import load_dotenv
 from osbot_fast_api.api.Fast_API                                                import Fast_API
 from osbot_fast_api.utils.http_shell.Http_Shell__Server                         import Model__Shell_Data, ENV__HTTP_SHELL_AUTH_KEY, Model__Shell_Command
 from osbot_fast_api.examples.ex_3_with_shell_server.Fast_API__With_Shell_Server import Fast_API__With_Shell_Server
+from osbot_utils.utils.Env                                                      import load_dotenv
+from tests.unit.api.test_Fast_API                                               import EXPECTED_ROUTES_PATHS
 
 
 class test_Fast_API__With_Shell_Server(TestCase):
@@ -26,7 +27,7 @@ class test_Fast_API__With_Shell_Server(TestCase):
         #return response
 
     def test_routes_paths(self):
-        assert self.fast_api.routes_paths() == ['/http-shell', '/shell-server']
+        assert self.fast_api.routes_paths() == EXPECTED_ROUTES_PATHS + ['/http-shell', '/shell-server']
 
     def test_invoke__ping(self):
         assert self.test__invoke_method('ping') == 'pong'

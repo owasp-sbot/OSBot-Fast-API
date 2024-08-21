@@ -3,11 +3,12 @@ from fastapi                                                import FastAPI
 from osbot_fast_api.utils.Fast_API_Utils                    import ROUTE_REDIRECT_TO_DOCS
 from osbot_utils.utils.Dev                                  import pprint
 from osbot_utils.utils.Files                                import folder_exists, folder_name, files_names, files_list, parent_folder
-from osbot_fast_api.api.Fast_API                            import Fast_API
+from osbot_fast_api.api.Fast_API import Fast_API, DEFAULT__NAME__FAST_API
 from osbot_fast_api.api.routes.Routes_Config                import ROUTES__CONFIG
 from osbot_fast_api.examples.ex_1_simple                    import static_files
 from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple   import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, \
     EX_1_ROUTES
+from tests.unit.api.test_Fast_API import EXPECTED_ROUTES_PATHS
 
 
 class test_Fast_API__Simple(TestCase):
@@ -16,6 +17,7 @@ class test_Fast_API__Simple(TestCase):
         self.enable_cors = True
         self.fast_api    = Fast_API__Simple(enable_cors=self.enable_cors).setup()
         self.client       = self.fast_api.client()
+        self.fast_api.http_events.add_header_request_id = False
 
     def test__init__(self):
         assert isinstance(self.fast_api, Fast_API__Simple)
@@ -46,7 +48,8 @@ class test_Fast_API__Simple(TestCase):
         response = self.client.get('/docs')
         assert response.status_code == 200
         assert '<title>FastAPI - Swagger UI</title>' in response.text
-        assert dict(response.headers) == {'content-length': '939', 'content-type': 'text/html; charset=utf-8'}
+        assert dict(response.headers) == {'content-length': '931', 'content-type': 'text/html; charset=utf-8'}
+
 
     def test_route__root(self):
         response = self.client.get('/', follow_redirects=False)
@@ -59,7 +62,7 @@ class test_Fast_API__Simple(TestCase):
         assert (routes ==  [ROUTE_REDIRECT_TO_DOCS] + ROUTES__CONFIG + EX_1_ROUTES)
 
     def test_routes_paths(self):
-        assert self.fast_api.routes_paths() == ['/an-post', '/static']
+        assert self.fast_api.routes_paths(expand_mounts=True) == sorted(EXPECTED_ROUTES_PATHS + ['/an-post', '/static'])
 
     def test_static_file(self):
         response = self.client.get('/static/aaa.txt')
@@ -71,16 +74,21 @@ class test_Fast_API__Simple(TestCase):
 
     def test_user_middleware(self):
         middlewares = self.fast_api.user_middlewares()
-        middleware  = middlewares[0]
+        middleware_1  = middlewares[0]
+        middleware_2  = middlewares[1]
 
-        assert len(middlewares)  == 1
-        assert middleware        == {'function_name': None                                       ,
+        assert len(middlewares)  == 4
+        assert middleware_1      == {'function_name': None                                      ,
                                      'params'       : { 'allow_credentials': True               ,
                                                         'allow_headers': ['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'],
                                                         'allow_methods': ['GET', 'POST', 'HEAD'],
                                                         'allow_origins': ['*'                  ],
                                                         'expose_headers': ['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization']},
                                      'type'          : 'CORSMiddleware'                         }
+        assert middleware_2      == { 'function_name': None                                       ,
+                                      'params'       : {'http_events': self.fast_api.http_events },
+                                      'type'         : 'Middleware__Http_Request'                }
+
 
 
 
@@ -89,4 +97,4 @@ class test_Fast_API__Simple(TestCase):
     def test_bug___CORS_headers_are_not_showing_in_headers(self):
         assert self.enable_cors is True
         response = self.client.get('/docs')
-        assert dict(response.headers) == {'content-length': '939', 'content-type': 'text/html; charset=utf-8'} # bug: the cors heaaders should show here
+        assert dict(response.headers) == {'content-length': '931', 'content-type': 'text/html; charset=utf-8'} # bug: the cors heaaders should show here
