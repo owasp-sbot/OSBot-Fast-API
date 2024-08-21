@@ -113,7 +113,7 @@ class test_Fast_API__Http_Events(TestCase):
         with self.http_events as _:
             _.trace_call_config.trace_capture_contains = ['fast_api']
             _.log_requests = True
-
+            _.trace_calls  = True
             # 2nd execution with trace_enabled
             _.on_http_trace_start(self.request)                                     # on_http_trace_start
             trace_call_1 = self.request.state.trace_call
@@ -127,9 +127,9 @@ class test_Fast_API__Http_Events(TestCase):
             assert trace_call_1.started    is False
 
             view_model_1 = _.request_traces_view_model(self.request)
-            assert len(view_model_1)  == 3
+            assert len(view_model_1)  == 4
             if in_pytest_with_coverage() is False:
-                assert trace_call_1.stats() == {'calls': 14, 'calls_skipped': 12, 'exceptions': 0, 'lines': 35, 'returns': 11, 'unknowns': 0}
+                assert trace_call_1.stats() == {'calls': 17, 'calls_skipped': 14, 'exceptions': 0, 'lines': 42, 'returns': 14, 'unknowns': 0}
             for item in view_model_1:
                 assert list_set(item) == ['duration', 'emoji', 'extra_data', 'lines', 'locals', 'method_name', 'method_parent', 'parent_info', 'prefix', 'source_code', 'source_code_caller', 'source_code_location', 'tree_branch']
 
@@ -140,9 +140,9 @@ class test_Fast_API__Http_Events(TestCase):
 
             trace_call_2   = self.request.state.trace_call
             view_model_2 = _.request_traces_view_model(self.request)
-            assert len(view_model_2) == 8
+            assert len(view_model_2) == 10
             if in_pytest_with_coverage() is False:
-                assert trace_call_2.stats() == {'calls': 18, 'calls_skipped': 14, 'exceptions': 0, 'lines': 45, 'returns': 15, 'unknowns': 0}
+                assert trace_call_2.stats() == {'calls': 21, 'calls_skipped': 16, 'exceptions': 0, 'lines': 52, 'returns': 18, 'unknowns': 0}
             for item in view_model_2:
                 assert list_set(item) == ['duration', 'emoji', 'extra_data', 'lines', 'locals', 'method_name',
                                           'method_parent', 'parent_info', 'prefix', 'source_code', 'source_code_caller',

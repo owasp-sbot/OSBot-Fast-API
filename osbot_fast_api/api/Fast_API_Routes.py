@@ -11,7 +11,7 @@ from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
 
 #DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
 
-class Fast_API_Routes(Type_Safe):
+class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
     router : APIRouter
     app    : FastAPI = None
     prefix : str

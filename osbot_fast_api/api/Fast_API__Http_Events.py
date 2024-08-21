@@ -86,19 +86,21 @@ class Fast_API__Http_Events(Type_Safe):
         return self.requests_data.get(request_id, {}).get('messages', [])
 
     def request_trace_start(self, request):
-        trace_call_config = self.trace_call_config
-        trace_call = Trace_Call(config=trace_call_config)
-        trace_call.start()
-        request.state.trace_call = trace_call
+        if self.trace_calls:
+            trace_call_config = self.trace_call_config
+            trace_call = Trace_Call(config=trace_call_config)
+            trace_call.start()
+            request.state.trace_call = trace_call
 
     def request_trace_stop(self, request: Request):                                                         # pragma: no cover
-        request_id: str = request.state.request_id
-        trace_call: Trace_Call = request.state.trace_call
-        trace_call.stop()
+        if self.trace_calls:
+            request_id: str = self.request_id(request)
+            trace_call: Trace_Call = request.state.trace_call
+            trace_call.stop()
 
-        if self.log_requests:
-            self.log_request_message(request, f'{request_id} on trace stop: {trace_call}')
-            self.request_traces_append(request)
+            if self.log_requests:
+                self.log_request_message(request, f'{request_id} on trace stop: {trace_call}')
+                self.request_traces_append(request)
 
     def request_traces_view_model(self, request):
         request_traces = []
