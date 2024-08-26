@@ -1,15 +1,10 @@
-import decimal
 import logging
-import threading
 import time
 from decimal                                import Decimal
 from fastapi                                import Response, Request
-from cbr_athena.utils.Random_Guid           import Random_Guid
-from osbot_fast_api.utils._extra_osbot_utils import current_thread_id
 from osbot_utils.base_classes.Type_Safe     import Type_Safe
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc                 import timestamp_utc_now
-from osbot_utils.utils.Objects import base_types, obj_info
+from osbot_utils.helpers.Random_Guid import Random_Guid
+from osbot_utils.utils.Misc import timestamp_utc_now, current_thread_id
 
 HEADER_NAME__FAST_API_REQUEST_ID   = 'fast-api-request-id'
 HEADER_NAME__CACHE_CONTROL         = "cache-control"
@@ -46,6 +41,7 @@ class Fast_API__Request_Data(Type_Safe):
         self.timestamp          = timestamp_utc_now()
         self.request_start_time = Decimal(time.time())
         self.thread_id          = current_thread_id()
+        # todo: add support for capturing request.headers and other request values (including request.url)
 
     def on_response(self, response: Response):
         self.response_end_time       = Decimal(time.time())
