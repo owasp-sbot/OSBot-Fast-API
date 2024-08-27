@@ -81,7 +81,7 @@ class test_Fast_API__Simple(TestCase):
         middleware_1  = middlewares[0]
         middleware_2  = middlewares[1]
 
-        assert len(middlewares)  == 3
+        assert len(middlewares)  == 2
         assert middleware_1      == {'function_name': None                                      ,
                                      'params'       : { 'allow_credentials': True               ,
                                                         'allow_headers': ['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'],

@@ -17,7 +17,7 @@ HTTP_RESPONSE__CACHE_CONTENT_TYPES = ['text/css; charset=utf-8'         ,
 
 class Fast_API__Request_Data(Type_Safe):
     fast_api_name           : str
-    messages                : list
+    log_messages            : list
     response_content_length : str           = None
     response_content_type   : str           = None
     response_end_time       : Decimal       = None
@@ -32,13 +32,22 @@ class Fast_API__Request_Data(Type_Safe):
     timestamp               : int
     thread_id               : int
     traces                  : list
+    traces_count            : int
 
-    def log_message(self, message_text, level:int =  logging.INFO):
+    def add_log_message(self, message_text, level:int =  logging.INFO):
         timestamp_delta = timestamp_utc_now()  - self.timestamp
         message = dict( level     = level          ,
                         text      = message_text   ,
                         timestamp = timestamp_delta)
-        self.messages.append(message)
+        self.log_messages.append(message)
+
+    def messages(self):
+
+        messages = []
+        for log_message in self.log_messages:
+            #messages.append(f"{log_message.get('text')} ({log_message.get('timestamp')})")
+            messages.append(log_message.get('text'))
+        return messages
 
     def on_request(self, request: Request):
         self.timestamp          = timestamp_utc_now()

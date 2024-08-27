@@ -65,11 +65,9 @@ class test_Fast_API__Http_Events(TestCase):
             assert _.request_data(self.request)     == self.request_data
             assert _.requests_data[self.request_id] == self.request_data
 
-            message_timestamp = self.request_data.messages[0].get('timestamp')
+            #message_timestamp = self.request_data.log_messages[0].get('timestamp')
             expected_data = { 'fast_api_name'          : ''                ,
-                              'messages'               : [ { 'level'    : 20                 ,
-                                                         'text'     : 'on_http_request'      ,
-                                                         'timestamp': message_timestamp}]    ,
+                              'log_messages'           : []    ,
                               'request_duration'       : None                                ,
                               'request_host_name'      : None                                ,
                               'request_id'             : self.request_id                     ,
@@ -83,7 +81,8 @@ class test_Fast_API__Http_Events(TestCase):
                               'response_status_code'   : None                                ,
                               'thread_id'              : self.request_data.thread_id         ,
                               'timestamp'              : self.request_data.timestamp         ,
-                              'traces'                 : []                                  }
+                              'traces'                 : []                                  ,
+                              'traces_count'           : 0                                   }
             assert self.request_data.json() == expected_data
 
     def test_on_http_response(self):
@@ -99,16 +98,10 @@ class test_Fast_API__Http_Events(TestCase):
 
             assert self.response.headers == MutableHeaders({'content-length': '0', 'fast-api-request-id': self.request_id})
 
-            message_timestamp_1 = self.request_data.messages[0].get('timestamp')
-            message_timestamp_2 = self.request_data.messages[1].get('timestamp')
 
-            expected_data = { 'fast_api_name'            : ''                                   ,
-                              'messages'                 : [ { 'level'    : 20                  ,
-                                                             'text'     : 'on_http_request'     ,
-                                                             'timestamp': message_timestamp_1}  ,
-                                                            { 'level'    : 20                   ,
-                                                              'text'     : 'on_http_response'   ,
-                                                              'timestamp': message_timestamp_2}],
+
+            expected_data = { 'fast_api_name'           : ''                                    ,
+                              'log_messages'            : []                                    ,
                               'request_duration'        : Decimal('0.001')                      ,
                               'request_host_name'       : None                                  ,
                               'request_id'              : self.request_id                       ,
@@ -122,7 +115,8 @@ class test_Fast_API__Http_Events(TestCase):
                               'response_status_code'    : 200                                   ,
                               'thread_id'               : self.request_data.thread_id           ,
                               'timestamp'               : self.request_data.timestamp           ,
-                              'traces'                  : []                                    }
+                              'traces'                  : []                                    ,
+                              'traces_count'            : 0                                     }
 
             assert self.request_data.request_duration == Decimal(0.001).quantize(Decimal('0.001'))
             assert self.request_data.json()           == expected_data

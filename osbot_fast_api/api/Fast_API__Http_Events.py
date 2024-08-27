@@ -5,7 +5,7 @@ from fastapi                                        import Request
 from starlette.responses                            import Response
 from osbot_utils.helpers.trace.Trace_Call           import Trace_Call
 from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
-
+from osbot_utils.utils.Objects import pickle_from_bytes, pickle_to_bytes
 
 HTTP_EVENTS__MAX_REQUESTS_LOGGED = 50
 
@@ -26,25 +26,20 @@ class Fast_API__Http_Events(Type_Safe):
     def on_http_request(self, request: Request):
         with self.request_data(request) as _:
             _.on_request(request)
-            _.log_message("on_http_request")
+            #_.add_log_message("on_http_request")
+        self.request_trace_start(request)
 
     def on_http_response(self, request: Request, response:Response):
         with self.request_data(request) as _:
             _.on_response(response)
-            _.log_message("on_http_response")
-
-    def on_http_trace_start(self, request: Request):
-        #print(">>>>>> on on_http_trace_start")
-        self.request_trace_start(request)
-
-    def on_http_trace_stop(self, request: Request, response: Response):             # pragma: no cover
-        #if StreamingResponse not in base_types(response):                          # handle the special case when the response is a StreamingResponse
-        self.request_trace_stop(request)                                            # todo: change this to be on text/event-stream"; charset=utf-8 (which is the one that happens with the LLMs responses)
+            #_.add_log_message("on_http_response")
+        # if StreamingResponse not in base_types(response):                          # handle the special case when the response is a StreamingResponse
+        self.request_trace_stop(request)  # todo: change this to be on text/event-stream"; charset=utf-8 (which is the one that happens with the LLMs responses)
 
 
 
-    def on_response_stream_completed(self, request):
-        self.request_trace_stop(request)
+    # def on_response_stream_completed(self, request):      #todo: rewire this (needed for StreamingResponse from LLMs)
+    #     self.request_trace_stop(request)
         #state = request.state._state
         #print(f">>>>> on on_response_stream_end : {state}")
 
@@ -95,25 +90,28 @@ class Fast_API__Http_Events(Type_Safe):
             request_id: str = self.request_id(request)
             trace_call: Trace_Call = request.state.trace_call
             trace_call.stop()
-
             self.request_traces_append(request)
+            self.request_data(request).add_log_message("request_trace_stop")
 
-    def request_traces_view_model(self, request):
-        return self.request_data(request).traces                                # todo: see if we need to store the traces in pickle
-        # request_traces = []
-        # for trace_bytes in self.request_data(request).traces:                 # support for multiple trace's runs
-        #     request_traces.extend(pickle_from_bytes(trace_bytes))
-        # return request_traces
+    # def request_traces_view_model(self, request):
+    #     #return self.request_data(request).traces                                # todo: see if we need to store the traces in pickle
+    #     request_traces = []
+    #     for trace_bytes in self.request_data(request).traces:                 # support for multiple trace's runs
+    #         request_traces.extend(pickle_from_bytes(trace_bytes))
+    #     return request_traces
 
     def request_traces_append(self, request):
         if self.trace_calls:
             request_data           = self.request_data(request)
             trace_call: Trace_Call = request.state.trace_call
-            #view_model             = trace_call.view_data()                    # todo: see if it is better to store the view_data (as pickle) instead of the serialised view as str (used below)
-            #view_model_bytes       = pickle_to_bytes(view_model)
-            # request_data.traces.append(view_model_bytes)
-            traces_str             = trace_call.print_to_str()
-            request_data.traces.append(traces_str)
+            view_model             = trace_call.view_data()                    # todo: see if it is better to store the view_data (as pickle) instead of the serialised view as str (used below)
+            view_model_bytes       = pickle_to_bytes(view_model)
+
+            request_data.traces.append(view_model_bytes)
+            request_data.traces_count += len(view_model)
+
+            #traces_str             = trace_call.print_to_str()
+            #request_data.traces.append(traces_str)
         return self
 
 

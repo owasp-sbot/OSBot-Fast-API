@@ -90,5 +90,4 @@ class test_Fast_API(TestCase):
     def test_user_middleware(self):
         http_events = self.fast_api.http_events
         params = {'http_events' : http_events}
-        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': params, 'type': 'Middleware__Http_Request'             },
-                                                    {'function_name': None, 'params': params, 'type': 'Middleware__Http_Request__Trace_Calls'}]
+        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': params, 'type': 'Middleware__Http_Request'             }]

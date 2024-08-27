@@ -6,7 +6,6 @@ from fastapi.exceptions                                                     impo
 from starlette.middleware.wsgi                                              import WSGIMiddleware       # todo replace this with a2wsgi
 from osbot_fast_api.api.Fast_API__Http_Events                               import Fast_API__Http_Events
 from osbot_fast_api.api.middlewares.Middleware__Http_Request                import Middleware__Http_Request
-from osbot_fast_api.api.middlewares.Middleware__Http_Request__Trace_Calls   import Middleware__Http_Request__Trace_Calls
 from osbot_fast_api.utils.Version                                           import Version
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
 from starlette.middleware.cors                                              import CORSMiddleware
@@ -165,9 +164,7 @@ class Fast_API(Type_Safe):
                                   allow_headers     = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"],
                                   expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
 
-    def setup_middleware__http_events(self, ):
-        # note the invocation order is the reverse of the order they are added
-        self.app().add_middleware(Middleware__Http_Request__Trace_Calls, http_events=self.http_events)
+    def setup_middleware__http_events(self):
         self.app().add_middleware(Middleware__Http_Request             , http_events=self.http_events)
         return self
 
