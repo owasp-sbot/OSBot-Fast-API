@@ -9,7 +9,10 @@ from osbot_utils.utils.Misc import timestamp_utc_now, current_thread_id
 HEADER_NAME__FAST_API_REQUEST_ID   = 'fast-api-request-id'
 HEADER_NAME__CACHE_CONTROL         = "cache-control"
 HTTP_RESPONSE__CACHE_DURATION      = "3600"                         # 3600 = 1 hour
-HTTP_RESPONSE__CACHE_CONTENT_TYPES = ['text/css; charset=utf-8']
+HTTP_RESPONSE__CACHE_CONTENT_TYPES = ['text/css; charset=utf-8'         ,
+                                      'text/javascript; charset=utf-8'  ,
+                                      'image/png'                       ,
+                                      'text/plain; charset=utf-8'       ]
 
 
 class Fast_API__Request_Data(Type_Safe):
