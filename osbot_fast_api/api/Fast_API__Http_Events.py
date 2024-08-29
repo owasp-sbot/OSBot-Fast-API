@@ -44,11 +44,7 @@ class Fast_API__Http_Events(Type_Safe):
         #print(f">>>>> on on_response_stream_end : {state}")
 
     def create_request_data(self, request):
-        kwargs        = dict(request_url       = request.url.path    ,
-                             request_method    = request.method      ,
-                             request_port      = request.url.port    ,
-                             request_host_name = request.url.hostname,
-                             fast_api_name     = self.fast_api_name  )
+        kwargs        = dict(fast_api_name     = self.fast_api_name  )
         request_data = Fast_API__Request_Data(**kwargs)
         request_id   = request_data.request_id                              # get the random request_id/guid that was created in the ctor of Fast_API__Request_Data
         request.state.http_events      = self                               # store a copy of this object in the request (so that it is available durant the request handling)
@@ -87,11 +83,11 @@ class Fast_API__Http_Events(Type_Safe):
 
     def request_trace_stop(self, request: Request):                                                         # pragma: no cover
         if self.trace_calls:
-            request_id: str = self.request_id(request)
             trace_call: Trace_Call = request.state.trace_call
             trace_call.stop()
-            self.request_traces_append(request)
-            self.request_data(request).add_log_message("request_trace_stop")
+
+            request_data = self.request_data(request)
+            request_data.add_traces(trace_call)
 
     # def request_traces_view_model(self, request):
     #     #return self.request_data(request).traces                                # todo: see if we need to store the traces in pickle
@@ -99,19 +95,5 @@ class Fast_API__Http_Events(Type_Safe):
     #     for trace_bytes in self.request_data(request).traces:                 # support for multiple trace's runs
     #         request_traces.extend(pickle_from_bytes(trace_bytes))
     #     return request_traces
-
-    def request_traces_append(self, request):
-        if self.trace_calls:
-            request_data           = self.request_data(request)
-            trace_call: Trace_Call = request.state.trace_call
-            view_model             = trace_call.view_data()                    # todo: see if it is better to store the view_data (as pickle) instead of the serialised view as str (used below)
-            view_model_bytes       = pickle_to_bytes(view_model)
-
-            request_data.traces.append(view_model_bytes)
-            request_data.traces_count += len(view_model)
-
-            #traces_str             = trace_call.print_to_str()
-            #request_data.traces.append(traces_str)
-        return self
 
 

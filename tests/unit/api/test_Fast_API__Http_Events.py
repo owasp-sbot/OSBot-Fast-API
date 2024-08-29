@@ -6,14 +6,14 @@ from unittest import TestCase
 import pytest
 from fastapi                                        import Request
 from starlette.responses                            import Response
-from starlette.datastructures                       import MutableHeaders
+from starlette.datastructures                       import MutableHeaders, Address
 
 from osbot_fast_api.api.Fast_API import Fast_API
 from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
-from osbot_fast_api.api.Fast_API__Http_Events import Fast_API__Http_Events, HTTP_EVENTS__MAX_REQUESTS_LOGGED
-from osbot_fast_api.api.Fast_API__Request_Data import Fast_API__Request_Data
+from osbot_fast_api.api.Fast_API__Http_Events       import Fast_API__Http_Events, HTTP_EVENTS__MAX_REQUESTS_LOGGED
+from osbot_fast_api.api.Fast_API__Request_Data      import Fast_API__Request_Data
 from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
-from osbot_utils.testing.Stdout import Stdout
+from osbot_utils.testing.Stdout                     import Stdout
 
 from osbot_utils.utils.Dev                          import pprint
 from osbot_utils.utils.Env import in_pytest_with_coverage
@@ -27,7 +27,8 @@ class test_Fast_API__Http_Events(TestCase):
     def setUp(self):
         self.path         = '/an-path'
         self.http_events  = Fast_API__Http_Events()
-        self.scope        = dict(type='http', path=self.path, method='GET', headers=[], query_string=b'' )
+        self.client       = Address('pytest', 123)
+        self.scope        = dict(type='http', client=self.client, path=self.path, method='GET', headers=[], query_string=b'' )
         self.request      = Request(self.scope)
         self.response     = Response()
         self.request_data = self.http_events.request_data(self.request)
@@ -66,17 +67,23 @@ class test_Fast_API__Http_Events(TestCase):
             assert _.requests_data[self.request_id] == self.request_data
 
             #message_timestamp = self.request_data.log_messages[0].get('timestamp')
-            expected_data = { 'fast_api_name'          : ''                ,
-                              'log_messages'           : []    ,
+            expected_data = { 'client_city'            : None                                ,
+                              'client_country'         : None                                ,
+                              'client_ip'              : 'pytest'                            ,
+                              'domain'                 : None                                ,
+                              'fast_api_name'          : ''                                  ,
+                              'log_messages'           : []                                  ,
                               'request_duration'       : None                                ,
+                              'request_headers'        : {}                                  ,
                               'request_host_name'      : None                                ,
                               'request_id'             : self.request_id                     ,
                               'request_method'         : 'GET'                               ,
+                              'request_path'           : self.path                           ,
                               'request_port'           : None                                ,
                               'request_start_time'     : self.request_data.request_start_time,
-                              'request_url'            : self.path                           ,
                               'response_content_length': None                                ,
                               'response_content_type'  : None                                ,
+                              'response_headers'       : {}                                  ,
                               'response_end_time'      : None                                ,
                               'response_status_code'   : None                                ,
                               'thread_id'              : self.request_data.thread_id         ,
@@ -100,17 +107,23 @@ class test_Fast_API__Http_Events(TestCase):
 
 
 
-            expected_data = { 'fast_api_name'           : ''                                    ,
+            expected_data = { 'client_city'             : None                                  ,
+                              'client_country'          : None                                  ,
+                              'client_ip'               : 'pytest'                              ,
+                              'domain'                  : None                                  ,
+                              'fast_api_name'           : ''                                    ,
                               'log_messages'            : []                                    ,
                               'request_duration'        : Decimal('0.001')                      ,
                               'request_host_name'       : None                                  ,
                               'request_id'              : self.request_id                       ,
+                              'request_headers'         : {}                                    ,
                               'request_method'          : 'GET'                                 ,
+                              'request_path'            : self.path                             ,
                               'request_port'            : None                                  ,
                               'request_start_time'      : self.request_data.request_start_time  ,
-                              'request_url'             : self.path                             ,
                               'response_content_length' : '0'                                   ,
                               'response_content_type'   : None                                  ,
+                              'response_headers'        : self.request_data.response_headers    ,
                               'response_end_time'       : self.request_data.response_end_time   ,
                               'response_status_code'    : 200                                   ,
                               'thread_id'               : self.request_data.thread_id           ,

@@ -165,7 +165,7 @@ class Fast_API(Type_Safe):
                                   expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
 
     def setup_middleware__http_events(self):
-        self.app().add_middleware(Middleware__Http_Request             , http_events=self.http_events)
+        self.app().add_middleware(Middleware__Http_Request , http_events=self.http_events)
         return self
 
     def user_middlewares(self):
