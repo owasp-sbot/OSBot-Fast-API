@@ -11,6 +11,7 @@ HTTP_EVENTS__MAX_REQUESTS_LOGGED = 50
 
 class Fast_API__Http_Events(Type_Safe):
     #log_requests          : bool = False                           # todo: change this to save on S3 and disk
+    background_tasks      : list
     trace_calls           : bool = False
     trace_call_config     : Trace_Call__Config
     requests_data         : dict
@@ -33,8 +34,9 @@ class Fast_API__Http_Events(Type_Safe):
         with self.request_data(request) as _:
             _.on_response(response)
             #_.add_log_message("on_http_response")
+
         # if StreamingResponse not in base_types(response):                          # handle the special case when the response is a StreamingResponse
-        self.request_trace_stop(request)  # todo: change this to be on text/event-stream"; charset=utf-8 (which is the one that happens with the LLMs responses)
+        self.request_trace_stop(request)                                             # todo: change this to be on text/event-stream"; charset=utf-8 (which is the one that happens with the LLMs responses)
 
 
 
