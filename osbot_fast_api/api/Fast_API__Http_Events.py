@@ -1,3 +1,4 @@
+import types
 from collections                                    import deque
 from osbot_fast_api.api.Fast_API__Request_Data      import Fast_API__Request_Data
 from osbot_utils.base_classes.Type_Safe             import Type_Safe
@@ -12,6 +13,8 @@ HTTP_EVENTS__MAX_REQUESTS_LOGGED = 50
 class Fast_API__Http_Events(Type_Safe):
     #log_requests          : bool = False                           # todo: change this to save on S3 and disk
     background_tasks      : list
+    callback_on_request   : types.MethodType
+    callback_on_response  : types.MethodType
     trace_calls           : bool = False
     trace_call_config     : Trace_Call__Config
     requests_data         : dict
@@ -27,16 +30,17 @@ class Fast_API__Http_Events(Type_Safe):
     def on_http_request(self, request: Request):
         with self.request_data(request) as _:
             _.on_request(request)
-            #_.add_log_message("on_http_request")
-        self.request_trace_start(request)
+            self.request_trace_start(request)
+            if self.callback_on_request:
+                self.callback_on_request(_)
 
     def on_http_response(self, request: Request, response:Response):
         with self.request_data(request) as _:
             _.on_response(response)
-            #_.add_log_message("on_http_response")
-
-        # if StreamingResponse not in base_types(response):                          # handle the special case when the response is a StreamingResponse
-        self.request_trace_stop(request)                                             # todo: change this to be on text/event-stream"; charset=utf-8 (which is the one that happens with the LLMs responses)
+            # if StreamingResponse not in base_types(response):                          # handle the special case when the response is a StreamingResponse
+            self.request_trace_stop(request)                                             # todo: change this to be on text/event-stream"; charset=utf-8 (which is the one that happens with the LLMs responses)
+            if self.callback_on_response:
+                self.callback_on_response(_)
 
 
 

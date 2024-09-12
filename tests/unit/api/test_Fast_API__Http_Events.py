@@ -39,6 +39,8 @@ class test_Fast_API__Http_Events(TestCase):
         with self.http_events as _:
 
             expected_locals = {'background_tasks'     : []                                   ,
+                               'callback_on_request'  : None                                 ,
+                               'callback_on_response' : None                                 ,
                                'fast_api_name'        : ''                                   ,
                                'requests_data'        : { self.request_id: self.request_data},
                                'requests_order'       : deque([self.request_id])             ,
