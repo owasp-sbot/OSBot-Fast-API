@@ -6,16 +6,17 @@ from fastapi                                        import Request
 from starlette.responses                            import Response
 from osbot_utils.helpers.trace.Trace_Call           import Trace_Call
 from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
-from osbot_utils.utils.Objects import pickle_from_bytes, pickle_to_bytes
+from osbot_utils.utils.Misc                         import str_md5
 
 HTTP_EVENTS__MAX_REQUESTS_LOGGED = 50
 
 class Fast_API__Http_Events(Type_Safe):
     #log_requests          : bool = False                           # todo: change this to save on S3 and disk
     background_tasks      : list
+    clean_data            : bool             = True
     callback_on_request   : types.MethodType
     callback_on_response  : types.MethodType
-    trace_calls           : bool = False
+    trace_calls           : bool             = False
     trace_call_config     : Trace_Call__Config
     requests_data         : dict
     requests_order        : deque
@@ -39,11 +40,27 @@ class Fast_API__Http_Events(Type_Safe):
             _.on_response(response)
             # if StreamingResponse not in base_types(response):                          # handle the special case when the response is a StreamingResponse
             self.request_trace_stop(request)                                             # todo: change this to be on text/event-stream"; charset=utf-8 (which is the one that happens with the LLMs responses)
+            self.clean_request_data(_)
             if self.callback_on_response:
                 self.callback_on_response(_)
 
+    def clean_request_data(self, request_data: Fast_API__Request_Data):
+        if self.clean_data:
+            self.clean_request_data_field(request_data, 'request_headers' , 'cookie')
+            self.clean_request_data_field(request_data, 'response_headers', 'cookie')
 
-
+    def clean_request_data_field(self, request_data, variable_name, field_name):
+        with request_data as _:
+            variable_data = getattr(_, variable_name)
+            if type(variable_data) is dict:
+                if field_name in variable_data:
+                    value = variable_data.get(field_name)
+                    if type(value) is not str:
+                        value = f'{value}'
+                    data_size = len(value)
+                    data_hash = str_md5(value)
+                    value = f"data cleaned: (size: {data_size}, hash: {data_hash})"
+                    variable_data[field_name] = value
     # def on_response_stream_completed(self, request):      #todo: rewire this (needed for StreamingResponse from LLMs)
     #     self.request_trace_stop(request)
         #state = request.state._state

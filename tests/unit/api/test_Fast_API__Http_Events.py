@@ -7,19 +7,13 @@ import pytest
 from fastapi                                        import Request
 from starlette.responses                            import Response
 from starlette.datastructures                       import MutableHeaders, Address
-
-from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
 from osbot_fast_api.api.Fast_API__Http_Events       import Fast_API__Http_Events, HTTP_EVENTS__MAX_REQUESTS_LOGGED
 from osbot_fast_api.api.Fast_API__Request_Data      import Fast_API__Request_Data
 from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
 from osbot_utils.testing.Stdout                     import Stdout
-
+from osbot_utils.utils.Env                          import in_pytest_with_coverage
+from osbot_utils.utils.Misc                         import list_set, is_guid, wait_for
 from osbot_utils.utils.Dev                          import pprint
-from osbot_utils.utils.Env import in_pytest_with_coverage
-from osbot_utils.utils.Json import json_to_str
-from osbot_utils.utils.Misc import random_guid, list_set, is_guid, wait_for
-from osbot_utils.utils.Objects import pickle_to_bytes, pickle_from_bytes
 
 
 class test_Fast_API__Http_Events(TestCase):
@@ -39,6 +33,7 @@ class test_Fast_API__Http_Events(TestCase):
         with self.http_events as _:
 
             expected_locals = {'background_tasks'     : []                                   ,
+                               'clean_data'           : True                                 ,
                                'callback_on_request'  : None                                 ,
                                'callback_on_response' : None                                 ,
                                'fast_api_name'        : ''                                   ,
@@ -135,6 +130,39 @@ class test_Fast_API__Http_Events(TestCase):
 
             assert self.request_data.request_duration == Decimal(0.001).quantize(Decimal('0.001'))
             assert self.request_data.json()           == expected_data
+
+
+    def test_clean_request_data(self):
+        with self.request_data as _:
+            original_request_data = _.json()
+            assert original_request_data.get('request_headers' ) == {}
+            assert original_request_data.get('response_headers') == {}
+            request_headers  = {}
+            response_headers = {}
+            _.request_headers  = request_headers
+            _.response_headers = response_headers
+            assert _.request_headers  == request_headers                # confirm there are not headers captures in the request
+            assert _.response_headers == response_headers               # and response
+
+            # use case without cookies
+            request_headers ['a'] = 42                                                  # set request and response headers
+            response_headers['a'] = 42
+            assert _.request_headers  == {"a": 42}                      # confirm non-sensitive values before
+            assert _.response_headers == {"a": 42}
+
+            self.http_events.clean_request_data(_)                                                      # ... calling clean_request_data
+            assert _.request_headers  == {"a": 42}                      # ... have not been modified
+            assert _.response_headers == {"a": 42}
+
+            # use case with cookies
+            request_headers ['cookie'] = "this is a sensitive string (in request)"
+            response_headers['cookie'] = "this is a sensitive string (in response)"
+            self.http_events.clean_request_data(_)
+            assert _.request_headers  == {"a": 42, 'cookie': 'data cleaned: (size: 39, hash: 2cec8b658de78fce49ad9e140669763a)'}
+            assert _.response_headers == {"a": 42, 'cookie': 'data cleaned: (size: 40, hash: 023287fb0f329d27b128359cde5c4574)'}
+
+
+
 
 
 
