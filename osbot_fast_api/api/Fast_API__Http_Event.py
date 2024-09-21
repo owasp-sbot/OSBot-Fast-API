@@ -17,7 +17,7 @@ HTTP_RESPONSE__CACHE_CONTENT_TYPES = ['text/css; charset=utf-8'         ,
                                       'text/plain; charset=utf-8'       ]
 
 
-class Fast_API__Request_Data(Type_Safe):
+class Fast_API__Http_Event(Type_Safe):
     fast_api_name           : str           = None
     log_messages            : list
     client_city             : str           = None
