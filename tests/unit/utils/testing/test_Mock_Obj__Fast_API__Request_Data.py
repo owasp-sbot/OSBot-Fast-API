@@ -55,19 +55,20 @@ class test_Mock_Obj__Fast_API__Request_Data(TestCase):
                                                             'method'        : self.mock_request_data.method             ,
                                                             'path'          : self.mock_request_data.path               ,
                                                             'port'          : self.mock_request_data.port               ,
-                                                            'start_time'    : _.http_event_request.start_time                      },
+                                                            'start_time'    : _.http_event_request.start_time           },
                              'request_id'               : _.request_id                              ,
-                             'response_content_length'  : res_content_length                        ,
-                             'response_content_type'    : res_content_type                          ,
-                             'response_end_time'        : _.response_end_time                       ,
-                             'response_headers'         : {'content-length'     : res_content_length,
-                                                           'content-type'       : res_content_type  ,
-                                                           'fast-api-request-id': _.request_id }    ,
-                             'response_status_code'     : self.mock_request_data.res_status_code    ,
-                             'thread_id'                : _.thread_id                               ,
-                             'timestamp'                : _.timestamp                               ,
-                             'traces'                   : []                                        ,
-                             'traces_count'             : 0                                         }
+                             'http_event_response'      : { 'content_length': res_content_length,
+                                                            'content_type'  : res_content_type,
+                                                            'end_time'      : _.http_event_response.end_time,
+                                                            'headers'       : { 'content-length'    : res_content_length,
+                                                                                'content-type'      : res_content_type  ,
+                                                                                'fast-api-request-id': _.request_id    },
+                                                            'status_code'   : self.mock_request_data.res_status_code    },
+                             'http_event_traces'        : { 'traces'                   : []                             ,
+                                                            'traces_count'             : 0                              },
+                             'thread_id'                : _.thread_id                                                    ,
+                             'timestamp'                : _.timestamp                                                    ,
+                                                                      }
             assert request_data.json() == expected_data
 
 

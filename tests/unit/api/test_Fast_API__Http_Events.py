@@ -75,16 +75,17 @@ class test_Fast_API__Http_Events(TestCase):
                                                            'path'           : self.path                                         ,
                                                            'port'           : None                                              ,
                                                            'start_time'     : self.request_data.http_event_request.start_time   },
+                              'http_event_response'    : { 'content_length' : None                                              ,
+                                                           'content_type'   : None                                              ,
+                                                           'headers'        : {}                                                ,
+                                                           'end_time'       : None                                              ,
+                                                           'status_code'    : None                                              },
+                              'http_event_traces'      : { 'traces'         : []                                                ,
+                                                           'traces_count'   : 0                                                 },
                               'request_id'             : self.request_id                        ,
-                              'response_content_length': None                                   ,
-                              'response_content_type'  : None                                   ,
-                              'response_headers'       : {}                                     ,
-                              'response_end_time'      : None                                   ,
-                              'response_status_code'   : None                                   ,
                               'thread_id'              : self.request_data.thread_id            ,
                               'timestamp'              : self.request_data.timestamp            ,
-                              'traces'                 : []                                     ,
-                              'traces_count'           : 0                                      }
+                              }
             assert self.request_data.json() == expected_data
 
     def test_on_http_response(self):
@@ -108,23 +109,23 @@ class test_Fast_API__Http_Events(TestCase):
                                                             'domain'          : None     ,
                                                             'fast_api_name'   : ''       ,
                                                             'log_messages'    : []       },
-                              'http_event_request'       : {  'duration'      : Decimal('0.001')                                ,
-                                                              'host_name'     : None                                            ,
-                                                              'headers'       : {}                                              ,
-                                                              'method'        : 'GET'                                           ,
-                                                              'path'          : self.path                                       ,
-                                                              'port'          : None                                            ,
-                                                              'start_time'    : self.request_data.http_event_request.start_time },
-                              'request_id'              : self.request_id                         ,
-                              'response_content_length' : '0'                                     ,
-                              'response_content_type'   : None                                    ,
-                              'response_headers'        : self.request_data.response_headers      ,
-                              'response_end_time'       : self.request_data.response_end_time     ,
-                              'response_status_code'    : 200                                     ,
-                              'thread_id'               : self.request_data.thread_id             ,
-                              'timestamp'               : self.request_data.timestamp             ,
-                              'traces'                  : []                                      ,
-                              'traces_count'            : 0                                       }
+                              'http_event_request'       : { 'duration'       : Decimal('0.001')                                ,
+                                                             'host_name'      : None                                            ,
+                                                             'headers'        : {}                                              ,
+                                                             'method'         : 'GET'                                           ,
+                                                             'path'           : self.path                                       ,
+                                                             'port'           : None                                            ,
+                                                             'start_time'     : self.request_data.http_event_request.start_time },
+                              'request_id'              : self.request_id                                                        ,
+                              'http_event_response'     : { 'content_length' : '0'                                              ,
+                                                            'content_type'   : None                                             ,
+                                                            'headers'        : self.request_data.http_event_response.headers    ,
+                                                            'end_time'       : self.request_data.http_event_response.end_time   ,
+                                                            'status_code'    : 200                                              },
+                              'http_event_traces'       : { 'traces'                  : []                                      ,
+                                                            'traces_count'            : 0                                       },
+                              'thread_id'               : self.request_data.thread_id                                           ,
+                              'timestamp'               : self.request_data.timestamp                                           }
 
             assert self.request_data.http_event_request.duration == Decimal(0.001).quantize(Decimal('0.001'))
             assert self.request_data.json()                      == expected_data
@@ -133,31 +134,31 @@ class test_Fast_API__Http_Events(TestCase):
     def test_clean_request_data(self):
         with self.request_data as _:
             original_request_data = _.json()
-            assert original_request_data.get('http_event_request').get('headers' ) == {}
-            assert original_request_data.get('response_headers') == {}
+            assert original_request_data.get('http_event_request' ).get('headers') == {}
+            assert original_request_data.get('http_event_response').get('headers') == {}
             request_headers  = {}
             response_headers = {}
             _.http_event_request.headers  = request_headers
-            _.response_headers            = response_headers
+            _.http_event_response.headers = response_headers
             assert _.http_event_request.headers  == request_headers                # confirm there are not headers captures in the request
-            assert _.response_headers            == response_headers               # and response
+            assert _.http_event_response.headers == response_headers               # and response
 
             # use case without cookies
             request_headers ['a'] = 42                                                  # set request and response headers
             response_headers['a'] = 42
             assert _.http_event_request.headers  == {"a": 42}                      # confirm non-sensitive values before
-            assert _.response_headers            == {"a": 42}
+            assert _.http_event_response.headers == {"a": 42}
 
             self.http_events.clean_request_data(_)                                                      # ... calling clean_request_data
             assert _.http_event_request.headers  == {"a": 42}                      # ... have not been modified
-            assert _.response_headers            == {"a": 42}
+            assert _.http_event_response.headers == {"a": 42}
 
             # use case with cookies
             request_headers ['cookie'] = "this is a sensitive string (in request)"
             response_headers['cookie'] = "this is a sensitive string (in response)"
             self.http_events.clean_request_data(_)
             assert _.http_event_request.headers  == {"a": 42, 'cookie': 'data cleaned: (size: 39, hash: 2cec8b658de78fce49ad9e140669763a)'}
-            assert _.response_headers            == {"a": 42, 'cookie': 'data cleaned: (size: 40, hash: 023287fb0f329d27b128359cde5c4574)'}
+            assert _.http_event_response.headers == {"a": 42, 'cookie': 'data cleaned: (size: 40, hash: 023287fb0f329d27b128359cde5c4574)'}
 
 
 

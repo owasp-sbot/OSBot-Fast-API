@@ -5,6 +5,8 @@ from fastapi                                import Response, Request
 
 from osbot_fast_api.api.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
 from osbot_fast_api.api.Fast_API__Http_Event__Request import Fast_API__Http_Event__Request
+from osbot_fast_api.api.Fast_API__Http_Event__Response import Fast_API__Http_Event__Response
+from osbot_fast_api.api.Fast_API__Http_Event__Traces import Fast_API__Http_Event__Traces
 from osbot_utils.base_classes.Type_Safe     import Type_Safe
 from osbot_utils.helpers.Random_Guid        import Random_Guid
 from osbot_utils.helpers.trace.Trace_Call   import Trace_Call
@@ -23,16 +25,11 @@ HTTP_RESPONSE__CACHE_CONTENT_TYPES = ['text/css; charset=utf-8'         ,
 class Fast_API__Http_Event(Type_Safe):
     http_event_info         : Fast_API__Http_Event__Info
     http_event_request      : Fast_API__Http_Event__Request
+    http_event_response     : Fast_API__Http_Event__Response
+    http_event_traces       : Fast_API__Http_Event__Traces
     request_id              : Random_Guid                           # todo: rename to http_event_id
-    response_content_length : str           = None
-    response_content_type   : str           = None
-    response_end_time       : Decimal       = None
-    response_status_code    : int           = None
-    response_headers        : dict
     timestamp               : int
     thread_id               : int
-    traces                  : list
-    traces_count            : int
 
     def add_log_message(self, message_text, level:int =  logging.INFO):
         timestamp_delta = timestamp_utc_now()  - self.timestamp
@@ -74,18 +71,18 @@ class Fast_API__Http_Event(Type_Safe):
         self.set_request_headers(request)
 
     def on_response(self, response: Response):
-        self.response_end_time              = Decimal(time.time())
-        self.http_event_request.duration    = self.response_end_time - self.http_event_request.start_time       # todo: move this normalisation logic into the Http_Event_* classes
-        self.http_event_request.start_time  = self.http_event_request.start_time.quantize(Decimal('0.001'))     # make sure these duration objects doing have move that 3 decimal points
-        self.response_end_time              = self.response_end_time            .quantize(Decimal('0.001'))                # todo: see if there is a better way to do this (keeping the decimal points clean)
-        self.http_event_request.duration    = self.http_event_request.duration  .quantize(Decimal('0.001'))     #       (maybe a custom Decimal class)
+        self.http_event_response.end_time   = Decimal(time.time())
+        self.http_event_request.duration    = self.http_event_response.end_time - self.http_event_request.start_time    # todo: move this normalisation logic into the Http_Event_* classes
+        self.http_event_request.start_time  = self.http_event_request.start_time .quantize(Decimal('0.001'))            # make sure these duration objects doing have move that 3 decimal points
+        self.http_event_response.end_time   = self.http_event_response.end_time  .quantize(Decimal('0.001'))            # todo: see if there is a better way to do this (keeping the decimal points clean)
+        self.http_event_request.duration    = self.http_event_request.duration   .quantize(Decimal('0.001'))            #       (maybe a custom Decimal class)
 
         if response:
-            self.response_content_type   = response.headers.get('content-type')
-            self.response_content_length = response.headers.get('content-length')
-            self.response_status_code    = response.status_code
+            self.http_event_response.content_type   = response.headers.get('content-type')
+            self.http_event_response.content_length = response.headers.get('content-length')
+            self.http_event_response.status_code    = response.status_code
             self.set_response_headers(response)
-            self.response_headers = dict(response.headers)
+            self.http_event_response.headers        = dict(response.headers)
 
     def set_request_headers(self, request: Request):
         request.headers._list.append((b'fast-api-request-id', str_to_bytes(self.request_id)))
@@ -96,7 +93,7 @@ class Fast_API__Http_Event(Type_Safe):
         return self
 
     def set_response_header_for_static_files_cache(self, response:Response):
-        if self.response_content_type in HTTP_RESPONSE__CACHE_CONTENT_TYPES:
+        if self.http_event_response.content_type in HTTP_RESPONSE__CACHE_CONTENT_TYPES:
             response.headers[HEADER_NAME__CACHE_CONTROL] = f"public, max-age={HTTP_RESPONSE__CACHE_DURATION}"
 
 

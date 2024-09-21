@@ -47,8 +47,8 @@ class Fast_API__Http_Events(Type_Safe):
 
     def clean_request_data(self, request_data: Fast_API__Http_Event):
         if self.clean_data:
-            self.clean_request_data_field(request_data.http_event_request, 'headers'        , 'cookie')
-            self.clean_request_data_field(request_data                   , 'response_headers', 'cookie')
+            self.clean_request_data_field(request_data.http_event_request , 'headers', 'cookie')
+            self.clean_request_data_field(request_data.http_event_response, 'headers', 'cookie')
 
     def clean_request_data_field(self, request_data, variable_name, field_name):
         with request_data as _:
