@@ -2,6 +2,9 @@ import logging
 import time
 from decimal                                import Decimal
 from fastapi                                import Response, Request
+
+from osbot_fast_api.api.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
+from osbot_fast_api.api.Fast_API__Http_Event__Request import Fast_API__Http_Event__Request
 from osbot_utils.base_classes.Type_Safe     import Type_Safe
 from osbot_utils.helpers.Random_Guid        import Random_Guid
 from osbot_utils.helpers.trace.Trace_Call   import Trace_Call
@@ -18,25 +21,14 @@ HTTP_RESPONSE__CACHE_CONTENT_TYPES = ['text/css; charset=utf-8'         ,
 
 
 class Fast_API__Http_Event(Type_Safe):
-    fast_api_name           : str           = None
-    log_messages            : list
-    client_city             : str           = None
-    client_country          : str           = None
-    client_ip               : str           = None
-    domain                  : str           = None
+    http_event_info         : Fast_API__Http_Event__Info
+    http_event_request      : Fast_API__Http_Event__Request
+    request_id              : Random_Guid                           # todo: rename to http_event_id
     response_content_length : str           = None
     response_content_type   : str           = None
     response_end_time       : Decimal       = None
     response_status_code    : int           = None
     response_headers        : dict
-    request_id              : Random_Guid
-    request_duration        : Decimal       = None
-    request_host_name       : str           = None
-    request_headers         : dict
-    request_method          : str           = None
-    request_port            : int           = None
-    request_start_time      : Decimal       = None
-    request_path            : str           = None
     timestamp               : int
     thread_id               : int
     traces                  : list
@@ -47,7 +39,7 @@ class Fast_API__Http_Event(Type_Safe):
         message = dict( level     = level          ,
                         text      = message_text   ,
                         timestamp = timestamp_delta)
-        self.log_messages.append(message)
+        self.http_event_info.log_messages.append(message)
 
     def add_traces(self, trace_call: Trace_Call):
         view_model             = trace_call.view_data()
@@ -59,32 +51,34 @@ class Fast_API__Http_Event(Type_Safe):
     def messages(self):
 
         messages = []
-        for log_message in self.log_messages:
-            #messages.append(f"{log_message.get('text')} ({log_message.get('timestamp')})")
+        for log_message in self.http_event_info.log_messages:
             messages.append(log_message.get('text'))
         return messages
 
     def on_request(self, request: Request):
         self.timestamp          = timestamp_utc_now()
-        self.request_headers    = dict(request.headers)
-        self.request_host_name  = request.url.hostname
-        self.request_method     = request.method
-        self.request_path       = request.url.path
-        self.request_port       = request.url.port
-        self.request_start_time = Decimal(time.time())
-        self.thread_id          = current_thread_id()
-        self.domain             = request.headers.get('cloudfront-domain'        )
-        self.client_country     = request.headers.get('cloudfront-viewer-country')
-        self.client_city        = request.headers.get('cloudfront-viewer-city'   )
-        self.client_ip          = request.client.host
+        # http_event_request
+        self.http_event_request.headers      = dict(request.headers)
+        self.http_event_request.host_name    = request.url.hostname
+        self.http_event_request.method       = request.method
+        self.http_event_request.path         = request.url.path
+        self.http_event_request.port         = request.url.port
+        self.http_event_request.start_time   = Decimal(time.time())
+        # http_event_info
+        self.http_event_info.domain          = request.headers.get('cloudfront-domain'        )
+        self.http_event_info.client_country  = request.headers.get('cloudfront-viewer-country')
+        self.http_event_info.client_city     = request.headers.get('cloudfront-viewer-city'   )
+        self.http_event_info.client_ip       = request.client.host
+
+        self.thread_id = current_thread_id()
         self.set_request_headers(request)
 
     def on_response(self, response: Response):
-        self.response_end_time       = Decimal(time.time())
-        self.request_duration        = self.response_end_time - self.request_start_time
-        self.request_start_time      = self.request_start_time.quantize(Decimal('0.001')) # make sure these duration objects doing have move that 3 decimal points
-        self.response_end_time       = self.response_end_time .quantize(Decimal('0.001')) # todo: see if there is a better way to do this (keeping the decimal points clean)
-        self.request_duration        = self.request_duration  .quantize(Decimal('0.001')) #       (maybe a custom Decimal class)
+        self.response_end_time              = Decimal(time.time())
+        self.http_event_request.duration    = self.response_end_time - self.http_event_request.start_time       # todo: move this normalisation logic into the Http_Event_* classes
+        self.http_event_request.start_time  = self.http_event_request.start_time.quantize(Decimal('0.001'))     # make sure these duration objects doing have move that 3 decimal points
+        self.response_end_time              = self.response_end_time            .quantize(Decimal('0.001'))                # todo: see if there is a better way to do this (keeping the decimal points clean)
+        self.http_event_request.duration    = self.http_event_request.duration  .quantize(Decimal('0.001'))     #       (maybe a custom Decimal class)
 
         if response:
             self.response_content_type   = response.headers.get('content-type')

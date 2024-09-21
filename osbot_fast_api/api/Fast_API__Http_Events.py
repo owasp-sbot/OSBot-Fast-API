@@ -1,6 +1,7 @@
 import types
 from collections                                    import deque
 from osbot_fast_api.api.Fast_API__Http_Event        import Fast_API__Http_Event
+from osbot_fast_api.api.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
 from osbot_utils.base_classes.Type_Safe             import Type_Safe
 from fastapi                                        import Request
 from starlette.responses                            import Response
@@ -46,8 +47,8 @@ class Fast_API__Http_Events(Type_Safe):
 
     def clean_request_data(self, request_data: Fast_API__Http_Event):
         if self.clean_data:
-            self.clean_request_data_field(request_data, 'request_headers' , 'cookie')
-            self.clean_request_data_field(request_data, 'response_headers', 'cookie')
+            self.clean_request_data_field(request_data.http_event_request, 'headers'        , 'cookie')
+            self.clean_request_data_field(request_data                   , 'response_headers', 'cookie')
 
     def clean_request_data_field(self, request_data, variable_name, field_name):
         with request_data as _:
@@ -67,20 +68,21 @@ class Fast_API__Http_Events(Type_Safe):
         #print(f">>>>> on on_response_stream_end : {state}")
 
     def create_request_data(self, request):
-        kwargs        = dict(fast_api_name     = self.fast_api_name  )
-        request_data = Fast_API__Http_Event(**kwargs)
-        request_id   = request_data.request_id                              # get the random request_id/guid that was created in the ctor of Fast_API__Request_Data
+        kwargs                         = dict(fast_api_name = self.fast_api_name)
+        http_event_info                = Fast_API__Http_Event__Info(**kwargs)
+        http_event                     = Fast_API__Http_Event(http_event_info=http_event_info)
+        request_id                     = http_event.request_id              # get the random request_id/guid that was created in the ctor of Fast_API__Request_Data
         request.state.http_events      = self                               # store a copy of this object in the request (so that it is available durant the request handling)
         request.state.request_id       = request_id                         # store request_id in request.state
-        request.state.request_data     = request_data                       # store request_data object in request.stat
-        self.requests_data[request_id] = request_data                       # capture request_data in self.requests_data
+        request.state.request_data     = http_event                         # store request_data object in request.stat
+        self.requests_data[request_id] = http_event                         # capture request_data in self.requests_data
         self.requests_order.append(request_id)                              # capture request order in self.requests_order
 
         if len(self.requests_order) > self.max_requests_logged:             # remove oldest request if we have more than max_requests_logged
             request_id_to_remove = self.requests_order.popleft()            # todo: move this to a separate method that is responsible for the size
             del self.requests_data[request_id_to_remove]                    #       in fact the whole requests_data should in a separate class
 
-        return request_data
+        return http_event
 
     def request_data(self, request: Request):                   # todo: refactor all this request_data into a Request_Data class
         if not hasattr(request.state, "request_data"):
