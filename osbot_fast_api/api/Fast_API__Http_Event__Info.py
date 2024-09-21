@@ -8,3 +8,5 @@ class Fast_API__Http_Event__Info(Type_Safe):
     client_country          : str           = None
     client_ip               : str           = None
     domain                  : str           = None
+    timestamp               : int
+    thread_id               : int

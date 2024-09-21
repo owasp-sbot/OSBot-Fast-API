@@ -43,12 +43,14 @@ class test_Mock_Obj__Fast_API__Request_Data(TestCase):
             assert type(_) is Fast_API__Http_Event
             res_content_type   = self.mock_request_data.content_type
             res_content_length = str(len(self.mock_request_data.res_content))
-            expected_data = {'http_event_info'          : { 'client_city'   : self.mock_request_data.city              ,
-                                                            'client_country': self.mock_request_data.country           ,
-                                                            'client_ip'     : 'pytest'                                 ,
-                                                            'domain'        : self.mock_request_data.domain            ,
-                                                            'fast_api_name' : self.mock_request_data.fast_api_name     ,
-                                                            'log_messages'  : []                                       },
+            expected_data = {'http_event_info'          : { 'client_city'   : self.mock_request_data.city               ,
+                                                            'client_country': self.mock_request_data.country            ,
+                                                            'client_ip'     : 'pytest'                                  ,
+                                                            'domain'        : self.mock_request_data.domain             ,
+                                                            'fast_api_name' : self.mock_request_data.fast_api_name      ,
+                                                            'log_messages'  : []                                        ,
+                                                            'thread_id'     : _.http_event_info.thread_id               ,
+                                                            'timestamp'     : _.http_event_info.timestamp               },
                              'http_event_request'       : { 'duration'      : Decimal('0.000')                          ,
                                                             'headers'       : self.mock_request_data.req_headers_data   ,
                                                             'host_name'     : self.mock_request_data.hostname           ,
@@ -65,10 +67,7 @@ class test_Mock_Obj__Fast_API__Request_Data(TestCase):
                                                                                 'fast-api-request-id': _.request_id    },
                                                             'status_code'   : self.mock_request_data.res_status_code    },
                              'http_event_traces'        : { 'traces'                   : []                             ,
-                                                            'traces_count'             : 0                              },
-                             'thread_id'                : _.thread_id                                                    ,
-                             'timestamp'                : _.timestamp                                                    ,
-                                                                      }
+                                                            'traces_count'             : 0                              }}
             assert request_data.json() == expected_data
 
 

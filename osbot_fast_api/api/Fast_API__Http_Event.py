@@ -1,17 +1,16 @@
 import logging
 import time
-from decimal                                import Decimal
-from fastapi                                import Response, Request
-
-from osbot_fast_api.api.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
-from osbot_fast_api.api.Fast_API__Http_Event__Request import Fast_API__Http_Event__Request
-from osbot_fast_api.api.Fast_API__Http_Event__Response import Fast_API__Http_Event__Response
-from osbot_fast_api.api.Fast_API__Http_Event__Traces import Fast_API__Http_Event__Traces
-from osbot_utils.base_classes.Type_Safe     import Type_Safe
-from osbot_utils.helpers.Random_Guid        import Random_Guid
-from osbot_utils.helpers.trace.Trace_Call   import Trace_Call
-from osbot_utils.utils.Misc                 import timestamp_utc_now, current_thread_id, str_to_bytes
-from osbot_utils.utils.Objects              import pickle_to_bytes
+from decimal                                            import Decimal
+from fastapi                                            import Response, Request
+from osbot_fast_api.api.Fast_API__Http_Event__Info      import Fast_API__Http_Event__Info
+from osbot_fast_api.api.Fast_API__Http_Event__Request   import Fast_API__Http_Event__Request
+from osbot_fast_api.api.Fast_API__Http_Event__Response  import Fast_API__Http_Event__Response
+from osbot_fast_api.api.Fast_API__Http_Event__Traces    import Fast_API__Http_Event__Traces
+from osbot_utils.base_classes.Type_Safe                 import Type_Safe
+from osbot_utils.helpers.Random_Guid                    import Random_Guid
+from osbot_utils.helpers.trace.Trace_Call               import Trace_Call
+from osbot_utils.utils.Misc                             import timestamp_utc_now, current_thread_id, str_to_bytes
+from osbot_utils.utils.Objects                          import pickle_to_bytes
 
 HEADER_NAME__FAST_API_REQUEST_ID   = 'fast-api-request-id'
 HEADER_NAME__CACHE_CONTROL         = "cache-control"
@@ -28,11 +27,9 @@ class Fast_API__Http_Event(Type_Safe):
     http_event_response     : Fast_API__Http_Event__Response
     http_event_traces       : Fast_API__Http_Event__Traces
     request_id              : Random_Guid                           # todo: rename to http_event_id
-    timestamp               : int
-    thread_id               : int
 
     def add_log_message(self, message_text, level:int =  logging.INFO):
-        timestamp_delta = timestamp_utc_now()  - self.timestamp
+        timestamp_delta = timestamp_utc_now()  - self.http_event_info.timestamp
         message = dict( level     = level          ,
                         text      = message_text   ,
                         timestamp = timestamp_delta)
@@ -41,8 +38,8 @@ class Fast_API__Http_Event(Type_Safe):
     def add_traces(self, trace_call: Trace_Call):
         view_model             = trace_call.view_data()
         view_model_bytes       = pickle_to_bytes(view_model)
-        self.traces.append(view_model_bytes)
-        self.traces_count += len(view_model)
+        self.http_event_traces.traces.append(view_model_bytes)
+        self.http_event_traces.traces_count += len(view_model)
         self.add_log_message(f"added {len(view_model)} traces")
 
     def messages(self):
@@ -53,7 +50,7 @@ class Fast_API__Http_Event(Type_Safe):
         return messages
 
     def on_request(self, request: Request):
-        self.timestamp          = timestamp_utc_now()
+
         # http_event_request
         self.http_event_request.headers      = dict(request.headers)
         self.http_event_request.host_name    = request.url.hostname
@@ -61,16 +58,19 @@ class Fast_API__Http_Event(Type_Safe):
         self.http_event_request.path         = request.url.path
         self.http_event_request.port         = request.url.port
         self.http_event_request.start_time   = Decimal(time.time())
+
         # http_event_info
         self.http_event_info.domain          = request.headers.get('cloudfront-domain'        )
         self.http_event_info.client_country  = request.headers.get('cloudfront-viewer-country')
         self.http_event_info.client_city     = request.headers.get('cloudfront-viewer-city'   )
         self.http_event_info.client_ip       = request.client.host
+        self.http_event_info.timestamp       = timestamp_utc_now()
+        self.http_event_info.thread_id       = current_thread_id()
 
-        self.thread_id = current_thread_id()
         self.set_request_headers(request)
 
     def on_response(self, response: Response):
+        # http_event_response
         self.http_event_response.end_time   = Decimal(time.time())
         self.http_event_request.duration    = self.http_event_response.end_time - self.http_event_request.start_time    # todo: move this normalisation logic into the Http_Event_* classes
         self.http_event_request.start_time  = self.http_event_request.start_time .quantize(Decimal('0.001'))            # make sure these duration objects doing have move that 3 decimal points

@@ -62,12 +62,14 @@ class test_Fast_API__Http_Events(TestCase):
             assert _.requests_data[self.request_id] == self.request_data
 
             #message_timestamp = self.request_data.log_messages[0].get('timestamp')
-            expected_data = { 'http_event_info'        : { 'client_city'    : None                  ,
-                                                           'client_country' : None                  ,
-                                                           'client_ip'      : 'pytest'              ,
-                                                           'domain'         : None                  ,
-                                                           'fast_api_name'  : ''                    ,
-                                                           'log_messages'   : []                    },
+            expected_data = { 'http_event_info'        : { 'client_city'    : None                                              ,
+                                                           'client_country' : None                                              ,
+                                                           'client_ip'      : 'pytest'                                          ,
+                                                           'domain'         : None                                              ,
+                                                           'fast_api_name'  : ''                                                ,
+                                                           'log_messages'   : []                                                ,
+                                                           'thread_id'      : self.request_data.http_event_info.thread_id       ,
+                                                           'timestamp'      : self.request_data.http_event_info.timestamp       },
                               'http_event_request'     : { 'duration'       : None                                              ,
                                                            'headers'        : {}                                                ,
                                                            'host_name'      : None                                              ,
@@ -82,10 +84,7 @@ class test_Fast_API__Http_Events(TestCase):
                                                            'status_code'    : None                                              },
                               'http_event_traces'      : { 'traces'         : []                                                ,
                                                            'traces_count'   : 0                                                 },
-                              'request_id'             : self.request_id                        ,
-                              'thread_id'              : self.request_data.thread_id            ,
-                              'timestamp'              : self.request_data.timestamp            ,
-                              }
+                              'request_id'             : self.request_id                                                        }
             assert self.request_data.json() == expected_data
 
     def test_on_http_response(self):
@@ -103,12 +102,14 @@ class test_Fast_API__Http_Events(TestCase):
 
 
 
-            expected_data = { 'http_event_info'         : { 'client_city'     : None     ,
-                                                            'client_country'  : None     ,
-                                                            'client_ip'       : 'pytest' ,
-                                                            'domain'          : None     ,
-                                                            'fast_api_name'   : ''       ,
-                                                            'log_messages'    : []       },
+            expected_data = { 'http_event_info'         : { 'client_city'     : None                                            ,
+                                                            'client_country'  : None                                            ,
+                                                            'client_ip'       : 'pytest'                                        ,
+                                                            'domain'          : None                                            ,
+                                                            'fast_api_name'   : ''                                              ,
+                                                            'thread_id'       : self.request_data.http_event_info.thread_id     ,
+                                                            'timestamp'       : self.request_data.http_event_info.timestamp     ,
+                                                            'log_messages'    : []                                              },
                               'http_event_request'       : { 'duration'       : Decimal('0.001')                                ,
                                                              'host_name'      : None                                            ,
                                                              'headers'        : {}                                              ,
@@ -123,9 +124,7 @@ class test_Fast_API__Http_Events(TestCase):
                                                             'end_time'       : self.request_data.http_event_response.end_time   ,
                                                             'status_code'    : 200                                              },
                               'http_event_traces'       : { 'traces'                  : []                                      ,
-                                                            'traces_count'            : 0                                       },
-                              'thread_id'               : self.request_data.thread_id                                           ,
-                              'timestamp'               : self.request_data.timestamp                                           }
+                                                            'traces_count'            : 0                                       }}
 
             assert self.request_data.http_event_request.duration == Decimal(0.001).quantize(Decimal('0.001'))
             assert self.request_data.json()                      == expected_data
