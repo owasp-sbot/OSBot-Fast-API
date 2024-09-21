@@ -1,4 +1,4 @@
-from osbot_fast_api.api.Fast_API__Request_Data  import Fast_API__Request_Data
+from osbot_fast_api.api.Fast_API__Request_Data  import Fast_API__Http_Event
 from osbot_utils.base_classes.Type_Safe         import Type_Safe
 from fastapi                                    import Request
 from starlette.responses                        import Response
@@ -27,7 +27,7 @@ class Mock_Obj__Fast_API__Request_Data(Type_Safe):
     req_headers      : list
     req_headers_data : dict
     request          : Request                = None
-    request_data     : Fast_API__Request_Data = None
+    request_data     : Fast_API__Http_Event = None
     res_content      : bytes
     res_headers      : dict
     res_status_code  : int
@@ -86,7 +86,7 @@ class Mock_Obj__Fast_API__Request_Data(Type_Safe):
 
     def create_request_data(self):
         kwargs = dict(fast_api_name=self.fast_api_name)
-        with Fast_API__Request_Data(**kwargs) as _:
+        with Fast_API__Http_Event(**kwargs) as _:
             self.request_data = _
             _.on_request(self.request)
             _.on_response(self.response)

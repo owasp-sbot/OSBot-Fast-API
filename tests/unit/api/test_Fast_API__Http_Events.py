@@ -11,7 +11,7 @@ from starlette.datastructures                       import MutableHeaders, Addre
 from osbot_fast_api.api.Fast_API import Fast_API
 from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
 from osbot_fast_api.api.Fast_API__Http_Events       import Fast_API__Http_Events, HTTP_EVENTS__MAX_REQUESTS_LOGGED
-from osbot_fast_api.api.Fast_API__Request_Data      import Fast_API__Request_Data
+from osbot_fast_api.api.Fast_API__Request_Data      import Fast_API__Http_Event
 from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
 from osbot_utils.testing.Stdout                     import Stdout
 
@@ -191,7 +191,7 @@ class test_Fast_API__Http_Events(TestCase):
             assert trace_call_1.started is False                            # this value should not change
             with Stdout():
                 pprint('some pprint')                                       # some call to generate some traces
-            Fast_API__Request_Data()
+            Fast_API__Http_Event()
             _.on_http_trace_stop(self.request, self.response)
             assert trace_call_1.started is False
 

@@ -1,7 +1,7 @@
 from decimal import Decimal
 from unittest import TestCase
 
-from osbot_fast_api.api.Fast_API__Request_Data import Fast_API__Request_Data
+from osbot_fast_api.api.Fast_API__Request_Data import Fast_API__Http_Event
 from osbot_fast_api.utils.testing.Mock_Obj__Fast_API__Request_Data import Mock_Obj__Fast_API__Request_Data
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects import obj_data
@@ -43,7 +43,7 @@ class test_Mock_Obj__Fast_API__Request_Data(TestCase):
     def test_create(self):
         request_data =  self.mock_request_data.create()
         with request_data as _:
-            assert type(_) is Fast_API__Request_Data
+            assert type(_) is Fast_API__Http_Event
             res_content_type   = self.mock_request_data.content_type
             res_content_length = str(len(self.mock_request_data.res_content))
             expected_data = {'client_city'              : self.mock_request_data.city               ,

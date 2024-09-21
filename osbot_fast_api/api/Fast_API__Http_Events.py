@@ -1,6 +1,6 @@
 import types
 from collections                                    import deque
-from osbot_fast_api.api.Fast_API__Request_Data      import Fast_API__Request_Data
+from osbot_fast_api.api.Fast_API__Request_Data      import Fast_API__Http_Event
 from osbot_utils.base_classes.Type_Safe             import Type_Safe
 from fastapi                                        import Request
 from starlette.responses                            import Response
@@ -51,7 +51,7 @@ class Fast_API__Http_Events(Type_Safe):
 
     def create_request_data(self, request):
         kwargs        = dict(fast_api_name     = self.fast_api_name  )
-        request_data = Fast_API__Request_Data(**kwargs)
+        request_data = Fast_API__Http_Event(**kwargs)
         request_id   = request_data.request_id                              # get the random request_id/guid that was created in the ctor of Fast_API__Request_Data
         request.state.http_events      = self                               # store a copy of this object in the request (so that it is available durant the request handling)
         request.state.request_id       = request_id                         # store request_id in request.state
