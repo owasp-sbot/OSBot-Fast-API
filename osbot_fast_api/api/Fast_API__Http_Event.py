@@ -26,7 +26,7 @@ class Fast_API__Http_Event(Type_Safe):
     http_event_request      : Fast_API__Http_Event__Request
     http_event_response     : Fast_API__Http_Event__Response
     http_event_traces       : Fast_API__Http_Event__Traces
-    request_id              : Random_Guid                           # todo: rename to http_event_id
+    event_id                : Random_Guid                           # todo: rename to http_event_id
 
     def add_log_message(self, message_text, level:int =  logging.INFO):
         timestamp_delta = timestamp_utc_now()  - self.http_event_info.timestamp
@@ -85,10 +85,10 @@ class Fast_API__Http_Event(Type_Safe):
             self.http_event_response.headers        = dict(response.headers)
 
     def set_request_headers(self, request: Request):
-        request.headers._list.append((b'fast-api-request-id', str_to_bytes(self.request_id)))
+        request.headers._list.append((b'fast-api-request-id', str_to_bytes(self.event_id)))
 
     def set_response_headers(self, response:Response):
-        response.headers[HEADER_NAME__FAST_API_REQUEST_ID] = self.request_id
+        response.headers[HEADER_NAME__FAST_API_REQUEST_ID] = self.event_id
         self.set_response_header_for_static_files_cache(response)
         return self
 

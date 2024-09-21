@@ -71,12 +71,12 @@ class Fast_API__Http_Events(Type_Safe):
         kwargs                         = dict(fast_api_name = self.fast_api_name)
         http_event_info                = Fast_API__Http_Event__Info(**kwargs)
         http_event                     = Fast_API__Http_Event(http_event_info=http_event_info)
-        request_id                     = http_event.request_id              # get the random request_id/guid that was created in the ctor of Fast_API__Request_Data
+        event_id                       = http_event.event_id                # get the random request_id/guid that was created in the ctor of Fast_API__Request_Data
         request.state.http_events      = self                               # store a copy of this object in the request (so that it is available durant the request handling)
-        request.state.request_id       = request_id                         # store request_id in request.state
+        request.state.request_id       = event_id                           # store request_id in request.state
         request.state.request_data     = http_event                         # store request_data object in request.stat
-        self.requests_data[request_id] = http_event                         # capture request_data in self.requests_data
-        self.requests_order.append(request_id)                              # capture request order in self.requests_order
+        self.requests_data[event_id]   = http_event                         # capture request_data in self.requests_data
+        self.requests_order.append(event_id)                                # capture request order in self.requests_order
 
         if len(self.requests_order) > self.max_requests_logged:             # remove oldest request if we have more than max_requests_logged
             request_id_to_remove = self.requests_order.popleft()            # todo: move this to a separate method that is responsible for the size
@@ -92,12 +92,12 @@ class Fast_API__Http_Events(Type_Safe):
         return request_data
 
 
-    def request_id(self, request):
-        return self.request_data(request).request_id
+    def event_id(self, request):
+        return self.request_data(request).event_id
 
     def request_messages(self, request):
-        request_id = self.request_id(request)
-        return self.requests_data.get(request_id, {}).get('messages', [])
+        event_id = self.event_id(request)
+        return self.requests_data.get(event_id, {}).get('messages', [])
 
     def request_trace_start(self, request):
         if self.trace_calls:

@@ -25,13 +25,13 @@ class Fast_API__Thread__Trace_Request:
 
     def __init__(self, request, root_node=None):
         self.request     = request
-        self.request_id  = None
+        self.event_id    = None
         self.trace_call  = None
         self.root_node   = root_node
 
     def __enter__(self):
         if self.request:
-            self.request_id = getattr(self.request.state, 'request_id', None)
+            self.event_id   = getattr(self.request.state, 'event_id', None)
             self.trace_call = getattr(self.request.state, 'trace_call', None)
 
         if self.trace_call:

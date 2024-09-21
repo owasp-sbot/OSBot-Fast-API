@@ -24,7 +24,7 @@ class test_Fast_API__Http_Events(TestCase):
         self.request      = Request(self.scope)
         self.response     = Response()
         self.request_data = self.http_events.request_data(self.request)
-        self.request_id   = self.http_events.request_id  (self.request)       # this is needed by multiple methods
+        self.event_id     = self.http_events.event_id  (self.request)       # this is needed by multiple methods
 
 
     def test__init__(self):
@@ -35,31 +35,31 @@ class test_Fast_API__Http_Events(TestCase):
                                'callback_on_request'  : None                                 ,
                                'callback_on_response' : None                                 ,
                                'fast_api_name'        : ''                                   ,
-                               'requests_data'        : { self.request_id: self.request_data},
-                               'requests_order'       : deque([self.request_id])             ,
+                               'requests_data'        : { self.event_id: self.request_data},
+                               'requests_order'       : deque([self.event_id])             ,
                                'max_requests_logged'  : HTTP_EVENTS__MAX_REQUESTS_LOGGED     ,
                                'trace_call_config'    : _.trace_call_config                  ,
                                'trace_calls'          : False                                }
             assert _.__locals__() == expected_locals
             assert type(_.trace_call_config)  == Trace_Call__Config
-            assert is_guid(self.request_id)
+            assert is_guid(self.event_id)
 
-    def test_request_id(self):
+    def test_event_id(self):
         with self.http_events as _:
-            assert self.request_id                  == _.request_id(self.request)
-            assert self.request_data                == _.request_data(self.request)
-            assert _.requests_data[self.request_id] == self.request_data
+            assert self.event_id                  == _.event_id(self.request)
+            assert self.request_data              == _.request_data(self.request)
+            assert _.requests_data[self.event_id] == self.request_data
 
     def test_on_http_request(self):
         with self.http_events as _:
             _.on_http_request(self.request)
 
-            assert self.request.state.request_id    == self.request_id
-            assert _.requests_data                  == { self.request_id: self.request_data}
-            assert _.requests_order                 == deque([self.request_id])
-            assert self.request_data.request_id     == self.request_id
+            assert self.request.state.request_id    == self.event_id
+            assert _.requests_data                  == { self.event_id: self.request_data}
+            assert _.requests_order                 == deque([self.event_id])
+            assert self.request_data.event_id       == self.event_id
             assert _.request_data(self.request)     == self.request_data
-            assert _.requests_data[self.request_id] == self.request_data
+            assert _.requests_data[self.event_id] == self.request_data
 
             #message_timestamp = self.request_data.log_messages[0].get('timestamp')
             expected_data = { 'http_event_info'        : { 'client_city'    : None                                              ,
@@ -84,7 +84,7 @@ class test_Fast_API__Http_Events(TestCase):
                                                            'status_code'    : None                                              },
                               'http_event_traces'      : { 'traces'         : []                                                ,
                                                            'traces_count'   : 0                                                 },
-                              'request_id'             : self.request_id                                                        }
+                              'event_id'               : self.event_id                                                        }
             assert self.request_data.json() == expected_data
 
     def test_on_http_response(self):
@@ -96,9 +96,9 @@ class test_Fast_API__Http_Events(TestCase):
             _.on_http_response(self.request, self.response)
 
             #assert _.log_requests  is False
-            assert _.requests_data == {self.request_id : self.request_data}
+            assert _.requests_data == {self.event_id : self.request_data}
 
-            assert self.response.headers == MutableHeaders({'content-length': '0', 'fast-api-request-id': self.request_id})
+            assert self.response.headers == MutableHeaders({'content-length': '0', 'fast-api-request-id': self.event_id})
 
 
 
@@ -117,14 +117,14 @@ class test_Fast_API__Http_Events(TestCase):
                                                              'path'           : self.path                                       ,
                                                              'port'           : None                                            ,
                                                              'start_time'     : self.request_data.http_event_request.start_time },
-                              'request_id'              : self.request_id                                                        ,
-                              'http_event_response'     : { 'content_length' : '0'                                              ,
-                                                            'content_type'   : None                                             ,
-                                                            'headers'        : self.request_data.http_event_response.headers    ,
-                                                            'end_time'       : self.request_data.http_event_response.end_time   ,
-                                                            'status_code'    : 200                                              },
-                              'http_event_traces'       : { 'traces'                  : []                                      ,
-                                                            'traces_count'            : 0                                       }}
+                              'event_id'                 : self.event_id                                                        ,
+                              'http_event_response'      : { 'content_length' : '0'                                              ,
+                                                             'content_type'   : None                                             ,
+                                                             'headers'        : self.request_data.http_event_response.headers    ,
+                                                             'end_time'       : self.request_data.http_event_response.end_time   ,
+                                                             'status_code'    : 200                                              },
+                              'http_event_traces'        : { 'traces'                  : []                                      ,
+                                                             'traces_count'            : 0                                       }}
 
             assert self.request_data.http_event_request.duration == Decimal(0.001).quantize(Decimal('0.001'))
             assert self.request_data.json()                      == expected_data
