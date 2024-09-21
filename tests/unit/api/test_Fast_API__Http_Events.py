@@ -1,9 +1,7 @@
-import os
-from collections import deque
-from decimal import Decimal
-from unittest import TestCase
-
 import pytest
+from collections                                    import deque
+from decimal                                        import Decimal
+from unittest                                       import TestCase
 from fastapi                                        import Request
 from starlette.responses                            import Response
 from starlette.datastructures                       import MutableHeaders, Address
