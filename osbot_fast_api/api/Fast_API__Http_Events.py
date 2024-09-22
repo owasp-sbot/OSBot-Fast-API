@@ -43,7 +43,7 @@ class Fast_API__Http_Events(Type_Safe):
             self.request_trace_stop(request)                                             # todo: change this to be on text/event-stream"; charset=utf-8 (which is the one that happens with the LLMs responses)
             self.clean_request_data(_)
             if self.callback_on_response:
-                self.callback_on_response(_)
+                self.callback_on_response(response, _)
 
     def clean_request_data(self, request_data: Fast_API__Http_Event):
         if self.clean_data:

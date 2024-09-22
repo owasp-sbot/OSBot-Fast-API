@@ -28,6 +28,16 @@ class Fast_API__Http_Event(Type_Safe):
     http_event_traces       : Fast_API__Http_Event__Traces
     event_id                : Random_Guid                           # todo: rename to http_event_id
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.set_ids()
+
+    def set_ids(self):
+        self.http_event_info.event_id       = self.event_id
+        self.http_event_request.event_id    = self.event_id
+        self.http_event_response.event_id   = self.event_id
+        self.http_event_traces.event_id     = self.event_id
+
     def add_log_message(self, message_text, level:int =  logging.INFO):
         timestamp_delta = timestamp_utc_now()  - self.http_event_info.timestamp
         message = dict( level     = level          ,
