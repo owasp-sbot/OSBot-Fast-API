@@ -11,6 +11,7 @@ from osbot_utils.base_classes.Type_Safe                                     impo
 from starlette.middleware.cors                                              import CORSMiddleware
 from starlette.responses                                                    import RedirectResponse, JSONResponse
 from starlette.staticfiles                                                  import StaticFiles
+from osbot_utils.helpers.Random_Guid                                        import Random_Guid
 from osbot_utils.utils.Lists                                                import list_index_by
 from osbot_utils.utils.Misc                                                 import list_set
 from osbot_utils.decorators.lists.index_by                                  import index_by
@@ -29,6 +30,7 @@ class Fast_API(Type_Safe):
     default_routes : bool = True
     name           : str  = None
     http_events    : Fast_API__Http_Events
+    server_id      : Random_Guid
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
