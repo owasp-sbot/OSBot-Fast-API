@@ -126,10 +126,9 @@ class Fast_API(Type_Safe):
     def routes_paths(self, include_default=False, expand_mounts=False):
         routes_paths = self.routes(include_default=include_default, expand_mounts=expand_mounts)
         return list_set(list_index_by(routes_paths, 'http_path'))
-        # paths = list_set(self.routes(index_by='http_path'))
-        # if include_default:
-        #     return paths
-        # return list_minus_list(list_a=paths, list_b=DEFAULT_ROUTES_PATHS)
+
+    def routes_paths_all(self):
+        return self.routes_paths(include_default=True, expand_mounts=True)
 
     def setup_middlewares(self):                 # overwrite to add more middlewares
         self.setup_middleware__http_events()
