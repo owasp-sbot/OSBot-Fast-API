@@ -29,10 +29,11 @@ class Fast_API_Utils:
                     methods = ['GET', 'HEAD']
                 else:
                     if expand_mounts:
-                        mount_kwargs = dict(router          = route.app.router,
-                                            include_default = include_default ,
-                                            expand_mounts   = expand_mounts   ,
-                                            route_prefix    = route.path      )
+                        mount_route_prefix = route_prefix + route.path
+                        mount_kwargs = dict(router          = route.app.router   ,
+                                            include_default = include_default    ,
+                                            expand_mounts   = expand_mounts      ,
+                                            route_prefix    = mount_route_prefix )
                         mount_routes = self.fastapi_routes(**mount_kwargs)
                         routes.extend(mount_routes)
                     continue
