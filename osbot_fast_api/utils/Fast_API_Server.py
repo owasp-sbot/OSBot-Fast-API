@@ -3,29 +3,46 @@ import threading
 from urllib.parse           import urljoin
 from threading              import Thread
 from fastapi                import FastAPI
-from osbot_utils.utils.Http import wait_for_port, wait_for_port_closed, is_port_open
+from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.testing.Stderr import Stderr
+from osbot_utils.testing.Stdout import Stdout
+from osbot_utils.utils.Http import wait_for_port, wait_for_port_closed, is_port_open, url_join_safe
+from osbot_utils.utils.Objects import base_types
 from uvicorn                import Config, Server
 from osbot_utils.utils.Misc import random_port
 
 FAST_API__HOST      = "127.0.0.1"
 FAST_API__LOG_LEVEL = "error"
 
-class Fast_API_Server:
-    def __init__(self, app, port=None, log_level=None):
-        self.app       : FastAPI = app
-        self.port      : int     = port or random_port()
-        self.log_level : str     = log_level or FAST_API__LOG_LEVEL
-        self.config    : Config  = Config(app=self.app, host=FAST_API__HOST, port=self.port, log_level=self.log_level)
-        self.server    : Server  = None
-        self.thread    : Thread  = None
-        self.running   : bool    = False
+class Fast_API_Server(Type_Safe):
+    app       : FastAPI
+    port      : int
+    log_level : str     = FAST_API__LOG_LEVEL
+    config    : Config  = None
+    server    : Server  = None
+    thread    : Thread  = None
+    running   : bool    = False
+    stdout    : Stdout
+    stderr    : Stderr
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.port == 0:
+            self.port = random_port()
+        if self.config is None:
+            self.config = Config(app=self.app, host=FAST_API__HOST, port=self.port, log_level=self.log_level)
 
     def __enter__(self):
+        self.stderr.start()
+        self.stdout.start()
         self.start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
+        self.stdout.stop()
+        self.stderr.stop()
+        pass
 
     def is_port_open(self):
         return is_port_open(host=FAST_API__HOST, port=self.port)
@@ -50,8 +67,18 @@ class Fast_API_Server:
         return result
 
     def requests_get(self, path=''):
-        url = urljoin(self.url(), path)
+        url = url_join_safe(self.url(), path)
         return requests.get(url)
+
+    def requests_post(self, path='', data=None):
+        if Type_Safe in base_types(data):
+            json_data = data.json()
+        elif type(data) is dict:
+            json_data = data
+        else:
+            raise ValueError("data must be a Type_Safe or a dict")
+        url = urljoin(self.url(), path)
+        return requests.post(url, json=json_data)
 
     def url(self):
         return f'http://{FAST_API__HOST}:{self.port}/'

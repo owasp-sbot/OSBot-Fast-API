@@ -1,4 +1,6 @@
 import os
+
+import pytest
 import requests
 from unittest                                           import TestCase
 
@@ -24,6 +26,8 @@ class test_Http_Shell__Client(TestCase):
         cls.fast_api            = Fast_API().setup()
         cls.fast_api_server     = Fast_API_Server(app=cls.fast_api.app())
         cls.auth_key            = os.environ.get(ENV__HTTP_SHELL_AUTH_KEY)
+        if cls.auth_key is None:
+            pytest.skip(f"env var {ENV__HTTP_SHELL_AUTH_KEY} not set, so skipping tests")
         cls.server_endpoint     = cls.fast_api_server.url() + 'http-shell-server'
         cls.client              = Http_Shell__Client(server_endpoint=cls.server_endpoint, auth_key=cls.auth_key, return_value_if_ok=False)
         cls.fast_api.add_route_post(cls.http_shell_server)

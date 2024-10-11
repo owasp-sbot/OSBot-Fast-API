@@ -1,13 +1,11 @@
 from unittest import TestCase
 
+import pytest
 from fastapi import FastAPI
-from flask import Flask
 from starlette.testclient                       import TestClient
-from osbot_fast_api.api.Fast_API                import Fast_API, DEFAULT__NAME__FAST_API
 from osbot_fast_api.api.routes.Routes_Config    import ROUTES__CONFIG
 from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
-from osbot_utils.utils.Dev import pprint
 from tests.unit.fast_api__for_tests import fast_api, fast_api_client
 
 EXPECTED_ROUTES_METHODS = ['redirect_to_docs', 'status', 'version']
@@ -23,7 +21,10 @@ class test_Fast_API(TestCase):
     def test__init__(self):
         assert type(self.fast_api.app()) is FastAPI
 
+    
     def test_add_flask_app(self):
+        flask = pytest.importorskip("flask", reason="Flask is not installed")
+        from flask import Flask
         path      = '/flask-app'
         flask_app = Flask(__name__)
 
