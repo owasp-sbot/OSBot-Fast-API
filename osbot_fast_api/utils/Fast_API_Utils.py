@@ -1,6 +1,6 @@
-from starlette.middleware.wsgi import WSGIMiddleware
-from starlette.routing import Mount
-from starlette.staticfiles import StaticFiles
+from starlette.middleware.wsgi  import WSGIMiddleware
+from starlette.routing          import Mount
+from starlette.staticfiles      import StaticFiles
 
 ROUTE_REDIRECT_TO_DOCS          = {'http_methods': ['GET'        ], 'http_path': '/'      , 'method_name': 'redirect_to_docs'}
 FAST_API_DEFAULT_ROUTES_PATHS   = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
