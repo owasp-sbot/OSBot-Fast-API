@@ -41,6 +41,11 @@ class Fast_API__Request(Type_Safe):
         self.set_header('cookie', f'{key}={value}')
         return self
 
+    def set_cookies(self, items):
+        for key, value in items:
+            self.set_header('cookie', f'{key}={value}')
+        return self
+
     def set_header(self, key, value):
         self.scope_headers[key] = value
         return self
