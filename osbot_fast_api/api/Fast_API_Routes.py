@@ -26,11 +26,17 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
         self.router.add_api_route(path=path, endpoint=function, methods=methods)
         return self
 
+    def add_route_delete(self, function):
+        return self.add_route(function=function, methods=['DELETE'])
+
     def add_route_get(self, function):
         return self.add_route(function=function, methods=['GET'])
 
     def add_route_post(self, function):
         return self.add_route(function=function, methods=['POST'])
+
+    def add_route_put(self, function):
+        return self.add_route(function=function, methods=['PUT'])
 
     def fast_api_utils(self):
         return Fast_API_Utils(self.app)
