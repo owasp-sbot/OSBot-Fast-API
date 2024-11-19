@@ -8,8 +8,8 @@ from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
 from tests.unit.fast_api__for_tests import fast_api, fast_api_client
 
-EXPECTED_ROUTES_METHODS = ['redirect_to_docs', 'status', 'version']
-EXPECTED_ROUTES_PATHS   = ['/', '/config/status', '/config/version']
+EXPECTED_ROUTES_METHODS = ['info', 'redirect_to_docs', 'status', 'version']
+EXPECTED_ROUTES_PATHS   = ['/', '/config/info', '/config/status', '/config/version']
 EXPECTED_DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
 
 class test_Fast_API(TestCase):

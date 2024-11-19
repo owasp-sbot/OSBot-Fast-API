@@ -59,7 +59,7 @@ class test_Http_Shell__Client(TestCase):
         del options_headers['date']
 
         assert response_shell_invoke.json()         == expected_result
-        assert self.fast_api.routes_paths()         == ['/', '/config/status', '/config/version', '/http-shell-server']
+        assert self.fast_api.routes_paths()         == ['/', '/config/info', '/config/status', '/config/version', '/http-shell-server']
         assert self.fast_api_server.port            >  19999
         assert self.fast_api_server.is_port_open()  is True
         assert response_options.json()              == { "detail"             : "Method Not Allowed" }
