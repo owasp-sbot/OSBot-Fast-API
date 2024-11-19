@@ -1,12 +1,12 @@
 from unittest import TestCase
 
 import pytest
-from fastapi import FastAPI
+from fastapi                                    import FastAPI
 from starlette.testclient                       import TestClient
 from osbot_fast_api.api.routes.Routes_Config    import ROUTES__CONFIG
 from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
-from tests.unit.fast_api__for_tests import fast_api, fast_api_client
+from tests.unit.fast_api__for_tests             import fast_api, fast_api_client
 
 EXPECTED_ROUTES_METHODS = ['info', 'redirect_to_docs', 'status', 'version']
 EXPECTED_ROUTES_PATHS   = ['/', '/config/info', '/config/status', '/config/version']

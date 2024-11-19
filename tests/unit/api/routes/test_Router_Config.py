@@ -1,8 +1,7 @@
 from unittest                                   import TestCase
 from fastapi                                    import FastAPI
-from osbot_utils.utils.Dev import pprint
 from starlette.testclient                       import TestClient
-from osbot_fast_api.api.routes.Routes_Config    import Routes_Config, ROUTES__CONFIG
+from osbot_fast_api.api.routes.Routes_Config    import Routes_Config
 from osbot_fast_api.utils.Version               import Version
 
 

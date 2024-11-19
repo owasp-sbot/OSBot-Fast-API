@@ -1,7 +1,7 @@
 import requests
-from unittest import TestCase
-from unittest.mock import patch
-from osbot_fast_api.cli.Fast_API__CLI import Fast_API__CLI
+from unittest                           import TestCase
+from unittest.mock                      import patch
+from osbot_fast_api.cli.Fast_API__CLI   import Fast_API__CLI
 
 
 class test_Fast_API__CLI(TestCase):
