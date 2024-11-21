@@ -1,14 +1,12 @@
 from unittest                                               import TestCase
 from fastapi                                                import FastAPI
 from osbot_fast_api.utils.Fast_API_Utils                    import ROUTE_REDIRECT_TO_DOCS
-from osbot_utils.utils.Dev                                  import pprint
 from osbot_utils.utils.Files                                import folder_exists, folder_name, files_names, files_list, parent_folder
-from osbot_fast_api.api.Fast_API import Fast_API, DEFAULT__NAME__FAST_API
+from osbot_fast_api.api.Fast_API                            import Fast_API
 from osbot_fast_api.api.routes.Routes_Config                import ROUTES__CONFIG
 from osbot_fast_api.examples.ex_1_simple                    import static_files
-from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple   import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, \
-    EX_1_ROUTES
-from tests.unit.api.test_Fast_API import EXPECTED_ROUTES_PATHS
+from osbot_fast_api.examples.ex_1_simple.Fast_API__Simple   import Fast_API__Simple, EX_1__FOLDER_NAME__STATIC_FOLDER, EX_1_ROUTES
+from tests.unit.api.test_Fast_API                           import EXPECTED_ROUTES_PATHS
 
 
 class test_Fast_API__Simple(TestCase):
@@ -81,7 +79,7 @@ class test_Fast_API__Simple(TestCase):
         middleware_1  = middlewares[0]
         middleware_2  = middlewares[1]
 
-        assert len(middlewares)  == 2
+        assert len(middlewares)  == 3
         assert middleware_1      == {'function_name': None                                      ,
                                      'params'       : { 'allow_credentials': True               ,
                                                         'allow_headers': ['Content-Type', 'X-Requested-With', 'Origin', 'Accept', 'Authorization'],

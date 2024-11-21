@@ -66,9 +66,9 @@ class Fast_API_Server(Type_Safe):
         self.running = False
         return result
 
-    def requests_get(self, path=''):
+    def requests_get(self, path='', **kwargs):
         url = url_join_safe(self.url(), path)
-        return requests.get(url)
+        return requests.get(url, **kwargs)
 
     def requests_post(self, path='', data=None):
         if Type_Safe in base_types(data):

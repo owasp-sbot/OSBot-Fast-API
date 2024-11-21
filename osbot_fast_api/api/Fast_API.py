@@ -1,10 +1,10 @@
 import traceback
 import types
-
 from fastapi                                                                import FastAPI, Request, HTTPException
 from fastapi.exceptions                                                     import RequestValidationError
 from starlette.middleware.wsgi                                              import WSGIMiddleware       # todo replace this with a2wsgi
 from osbot_fast_api.api.Fast_API__Http_Events                               import Fast_API__Http_Events
+from osbot_fast_api.api.middlewares.Middleware__Detect_Disconnect           import Middleware__Detect_Disconnect
 from osbot_fast_api.api.middlewares.Middleware__Http_Request                import Middleware__Http_Request
 from osbot_fast_api.utils.Version                                           import Version
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
@@ -131,9 +131,9 @@ class Fast_API(Type_Safe):
         return self.routes_paths(include_default=True, expand_mounts=True)
 
     def setup_middlewares(self):                 # overwrite to add more middlewares
+        self.setup_middleware__detect_disconnect()
         self.setup_middleware__http_events()
-        if self.enable_cors:
-            self.setup_middleware__cors()
+        self.setup_middleware__cors()
         return self
 
     def setup_routes     (self): return self     # overwrite to add rules
@@ -158,16 +158,21 @@ class Fast_API(Type_Safe):
             self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
 
     def setup_middleware__cors(self):               # todo: double check that this is working see bug test
-        self.app().add_middleware(CORSMiddleware,
-                                  allow_origins     = ["*"]                         ,
-                                  allow_credentials = True                          ,
-                                  allow_methods     = ["GET", "POST", "HEAD"]       ,
-                                  allow_headers     = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"],
-                                  expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
+        if self.enable_cors:
+            self.app().add_middleware(CORSMiddleware,
+                                      allow_origins     = ["*"]                         ,
+                                      allow_credentials = True                          ,
+                                      allow_methods     = ["GET", "POST", "HEAD"]       ,
+                                      allow_headers     = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"],
+                                      expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
+
+    def setup_middleware__detect_disconnect(self):
+        self.app().add_middleware(Middleware__Detect_Disconnect)
 
     def setup_middleware__http_events(self):
         self.app().add_middleware(Middleware__Http_Request , http_events=self.http_events)
         return self
+
 
     def user_middlewares(self):
         middlewares = []
