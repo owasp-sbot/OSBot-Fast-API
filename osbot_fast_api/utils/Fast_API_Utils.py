@@ -1,3 +1,4 @@
+from fastapi.routing            import APIWebSocketRoute
 from starlette.middleware.wsgi  import WSGIMiddleware
 from starlette.routing          import Mount
 from starlette.staticfiles      import StaticFiles
@@ -24,7 +25,7 @@ class Fast_API_Utils:
                 continue
             if type(route) is Mount:
                 if type(route.app) is WSGIMiddleware:       # todo: add better support for this mount (which is at the moment a Flask app which has a complete different route
-                    methods = []                            # cloud be any (we just dont' know)
+                    methods = []                            # cloud be any (we just don't know)
                 elif type(route.app) is StaticFiles:
                     methods = ['GET', 'HEAD']
                 else:
@@ -37,6 +38,8 @@ class Fast_API_Utils:
                         mount_routes = self.fastapi_routes(**mount_kwargs)
                         routes.extend(mount_routes)
                     continue
+            elif type(route) is APIWebSocketRoute:
+                methods = []                                # todo: add support for websocket routes
             else:
                 methods = sorted(route.methods)
             route_path = route_prefix + route.path
