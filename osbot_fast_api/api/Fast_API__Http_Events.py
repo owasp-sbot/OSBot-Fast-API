@@ -1,15 +1,16 @@
 import types
 from collections                                    import deque
-from osbot_fast_api.api.Fast_API__Http_Event        import Fast_API__Http_Event
-from osbot_fast_api.api.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
 from osbot_utils.base_classes.Type_Safe             import Type_Safe
-from fastapi                                        import Request
-from starlette.responses                            import Response
-from osbot_utils.helpers.trace.Trace_Call           import Trace_Call
 from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
-from osbot_utils.utils.Misc                         import str_md5
+
 
 HTTP_EVENTS__MAX_REQUESTS_LOGGED = 50
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from fastapi                                    import Request
+    from starlette.responses                        import Response
+    from osbot_fast_api.api.Fast_API__Http_Event    import Fast_API__Http_Event
 
 class Fast_API__Http_Events(Type_Safe):
     #log_requests          : bool = False                           # todo: change this to save on S3 and disk
@@ -29,14 +30,14 @@ class Fast_API__Http_Events(Type_Safe):
         super().__init__(**kwargs)
         self.trace_call_config.ignore_start_with = ['osbot_fast_api.api.Fast_API__Http_Events']        # so that we don't see traces from this
 
-    def on_http_request(self, request: Request):
+    def on_http_request(self, request: 'Request'):
         with self.request_data(request) as _:
             _.on_request(request)
             self.request_trace_start(request)
             if self.callback_on_request:
                 self.callback_on_request(_)
 
-    def on_http_response(self, request: Request, response:Response):
+    def on_http_response(self, request: 'Request', response: 'Response'):
         with self.request_data(request) as _:
             _.on_response(response)
             # if StreamingResponse not in base_types(response):                          # handle the special case when the response is a StreamingResponse
@@ -45,12 +46,14 @@ class Fast_API__Http_Events(Type_Safe):
             if self.callback_on_response:
                 self.callback_on_response(response, _)
 
-    def clean_request_data(self, request_data: Fast_API__Http_Event):
+    def clean_request_data(self, request_data: 'Fast_API__Http_Event'):
         if self.clean_data:
             self.clean_request_data_field(request_data.http_event_request , 'headers', 'cookie')
             self.clean_request_data_field(request_data.http_event_response, 'headers', 'cookie')
 
     def clean_request_data_field(self, request_data, variable_name, field_name):
+        from osbot_utils.utils.Misc import str_md5
+
         with request_data as _:
             variable_data = getattr(_, variable_name)
             if type(variable_data) is dict:
@@ -68,6 +71,9 @@ class Fast_API__Http_Events(Type_Safe):
         #print(f">>>>> on on_response_stream_end : {state}")
 
     def create_request_data(self, request):
+        from osbot_fast_api.api.Fast_API__Http_Event import Fast_API__Http_Event
+        from osbot_fast_api.api.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
+
         kwargs                         = dict(fast_api_name = self.fast_api_name)
         http_event_info                = Fast_API__Http_Event__Info(**kwargs)
         http_event                     = Fast_API__Http_Event(http_event_info=http_event_info)
@@ -84,7 +90,7 @@ class Fast_API__Http_Events(Type_Safe):
 
         return http_event
 
-    def request_data(self, request: Request):                   # todo: refactor all this request_data into a Request_Data class
+    def request_data(self, request: 'Request'):                   # todo: refactor all this request_data into a Request_Data class
         if not hasattr(request.state, "request_data"):
             request_data = self.create_request_data(request)
         else:
@@ -100,13 +106,17 @@ class Fast_API__Http_Events(Type_Safe):
         return self.requests_data.get(event_id, {}).get('messages', [])
 
     def request_trace_start(self, request):
+        from osbot_utils.helpers.trace.Trace_Call import Trace_Call
+
         if self.trace_calls:
             trace_call_config = self.trace_call_config
             trace_call = Trace_Call(config=trace_call_config)
             trace_call.start()
             request.state.trace_call = trace_call
 
-    def request_trace_stop(self, request: Request):                                                         # pragma: no cover
+    def request_trace_stop(self, request: 'Request'):
+        from osbot_utils.helpers.trace.Trace_Call           import Trace_Call
+        # pragma: no cover
         if self.trace_calls:
             trace_call: Trace_Call = request.state.trace_call
             trace_call.stop()

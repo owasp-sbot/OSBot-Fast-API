@@ -1,10 +1,12 @@
-from starlette.types import ASGIApp, Receive, Scope, Send
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from starlette.types import ASGIApp, Receive, Scope, Send
 
 class Middleware__Detect_Disconnect:
-    def __init__(self, app: ASGIApp):
+    def __init__(self, app: 'ASGIApp'):
         self.app = app
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope: 'Scope', receive: 'Receive', send: 'Send'):
         async def disconnect_monitor_receive():
             message = await receive()
             if message["type"] == "http.disconnect":
