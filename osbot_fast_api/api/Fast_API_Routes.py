@@ -1,5 +1,5 @@
 from fastapi                                import APIRouter, FastAPI
-from osbot_utils.type_safe.Type_Safe     import Type_Safe
+from osbot_utils.type_safe.Type_Safe        import Type_Safe
 from osbot_utils.decorators.lists.index_by  import index_by
 
 
