@@ -1,5 +1,5 @@
 # FastAPI Serverless Project Setup Guide
-*A complete guide to professional repository configuration before writing application code*
+*A complete guide to CI/CD repository configuration before writing application code*
 
 ## Why This Matters
 Setting up proper infrastructure before writing application code is crucial for long-term project success. Each component in this guide addresses specific challenges that become exponentially harder to implement as your codebase grows. By establishing these foundations early, you create a robust development environment that supports quality, testing, and automated deployments from day one.
@@ -14,17 +14,17 @@ Setting up proper infrastructure before writing application code is crucial for 
 ## The Foundation Promise
 On the topic of good engineering and quality code, this is the pipeline and setup that you should have on each new repo before adding application code. This v1.0.0 approach ensures quality, maintainability, and proper CI/CD from day one.
 
-1️⃣ Git repo 
-2️⃣ FastAPI base app 
-3️⃣ CI pipeline (dev and main) 
-4️⃣ Unit, integration and QA tests 
-5️⃣ 100% code coverage 
-6️⃣ Auto-tagging on commits 
-7️⃣ Create Docker container 
-8️⃣ Push Docker container to AWS ECR 
-9️⃣ Create AWS Lambda 
-🔟 Enable AWS Function URL 
-1️⃣1️⃣ Ensure AWS Lambda/FastAPI works
+- 1️⃣ Git repo 
+- 2️⃣ FastAPI base app 
+- 3️⃣ CI pipeline (dev and main) 
+- 4️⃣ Unit, integration and QA tests 
+- 5️⃣ 100% code coverage 
+- 6️⃣ Auto-tagging on commits 
+- 7️⃣ Create Docker container 
+- 8️⃣ Push Docker container to AWS ECR 
+- 9️⃣ Create AWS Lambda 
+- 🔟 Enable AWS Function URL 
+- 1️⃣1️⃣ Ensure AWS Lambda/FastAPI works
 
 Adding these elements later when complexity has grown becomes exponentially more difficult. This guide provides step-by-step instructions to implement this foundation correctly from the start.
 
