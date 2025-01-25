@@ -11,8 +11,10 @@ Setting up proper infrastructure before writing application code is crucial for 
 - Built-in testing practices that scale with the code
 - Infrastructure-as-code approach for reproducible deployments
 
-## The Foundation Promise
-On the topic of good engineering and quality code, this is the pipeline and setup that we should have on each new repo before adding application code. This v1.0.0 approach ensures quality, maintainability, and proper CI/CD from day one.
+## The CI/CD Pipeline
+On the topic of good engineering and quality code, this is the pipeline and setup that we should have on each new repo before adding application code. 
+
+This v1.0.0 approach ensures quality, maintainability, and proper CI/CD from day one.
 
 - 1️⃣ Git repo 
 - 2️⃣ FastAPI base app 
