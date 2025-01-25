@@ -1,35 +1,37 @@
 # FastAPI Serverless Project Setup Guide
-*A complete guide to professional repository configuration before writing application code*
+*A complete guide to CI/CD repository configuration before writing application code*
 
 ## Why This Matters
-Setting up proper infrastructure before writing application code is crucial for long-term project success. Each component in this guide addresses specific challenges that become exponentially harder to implement as your codebase grows. By establishing these foundations early, you create a robust development environment that supports quality, testing, and automated deployments from day one.
+Setting up proper infrastructure before writing application code is crucial for long-term project success. Each component in this guide addresses specific challenges that become exponentially harder to implement as the codebase grows. By establishing these foundations early, we create a robust development environment that supports quality, testing, and automated deployments from day one.
 
 ### Key Benefits
 - Consistent development environment across team members
 - Automated quality checks and deployments from the start
 - Clear separation of development and production environments
-- Built-in testing practices that scale with your code
+- Built-in testing practices that scale with the code
 - Infrastructure-as-code approach for reproducible deployments
 
-## The Foundation Promise
-On the topic of good engineering and quality code, this is the pipeline and setup that you should have on each new repo before adding application code. This v1.0.0 approach ensures quality, maintainability, and proper CI/CD from day one.
+## The CI/CD Pipeline
+On the topic of good engineering and quality code, this is the pipeline and setup that we should have on each new repo before adding application code. 
 
-1️⃣ Git repo 
-2️⃣ FastAPI base app 
-3️⃣ CI pipeline (dev and main) 
-4️⃣ Unit, integration and QA tests 
-5️⃣ 100% code coverage 
-6️⃣ Auto-tagging on commits 
-7️⃣ Create Docker container 
-8️⃣ Push Docker container to AWS ECR 
-9️⃣ Create AWS Lambda 
-🔟 Enable AWS Function URL 
-1️⃣1️⃣ Ensure AWS Lambda/FastAPI works
+This v1.0.0 approach ensures quality, maintainability, and proper CI/CD from day one.
+
+- 1️⃣ Git repo 
+- 2️⃣ FastAPI base app 
+- 3️⃣ CI pipeline (dev and main) 
+- 4️⃣ Unit, integration and QA tests 
+- 5️⃣ 100% code coverage 
+- 6️⃣ Auto-tagging on commits 
+- 7️⃣ Create Docker container 
+- 8️⃣ Push Docker container to AWS ECR 
+- 9️⃣ Create AWS Lambda 
+- 🔟 Enable AWS Function URL 
+- 1️⃣1️⃣ Ensure AWS Lambda/FastAPI works
 
 Adding these elements later when complexity has grown becomes exponentially more difficult. This guide provides step-by-step instructions to implement this foundation correctly from the start.
 
 ## 1. Repository Setup
-Repository setup establishes the foundation for your entire development workflow. A well-structured repository ensures consistent development practices, clear code organization, and efficient collaboration. The directory structure follows separation of concerns principles and supports independent testing of each component.
+Repository setup establishes the foundation for the entire development workflow. A well-structured repository ensures consistent development practices, clear code organization, and efficient collaboration. The directory structure follows separation of concerns principles and supports independent testing of each component.
 
 ### Initial Structure
 ```bash
@@ -234,7 +236,7 @@ def test_ping_endpoint():
 ```
 
 ### QA Tests (tests/qa/test_lambda.py)
-QA tests validate the deployed Lambda function through its public URL. These tests verify the complete deployment pipeline, including AWS configuration, networking, and Lambda execution environment. They serve as your final quality gate before production traffic.
+QA tests validate the deployed Lambda function through its public URL. These tests verify the complete deployment pipeline, including AWS configuration, networking, and Lambda execution environment. They serve as the final quality gate before production traffic.
 
 ```python
 import pytest
