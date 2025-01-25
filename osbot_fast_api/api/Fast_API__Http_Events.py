@@ -1,6 +1,6 @@
 import types
 from collections                                    import deque
-from osbot_utils.base_classes.Type_Safe             import Type_Safe
+from osbot_utils.type_safe.Type_Safe             import Type_Safe
 from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
 
 
