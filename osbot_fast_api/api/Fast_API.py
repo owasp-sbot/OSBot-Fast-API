@@ -1,16 +1,19 @@
-from osbot_fast_api.api.Fast_API__Http_Events                               import Fast_API__Http_Events
-from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
-from osbot_utils.helpers.Random_Guid                                        import Random_Guid
-from osbot_utils.decorators.lists.index_by                                  import index_by
-from osbot_utils.decorators.methods.cache_on_self                           import cache_on_self
+from osbot_fast_api.api.Fast_API__Http_Events                  import Fast_API__Http_Events
+from osbot_utils.type_safe.Type_Safe                           import Type_Safe
+from osbot_utils.helpers.Random_Guid                           import Random_Guid
+from osbot_utils.decorators.lists.index_by                     import index_by
+from osbot_utils.decorators.methods.cache_on_self              import cache_on_self
 
 
-DEFAULT_ROUTES_PATHS    = ['/', '/config/status', '/config/version']
-DEFAULT__NAME__FAST_API = 'Fast_API'
+DEFAULT_ROUTES_PATHS                    = ['/', '/config/status', '/config/version']
+DEFAULT__NAME__FAST_API                 = 'Fast_API'
+ENV_VAR__FAST_API__AUTH__API_KEY__NAME  = 'FAST_API__AUTH__API_KEY__NAME'
+ENV_VAR__FAST_API__AUTH__API_KEY__VALUE = 'FAST_API__AUTH__API_KEY__VALUE'
 
 class Fast_API(Type_Safe):
     base_path      : str  = '/'
     enable_cors    : bool = False
+    enable_api_key : bool = False
     default_routes : bool = True
     name           : str  = None
     http_events    : Fast_API__Http_Events
@@ -133,8 +136,9 @@ class Fast_API(Type_Safe):
 
     def setup_middlewares(self):                 # overwrite to add more middlewares
         self.setup_middleware__detect_disconnect()
-        self.setup_middleware__http_events()
-        self.setup_middleware__cors()
+        self.setup_middleware__http_events      ()
+        self.setup_middleware__cors             ()
+        self.setup_middleware__api_key_check    ()
         return self
 
     def setup_routes     (self): return self     # overwrite to add rules
@@ -163,6 +167,12 @@ class Fast_API(Type_Safe):
             path_static        = "/static"
             path_name          = "static"
             self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
+
+    def setup_middleware__api_key_check(self, env_var__api_key_name:str=ENV_VAR__FAST_API__AUTH__API_KEY__NAME, env_var__api_key_value:str=ENV_VAR__FAST_API__AUTH__API_KEY__VALUE):
+        from osbot_fast_api.api.middlewares.Middleware__Check_API_Key import Middleware__Check_API_Key
+        if self.enable_api_key:
+            self.app().add_middleware(Middleware__Check_API_Key, env_var__api_key__name=env_var__api_key_name, env_var__api_key__value=env_var__api_key_value)
+        return self
 
     def setup_middleware__cors(self):               # todo: double check that this is working see bug test
         from starlette.middleware.cors import CORSMiddleware
