@@ -1,7 +1,6 @@
-from osbot_utils.utils.Env import in_github_action
-
-from osbot_fast_api.api.Fast_API                   import Fast_API
-from osbot_utils.context_managers.capture_duration import capture_duration
+from osbot_utils.helpers.duration.decorators.capture_duration import capture_duration
+from osbot_utils.utils.Env                                    import in_github_action
+from osbot_fast_api.api.Fast_API                              import Fast_API
 
 # use these static versions of the Fast_API object on tests, so that we don't created a new Fast_API object for each test
 with capture_duration() as duration:

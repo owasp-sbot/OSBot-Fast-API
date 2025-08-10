@@ -94,8 +94,9 @@ class Http_Shell__Server:
     @staticmethod
     def python_exec(code):
         try:
-            exec(code)
-            return locals().get('result')
+            local_vars = {}
+            exec(code, {}, local_vars)                  # note: in previous version we used locals() here, but in 3.13 this behaviour changed
+            return local_vars.get('result')
         except Exception as error:
             return {'error': f'{error}'}
 

@@ -1,6 +1,4 @@
-from unittest import TestCase
-
-from osbot_utils.utils.Dev import pprint
+from unittest                       import TestCase
 from tests.unit.fast_api__for_tests import fast_api_client
 
 

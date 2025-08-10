@@ -4,12 +4,12 @@ import pytest
 import requests
 from unittest                                                       import IsolatedAsyncioTestCase
 from fastapi                                                        import FastAPI
+from osbot_utils.helpers.duration.decorators.capture_duration       import capture_duration
 from requests                                                       import ReadTimeout
 from starlette.requests                                             import Request
 from starlette.responses                                            import JSONResponse, StreamingResponse
 from osbot_fast_api.api.middlewares.Middleware__Detect_Disconnect   import Middleware__Detect_Disconnect
 from osbot_fast_api.utils.Fast_API_Server                           import Fast_API_Server
-from osbot_utils.context_managers.capture_duration                  import capture_duration
 from osbot_utils.testing.Stdout                                     import Stdout
 from osbot_utils.utils.Threads                                      import invoke_async
 
