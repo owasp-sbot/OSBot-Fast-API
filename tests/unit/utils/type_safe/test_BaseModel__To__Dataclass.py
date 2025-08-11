@@ -4,7 +4,6 @@ import pytest
 from dataclasses import fields, is_dataclass, asdict, MISSING
 from typing                                                  import List, Dict, Optional, Union, Set
 from unittest                                                import TestCase
-from osbot_utils.utils.Objects                               import __
 from pydantic                                                import BaseModel, Field
 from osbot_fast_api.utils.type_safe.BaseModel__To__Dataclass import BaseModel__To__Dataclass, basemodel__to__dataclass
 

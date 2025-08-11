@@ -1,6 +1,6 @@
 import sys
 import pytest
-from dataclasses                                             import dataclass, field, fields, is_dataclass
+from dataclasses                                             import dataclass, field
 from typing                                                  import List, Dict, Optional, Union, Set
 from unittest                                                import TestCase
 from pydantic                                                import BaseModel, ValidationError

@@ -100,7 +100,7 @@ class BaseModel__To__Type_Safe(Type_Safe):
             args = get_args(pydantic_type)
             if args:
                 inner_type = self.convert_field_type(args[0])
-                return List[inner_type]
+                return list[inner_type]                                                  # this has to be list (not List) , since with List we get: 'Type List cannot be instantiated; use list() instead'
             return list
 
         elif origin is dict:                                                             # Handle Dict types
