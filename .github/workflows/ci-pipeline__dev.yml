@@ -40,6 +40,7 @@ jobs:
       - run-unit-tests
 
   publish-to-pypi:
+    if: False
     permissions:
       id-token: write
     name: "Publish to PYPI"
