@@ -1,9 +1,9 @@
 import os
-
 from osbot_utils.utils.Env                      import load_dotenv
+from osbot_utils.utils.Misc                     import is_guid
 from osbot_utils.utils.Process                  import Process
 from pydantic                                   import BaseModel
-from osbot_fast_api.utils._extra_osbot_utils    import is_guid
+
 
 
 class Model__Shell_Data(BaseModel):
@@ -94,8 +94,9 @@ class Http_Shell__Server:
     @staticmethod
     def python_exec(code):
         try:
-            exec(code)
-            return locals().get('result')
+            local_vars = {}
+            exec(code, {}, local_vars)                  # note: in previous version we used locals() here, but in 3.13 this behaviour changed
+            return local_vars.get('result')
         except Exception as error:
             return {'error': f'{error}'}
 

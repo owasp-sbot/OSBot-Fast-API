@@ -1,12 +1,8 @@
-from unittest import TestCase
-from unittest.mock import MagicMock, patch
-
-from osbot_utils.testing.Duration import Duration
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import path_combine, file_exists, parent_folder, folder_name
-from osbot_utils.utils.Http import is_port_open
-
 import osbot_fast_api
+from unittest                            import TestCase
+from unittest.mock                       import MagicMock, patch
+from osbot_utils.utils.Files             import path_combine, file_exists, parent_folder, folder_name
+from osbot_utils.utils.Http              import is_port_open
 from osbot_fast_api.utils.Uvicorn_Server import Uvicorn_Server, UVICORN_SERVER_NAME
 
 
@@ -44,13 +40,12 @@ class test_Uvicorn_Server(TestCase):
         mock_print.assert_any_call('stdout:', 'test output\n', end='')
 
     def test_start_stop(self):
-        with Duration(prefix='start'):
-            assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is False
-            assert self.uvicorn_server.start() is True
 
-        with Duration(prefix='requesrt'):
-            assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is True
-            assert '<title>FastAPI - Swagger UI</title>' in self.uvicorn_server.http_GET('docs')
-        with Duration(prefix='stop'):
-            assert self.uvicorn_server.stop() is True
-            assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is False
+        assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is False
+        assert self.uvicorn_server.start() is True
+
+        assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is True
+        assert '<title>FastAPI - Swagger UI</title>' in self.uvicorn_server.http_GET('docs')
+
+        assert self.uvicorn_server.stop() is True
+        assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is False

@@ -1,17 +1,14 @@
-from unittest import TestCase
-
-from fastapi import FastAPI
-from flask import Flask
+import pytest
+from unittest                                   import TestCase
+from fastapi                                    import FastAPI
 from starlette.testclient                       import TestClient
-from osbot_fast_api.api.Fast_API                import Fast_API, DEFAULT__NAME__FAST_API
 from osbot_fast_api.api.routes.Routes_Config    import ROUTES__CONFIG
 from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
-from osbot_utils.utils.Dev import pprint
-from tests.unit.fast_api__for_tests import fast_api, fast_api_client
+from tests.unit.fast_api__for_tests             import fast_api, fast_api_client
 
-EXPECTED_ROUTES_METHODS = ['redirect_to_docs', 'status', 'version']
-EXPECTED_ROUTES_PATHS   = ['/', '/config/status', '/config/version']
+EXPECTED_ROUTES_METHODS = ['info', 'redirect_to_docs', 'status', 'version']
+EXPECTED_ROUTES_PATHS   = ['/', '/config/info', '/config/status', '/config/version']
 EXPECTED_DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
 
 class test_Fast_API(TestCase):
@@ -23,7 +20,10 @@ class test_Fast_API(TestCase):
     def test__init__(self):
         assert type(self.fast_api.app()) is FastAPI
 
+    
     def test_add_flask_app(self):
+        flask = pytest.importorskip("flask", reason="Flask is not installed")
+        from flask import Flask
         path      = '/flask-app'
         flask_app = Flask(__name__)
 
@@ -90,6 +90,5 @@ class test_Fast_API(TestCase):
     def test_user_middleware(self):
         http_events = self.fast_api.http_events
         params = {'http_events' : http_events}
-        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': params, 'type': 'Middleware__Http_Request'             },
-                                                    {'function_name': None, 'params': params, 'type': 'Middleware__Http_Request__Duration'   },
-                                                    {'function_name': None, 'params': params, 'type': 'Middleware__Http_Request__Trace_Calls'}]
+        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': params, 'type': 'Middleware__Http_Request'     },
+                                                    {'function_name': None, 'params': {}     ,'type': 'Middleware__Detect_Disconnect'}]

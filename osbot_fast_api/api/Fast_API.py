@@ -1,36 +1,23 @@
-import traceback
-import types
+from osbot_fast_api.api.Fast_API__Http_Events                  import Fast_API__Http_Events
+from osbot_utils.type_safe.Type_Safe                           import Type_Safe
+from osbot_utils.helpers.Random_Guid                           import Random_Guid
+from osbot_utils.decorators.lists.index_by                     import index_by
+from osbot_utils.decorators.methods.cache_on_self              import cache_on_self
 
-from fastapi                                                                import FastAPI, Request, HTTPException
-from fastapi.exceptions                                                     import RequestValidationError
-from starlette.middleware.wsgi                                              import WSGIMiddleware       # todo replace this with a2wsgi
-from osbot_fast_api.api.Fast_API__Http_Events                               import Fast_API__Http_Events
-from osbot_fast_api.api.middlewares.Middleware__Http_Request                import Middleware__Http_Request
-from osbot_fast_api.api.middlewares.Middleware__Http_Request__Duration      import Middleware__Http_Request__Duration
-from osbot_fast_api.api.middlewares.Middleware__Http_Request__Trace_Calls   import Middleware__Http_Request__Trace_Calls
-from osbot_fast_api.utils.Version                                           import Version
-from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
-from starlette.middleware.cors                                              import CORSMiddleware
-from starlette.responses                                                    import RedirectResponse, JSONResponse
-from starlette.staticfiles                                                  import StaticFiles
-from osbot_utils.utils.Lists                                                import list_index_by
-from osbot_utils.utils.Misc                                                 import list_set
-from osbot_utils.decorators.lists.index_by                                  import index_by
-from osbot_utils.decorators.methods.cache_on_self                           import cache_on_self
-from starlette.testclient                                                   import TestClient
-from osbot_fast_api.api.routes.Routes_Config                                import Routes_Config
-from osbot_fast_api.utils.http_shell.Http_Shell__Server                     import Model__Shell_Command, Http_Shell__Server
-from osbot_fast_api.utils.Fast_API_Utils                                    import Fast_API_Utils
 
-DEFAULT_ROUTES_PATHS    = ['/', '/config/status', '/config/version']
-DEFAULT__NAME__FAST_API = 'Fast_API'
+DEFAULT_ROUTES_PATHS                    = ['/', '/config/status', '/config/version']
+DEFAULT__NAME__FAST_API                 = 'Fast_API'
+ENV_VAR__FAST_API__AUTH__API_KEY__NAME  = 'FAST_API__AUTH__API_KEY__NAME'
+ENV_VAR__FAST_API__AUTH__API_KEY__VALUE = 'FAST_API__AUTH__API_KEY__VALUE'
 
 class Fast_API(Type_Safe):
     base_path      : str  = '/'
     enable_cors    : bool = False
+    enable_api_key : bool = False
     default_routes : bool = True
     name           : str  = None
     http_events    : Fast_API__Http_Events
+    server_id      : Random_Guid
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -38,6 +25,11 @@ class Fast_API(Type_Safe):
         self.http_events.fast_api_name = self.name
 
     def add_global_exception_handlers(self):      # todo: move to Fast_API
+        import traceback
+        from fastapi                import Request, HTTPException
+        from fastapi.exceptions     import RequestValidationError
+        from starlette.responses    import JSONResponse
+
         app = self.app()
         @app.exception_handler(Exception)
         async def global_exception_handler(request: Request, exc: Exception):
@@ -57,10 +49,13 @@ class Fast_API(Type_Safe):
 
 
     def add_flask_app(self, path, flask_app):
+        from starlette.middleware.wsgi import WSGIMiddleware  # todo replace this with a2wsgi
+
         self.app().mount(path, WSGIMiddleware(flask_app))
         return self
 
     def add_shell_server(self):
+        from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
         def shell_server(shell_command: Model__Shell_Command):
             return Http_Shell__Server().invoke(shell_command)
         self.add_route_post(shell_server)
@@ -82,15 +77,19 @@ class Fast_API(Type_Safe):
 
     @cache_on_self
     def app(self, **kwargs):
+        from fastapi import FastAPI
         return FastAPI(**kwargs)
 
     def app_router(self):
         return self.app().router
 
     def client(self):
+        from starlette.testclient import TestClient             # moved here for performance reasons
         return TestClient(self.app())
 
     def fast_api_utils(self):
+        from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
+
         return Fast_API_Utils(self.app())
 
     def path_static_folder(self):        # override this to add support for serving static files from this directory
@@ -120,60 +119,87 @@ class Fast_API(Type_Safe):
         return False
 
     def routes_methods(self):
+        from osbot_utils.utils.Misc import list_set
+
         return list_set(self.routes(index_by='method_name'))
 
 
     def routes_paths(self, include_default=False, expand_mounts=False):
+        from osbot_utils.utils.Lists import list_index_by
+        from osbot_utils.utils.Misc  import list_set
+
         routes_paths = self.routes(include_default=include_default, expand_mounts=expand_mounts)
         return list_set(list_index_by(routes_paths, 'http_path'))
-        # paths = list_set(self.routes(index_by='http_path'))
-        # if include_default:
-        #     return paths
-        # return list_minus_list(list_a=paths, list_b=DEFAULT_ROUTES_PATHS)
+
+    def routes_paths_all(self):
+        return self.routes_paths(include_default=True, expand_mounts=True)
 
     def setup_middlewares(self):                 # overwrite to add more middlewares
-        self.setup_middleware__http_events()
-        if self.enable_cors:
-            self.setup_middleware__cors()
+        self.setup_middleware__detect_disconnect()
+        self.setup_middleware__http_events      ()
+        self.setup_middleware__cors             ()
+        self.setup_middleware__api_key_check    ()
         return self
 
     def setup_routes     (self): return self     # overwrite to add rules
 
 
     def setup_default_routes(self):
+        from osbot_fast_api.api.routes.Routes_Config import Routes_Config
+
         if self.default_routes:
             self.setup_add_root_route()
             self.add_routes(Routes_Config)
 
     def setup_add_root_route(self):
+        from starlette.responses import RedirectResponse
+
         def redirect_to_docs():
             return RedirectResponse(url="/docs")
         self.app_router().get("/")(redirect_to_docs)
 
 
     def setup_static_routes(self):
+        from starlette.staticfiles import StaticFiles
+
         path_static_folder = self.path_static_folder()
         if path_static_folder:
             path_static        = "/static"
             path_name          = "static"
             self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
 
-    def setup_middleware__cors(self):               # todo: double check that this is working see bug test
-        self.app().add_middleware(CORSMiddleware,
-                                  allow_origins     = ["*"]                         ,
-                                  allow_credentials = True                          ,
-                                  allow_methods     = ["GET", "POST", "HEAD"]       ,
-                                  allow_headers     = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"],
-                                  expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
-
-    def setup_middleware__http_events(self, ):
-        # note the invocation order is the reverse of the order they are added
-        self.app().add_middleware(Middleware__Http_Request__Trace_Calls, http_events=self.http_events)
-        self.app().add_middleware(Middleware__Http_Request__Duration   , http_events=self.http_events)
-        self.app().add_middleware(Middleware__Http_Request             , http_events=self.http_events)
+    def setup_middleware__api_key_check(self, env_var__api_key_name:str=ENV_VAR__FAST_API__AUTH__API_KEY__NAME, env_var__api_key_value:str=ENV_VAR__FAST_API__AUTH__API_KEY__VALUE):
+        from osbot_fast_api.api.middlewares.Middleware__Check_API_Key import Middleware__Check_API_Key
+        if self.enable_api_key:
+            self.app().add_middleware(Middleware__Check_API_Key, env_var__api_key__name=env_var__api_key_name, env_var__api_key__value=env_var__api_key_value)
         return self
 
+    def setup_middleware__cors(self):               # todo: double check that this is working see bug test
+        from starlette.middleware.cors import CORSMiddleware
+
+        if self.enable_cors:
+            self.app().add_middleware(CORSMiddleware,
+                                      allow_origins     = ["*"]                         ,
+                                      allow_credentials = True                          ,
+                                      allow_methods     = ["GET", "POST", "HEAD"]       ,
+                                      allow_headers     = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"],
+                                      expose_headers    = ["Content-Type", "X-Requested-With", "Origin", "Accept", "Authorization"])
+
+    def setup_middleware__detect_disconnect(self):
+        from osbot_fast_api.api.middlewares.Middleware__Detect_Disconnect import Middleware__Detect_Disconnect
+
+        self.app().add_middleware(Middleware__Detect_Disconnect)
+
+    def setup_middleware__http_events(self):
+        from osbot_fast_api.api.middlewares.Middleware__Http_Request import Middleware__Http_Request
+
+        self.app().add_middleware(Middleware__Http_Request , http_events=self.http_events)
+        return self
+
+
     def user_middlewares(self):
+        import types
+
         middlewares = []
         data = self.app().user_middleware
         for item in data:
@@ -191,6 +217,7 @@ class Fast_API(Type_Safe):
         return middlewares
 
     def version__fast_api_server(self):
+        from osbot_fast_api.utils.Version import Version
         return Version().value()
 
     # def run_in_lambda(self):

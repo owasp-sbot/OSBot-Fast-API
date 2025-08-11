@@ -1,14 +1,13 @@
 import os
+import pytest
 import requests
 from unittest                                           import TestCase
-
-from osbot_utils.utils.Env import load_dotenv
+from osbot_utils.utils.Env                              import load_dotenv
 from osbot_utils.utils.Misc                             import list_set
 from osbot_fast_api.utils.Fast_API_Server               import Fast_API_Server
 from osbot_fast_api.api.Fast_API                        import Fast_API
 from osbot_fast_api.utils.http_shell.Http_Shell__Client import Http_Shell__Client
-from osbot_fast_api.utils.http_shell.Http_Shell__Server import Http_Shell__Server, Model__Shell_Data, \
-    Model__Shell_Command, ENV__HTTP_SHELL_AUTH_KEY
+from osbot_fast_api.utils.http_shell.Http_Shell__Server import Http_Shell__Server, Model__Shell_Data, Model__Shell_Command, ENV__HTTP_SHELL_AUTH_KEY
 
 
 class test_Http_Shell__Client(TestCase):
@@ -24,6 +23,8 @@ class test_Http_Shell__Client(TestCase):
         cls.fast_api            = Fast_API().setup()
         cls.fast_api_server     = Fast_API_Server(app=cls.fast_api.app())
         cls.auth_key            = os.environ.get(ENV__HTTP_SHELL_AUTH_KEY)
+        if cls.auth_key is None:
+            pytest.skip(f"env var {ENV__HTTP_SHELL_AUTH_KEY} not set, so skipping tests")
         cls.server_endpoint     = cls.fast_api_server.url() + 'http-shell-server'
         cls.client              = Http_Shell__Client(server_endpoint=cls.server_endpoint, auth_key=cls.auth_key, return_value_if_ok=False)
         cls.fast_api.add_route_post(cls.http_shell_server)
@@ -55,7 +56,7 @@ class test_Http_Shell__Client(TestCase):
         del options_headers['date']
 
         assert response_shell_invoke.json()         == expected_result
-        assert self.fast_api.routes_paths()         == ['/', '/config/status', '/config/version', '/http-shell-server']
+        assert self.fast_api.routes_paths()         == ['/', '/config/info', '/config/status', '/config/version', '/http-shell-server']
         assert self.fast_api_server.port            >  19999
         assert self.fast_api_server.is_port_open()  is True
         assert response_options.json()              == { "detail"             : "Method Not Allowed" }

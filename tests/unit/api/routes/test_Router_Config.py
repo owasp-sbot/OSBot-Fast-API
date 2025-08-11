@@ -1,8 +1,7 @@
 from unittest                                   import TestCase
 from fastapi                                    import FastAPI
-from osbot_utils.utils.Dev import pprint
 from starlette.testclient                       import TestClient
-from osbot_fast_api.api.routes.Routes_Config    import Routes_Config, ROUTES__CONFIG
+from osbot_fast_api.api.routes.Routes_Config    import Routes_Config
 from osbot_fast_api.utils.Version               import Version
 
 
@@ -30,6 +29,7 @@ class test_Routes_Config(TestCase):
         assert response.json() == {'version': Version().value()}
 
     def test_routes(self):
-        expected_routes = [{'http_methods': ['GET'], 'http_path': '/status' , 'method_name': 'status' },
+        expected_routes = [{'http_methods': ['GET'], 'http_path': '/info'   , 'method_name': 'info'   },
+                           {'http_methods': ['GET'], 'http_path': '/status' , 'method_name': 'status' },
                            {'http_methods': ['GET'], 'http_path': '/version', 'method_name': 'version'}]
         assert self.routes_config.routes() == expected_routes
