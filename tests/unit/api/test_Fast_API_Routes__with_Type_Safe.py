@@ -302,9 +302,9 @@ class test_Fast_API_Routes__with_Type_Safe(TestCase):
                 return An_Class(an_str=an_str)
 
             def setup_routes(self):
-                self.add_route_post(self.create_object)                     # this is working
-                self.add_route_post(self.update_object)                     # this is working
-                self.add_route_get (self.return_object)                     # this raises the exception
+                self.add_route_post(self.create_object)
+                self.add_route_post(self.update_object)
+                self.add_route_get (self.return_object)
 
         class An_Fast_API(Fast_API):
             default_routes = False

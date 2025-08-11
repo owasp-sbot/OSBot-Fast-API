@@ -18,7 +18,7 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
         self.prefix = f'/{lower(str_safe(self.tag))}'
 
     def add_route(self,function, methods):
-        path = '/' + function.__name__.replace('_', '-')
+        path = self.parse_function_name(function.__name__)
         self.router.add_api_route(path=path, endpoint=function, methods=methods)
         return self
 
@@ -27,9 +27,6 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
 
     def add_route_get(self, function):
         return self.add_route(function=function, methods=['GET'])
-
-    # def add_route_post(self, function):
-    #     return self.add_route(function=function, methods=['POST'])
 
     def add_route_post(self, function):                         # add post with support for Type_Safe objects
         sig        = inspect.signature(function)                # Check if function has a Type_Safe parameter
@@ -62,7 +59,8 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
             #     del wrapper.__annotations__['return']  # Remove return type so FastAPI doesn't validate
 
 
-            path = '/' + function.__name__.replace('_', '-')
+            #path = '/' + function.__name__.replace('_', '-')
+            path = self.parse_function_name(function.__name__)
             self.router.add_api_route(path=path, endpoint=wrapper, methods=['POST'])
             return self
         else:
@@ -75,6 +73,23 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
     def fast_api_utils(self):
         from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
         return Fast_API_Utils(self.app)
+
+    def parse_function_name(self, function_name):                           # added support for routes that have resource ids in the path
+        parts = function_name.split('__')
+        path_segments = []
+
+        for i, part in enumerate(parts):
+            if i == 0:                                                  # First part is always literal
+                path_segments.append(part.replace('_', '-'))
+            else:
+                if '_' in part:                                         # After __, check if it's a parameter or literal
+                    subparts = part.split('_', 1)                       # Contains underscore, split into param and literal
+                    path_segments.append('{' + subparts[0] + '}')
+                    path_segments.append(subparts[1].replace('_', '-'))
+                else:
+                    path_segments.append('{' + part + '}')              # Just a parameter
+
+        return '/' + '/'.join(path_segments)
 
     @index_by
     def routes(self):
