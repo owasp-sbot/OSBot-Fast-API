@@ -6,6 +6,7 @@ from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_utils.decorators.lists.index_by                   import index_by
 from osbot_utils.type_safe.Type_Safe__Primitive              import Type_Safe__Primitive
 from fastapi.exceptions                                      import RequestValidationError
+from osbot_utils.type_safe.shared.Type_Safe__Cache           import type_safe_cache
 from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel import type_safe__to__basemodel
 
 
@@ -31,8 +32,8 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
         sig        = inspect.signature(function)
         type_hints = get_type_hints(function)
 
-        # Find Type_Safe parameters and convert them to BaseModel classes
         type_safe_conversions = {}
+        primitive_field_types = {}                                                                  # Track which fields are Type_Safe__Primitive
 
         for param_name, param in sig.parameters.items():
             if param_name == 'self':
@@ -40,6 +41,14 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
             param_type = type_hints.get(param_name)
             if param_type and inspect.isclass(param_type):
                 if issubclass(param_type, Type_Safe) and not issubclass(param_type, Type_Safe__Primitive):
+
+                    annotations = type_safe_cache.get_class_annotations(param_type)                 # For Type_Safe classes, also track their primitive fields
+                    for field_name, field_type in annotations:
+                        if isinstance(field_type, type) and issubclass(field_type, Type_Safe__Primitive):
+                            if param_name not in primitive_field_types:
+                                primitive_field_types[param_name] = {}
+                            primitive_field_types[param_name][field_name] = field_type
+
                     basemodel_class = type_safe__to__basemodel.convert_class(param_type)
                     type_safe_conversions[param_name] = (param_type, basemodel_class)
 
@@ -51,17 +60,27 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
                     if param_name in type_safe_conversions:
                         type_safe_class, _ = type_safe_conversions[param_name]
                         if isinstance(param_value, dict):
+                            # Convert primitive fields back to Type_Safe__Primitive instances
+                            if param_name in primitive_field_types:
+                                for field_name, primitive_class in primitive_field_types[param_name].items():
+                                    if field_name in param_value:
+                                        param_value[field_name] = primitive_class(param_value[field_name])
                             converted_kwargs[param_name] = type_safe_class(**param_value)
                         else:
-                            data = param_value.model_dump()                         # Get the data from BaseModel
-                            converted_kwargs[param_name] = type_safe_class(**data)  # Create instance of original Type_Safe class
+                            data = param_value.model_dump()
+                            # Convert primitive fields here too
+                            if param_name in primitive_field_types:
+                                for field_name, primitive_class in primitive_field_types[param_name].items():
+                                    if field_name in data:
+                                        data[field_name] = primitive_class(data[field_name])
+                            converted_kwargs[param_name] = type_safe_class(**data)
                     else:
                         converted_kwargs[param_name] = param_value
 
                 try:
                     result = function(**converted_kwargs)
                 except Exception as e:
-                    raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}") # Convert business logic validation errors to HTTP 400
+                    raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")
 
                 if isinstance(result, Type_Safe):
                     return type_safe__to__basemodel.convert_instance(result).model_dump()

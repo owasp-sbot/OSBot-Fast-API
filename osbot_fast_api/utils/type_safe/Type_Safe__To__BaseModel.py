@@ -1,4 +1,5 @@
 from typing                                         import Type, Dict, Any, Optional, get_args, Union, List
+from osbot_utils.type_safe.Type_Safe__Primitive     import Type_Safe__Primitive
 from osbot_utils.type_safe.decorators.type_safe     import type_safe
 from pydantic                                       import BaseModel, Field, create_model
 from osbot_utils.type_safe.Type_Safe                import Type_Safe
@@ -77,6 +78,11 @@ class Type_Safe__To__BaseModel(Type_Safe):
                 return Optional[converted_args[0]]
             return Union[converted_args]
 
+        if isinstance(type_safe_type, type) and issubclass(type_safe_type, Type_Safe__Primitive):       # Type_Safe__Primitive should map to its base primitive type for Pydantic
+            if type_safe_type.__primitive_base__:                                                       # if __primitive_base__ is set
+                return type_safe_type.__primitive_base__                                                # return it
+
+
         if isinstance(type_safe_type, type) and issubclass(type_safe_type, Type_Safe):  # Handle Type_Safe classes
             return self.convert_class(type_safe_type)                                   # Recursively convert
 
@@ -105,7 +111,9 @@ class Type_Safe__To__BaseModel(Type_Safe):
         instance_locals = type_safe_instance.__locals__()                               # Get all fields from instance
 
         for field_name, field_value in instance_locals.items():
-            if isinstance(field_value, Type_Safe__List):                                # Convert Type_Safe collections
+            if isinstance(field_value, Type_Safe__Primitive):                           # Convert Type_Safe__Primitive to its base type value
+                data[field_name] = field_value.__primitive_base__(field_value)
+            elif isinstance(field_value, Type_Safe__List):                                # Convert Type_Safe collections
                 data[field_name] = self.convert_list(field_value)
             elif isinstance(field_value, Type_Safe__Dict):
                 data[field_name] = self.convert_dict(field_value)
