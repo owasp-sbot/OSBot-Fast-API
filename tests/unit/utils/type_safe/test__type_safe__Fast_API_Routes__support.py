@@ -1,11 +1,17 @@
-from typing                                     import Optional, List, Dict, Set, Any
-from unittest                                   import TestCase
-from osbot_utils.type_safe.Type_Safe            import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
-from osbot_utils.utils.Objects                  import __
-from osbot_fast_api.api.Fast_API                import Fast_API
-from osbot_utils.helpers.Random_Guid            import Random_Guid
-from osbot_fast_api.api.Fast_API_Routes         import Fast_API_Routes
+from typing                                                         import Optional, List, Dict, Set, Any
+from unittest                                                       import TestCase
+from osbot_utils.helpers.Safe_Id                                    import Safe_Id
+from osbot_utils.helpers.Timestamp_Now                              import Timestamp_Now
+from osbot_utils.helpers.safe_str.Safe_Str                          import Safe_Str
+from osbot_utils.helpers.safe_str.Safe_Str__File__Name              import Safe_Str__File__Name
+from osbot_utils.helpers.safe_str.Safe_Str__File__Path              import Safe_Str__File__Path
+from osbot_utils.helpers.safe_str.http.Safe_Str__Http__Content_Type import Safe_Str__Http__Content_Type
+from osbot_utils.type_safe.Type_Safe                                import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                     import Type_Safe__Primitive
+from osbot_utils.utils.Objects                                      import __
+from osbot_fast_api.api.Fast_API                                    import Fast_API
+from osbot_utils.helpers.Random_Guid                                import Random_Guid
+from osbot_fast_api.api.Fast_API_Routes                             import Fast_API_Routes
 
 
 class test__type_safe__Fast_API_Routes__support(TestCase):
@@ -503,55 +509,151 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
         assert response.json()      == {'detail': 'ValueError: Invalid email format'}
         # In production, you'd want to catch ValueError and return a proper 400/422
 
+    def test__10__regression__type_safe_primitive__on_type_safe(self):
+        class To_Lower(Type_Safe__Primitive, str):          # example of a Type_Safe__Primitive class
+            def __new__(cls, value):
+                lower_value = value.lower()                 # which just converts a string to lower
+                return str.__new__(cls, lower_value)
 
-    # todo: add support for Type_Safe__Primitive in post requests
-    # def test__10__type_safe__mixed_primitive_and_complex(self):
-    #     """Test routes that mix Type_Safe__Primitive in path/query with Type_Safe in body"""
-    #
-    #     class ResourceID(Type_Safe__Primitive, str):
-    #         def __new__(cls, value):
-    #             if not value.startswith('RES-'):
-    #                 value = f'RES-{value}'
-    #             return str.__new__(cls, value.upper())
-    #
-    #     class UpdateData(Type_Safe):
-    #         content: str
-    #         version: int = 1
-    #
-    #     class PUT_Routes(Fast_API_Routes):
-    #         tag = 'resource'
-    #
-    #         def update_resource__id(self, id: ResourceID, data: UpdateData) -> dict:
-    #             # id comes from path parameter (Type_Safe__Primitive)
-    #             # data comes from body (Type_Safe)
-    #             assert isinstance(id, ResourceID)
-    #             assert isinstance(data, UpdateData)
-    #
-    #             return {
-    #                 'resource_id': str(id),
-    #                 'content': data.content,
-    #                 'version': data.version
-    #             }
-    #
-    #         def setup_routes(self):
-    #             # This will create route: /resource/update-resource/{id}
-    #             self.add_route_put(self.update_resource__id)
-    #
-    #     class An_Fast_API(Fast_API):
-    #         default_routes = False
-    #         def setup_routes(self):
-    #             self.add_routes(PUT_Routes)
-    #
-    #     an_fast_api = An_Fast_API().setup()
-    #     assert an_fast_api.routes_paths() == ['/resource/update-resource/{id}']
-    #
-    #     # Test PUT with path parameter and body
-    #     update_data = {'content': 'Updated content', 'version': 2}
-    #     response = an_fast_api.client().put('/resource/update-resource/123', json=update_data)
-    #
-    #     assert response.status_code == 200
-    #     assert response.json() == {
-    #         'resource_id': 'RES-123',  # Transformed by ResourceID
-    #         'content': 'Updated content',
-    #         'version': 2
-    #     }
+        class An_Class(Type_Safe):
+            an_str  : str
+            an_int  : int
+            to_lower: To_Lower                              # FIXED: BUG: Type_Safe__Primitive is currently not supported
+
+        class POST_Routes(Fast_API_Routes):
+            tag = 'post'
+
+            # def with_primitive(self, to_lower: To_Lower):   # QUESTION: Is this a realistic scenario?
+            #    return to_lower
+
+            def with_type_safe(self, an_class: An_Class):   # FIXED: BUG: Type_Safe__Primitive is currently not supported on posts
+               return an_class
+
+            def setup_routes(self):
+                #self.add_route_post(self.with_primitive)
+                self.add_route_post(self.with_type_safe)    # QUESTION: Is this a realistic scenario?
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+
+            def setup_routes(self):
+                self.add_routes(POST_Routes)
+
+        # error_message =  ("Unable to generate pydantic-core schema for "
+        #                   "<class 'test__type_safe__Fast_API_Routes__support.test__type_safe__Fast_API_Routes__support."
+        #                   "test__10__bug__type_safe_primitive__on_type_safe.<locals>.To_Lower'>. "
+        #                   "Set `arbitrary_types_allowed=True` in the model_config to ignore this error or implement "
+        #                   "`__get_pydantic_core_schema__` on your type to fully support it.\n\nIf you got this error by calling handler(<some type>) "
+        #                   "within `__get_pydantic_core_schema__` then you likely need to call `handler.generate_schema(<some type>)` "
+        #                   "since we do not call `__get_pydantic_core_schema__` on `<some type>` otherwise to avoid infinite recursion.\n\n"
+        #                   "For further information visit https://errors.pydantic.dev/2.11/u/schema-for-unknown-type")
+        # with pytest.raises(PydanticSchemaGenerationError, match=re.escape(error_message)):
+        #     An_Fast_API().setup()                     # FIXED: BUG should be able to handle it
+
+        an_fast_api = An_Fast_API().setup()
+        assert an_fast_api.routes_paths() == ['/post/with-type-safe']
+
+        an_class = An_Class(to_lower='AbC')
+        response = an_fast_api.client().post('/post/with-type-safe', json=an_class.json())
+        assert response.status_code == 200
+        assert response.json() == {'an_int': 0, 'an_str': '', 'to_lower': 'abc'}                # FIXED this is now working
+
+
+    def test__11__type_safe_primitives__on_type_safe(self):
+        class To_Lower(Type_Safe__Primitive, str):          # example of a Type_Safe__Primitive class
+            def __new__(cls, value):
+                lower_value = value.lower()                 # which just converts a string to lower
+                return str.__new__(cls, lower_value)
+
+        class An_Class(Type_Safe):
+            an_guid                     : Random_Guid
+            safe_id                     : Safe_Id
+            safe_str                    : Safe_Str
+            safe_str_http_content_type  : Safe_Str__Http__Content_Type  = None
+            safe_str_file_name          : Safe_Str__File__Name          = None
+            safe_str_file_path          : Safe_Str__File__Path
+            timestamp                   : Timestamp_Now
+            to_lower                    : To_Lower
+
+
+        class POST_Routes(Fast_API_Routes):
+            tag = 'post'
+
+            def with_type_safe(self, an_class: An_Class) -> An_Class:
+               return an_class
+
+            def setup_routes(self):
+                self.add_route_post(self.with_type_safe)
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+
+            def setup_routes(self):
+                self.add_routes(POST_Routes)
+
+        an_fast_api = An_Fast_API().setup()
+        assert an_fast_api.routes_paths() == ['/post/with-type-safe']
+
+        an_class = An_Class(an_guid                     = '1b4b086d-0ad3-4de7-928a-7f66ccabafa3',
+                            safe_str                    = 'safe!!!!'                            ,
+                            safe_str_http_content_type  = 'AA!!!BBB'                            ,
+                            safe_str_file_name          = '../safe.txt!!!'                      ,
+                            safe_str_file_path          = '../an/path/!!!/goes-here'            ,
+                            safe_id                     = 'safe-id_uvklt!!!!'                   ,
+                            to_lower                    = 'AbC'                                 ,
+                            timestamp                   = 1754998257071                         )
+        response = an_fast_api.client().post('/post/with-type-safe', json=an_class.json())
+        assert response.status_code == 200
+        assert response.json() == {  'an_guid'                      : '1b4b086d-0ad3-4de7-928a-7f66ccabafa3',
+                                     'safe_id'                      : 'safe-id_uvklt____'                   ,
+                                     'safe_str'                     : 'safe____'                            ,
+                                     'safe_str_file_name'           : '.._safe.txt___'                      ,
+                                     'safe_str_file_path'           : '../an/path/___/goes-here'            ,
+                                     'safe_str_http_content_type'   : 'AA___BBB'                            ,
+                                     'timestamp'                    : 1754998257071                         ,
+                                     'to_lower'                     : 'abc'                                 }
+
+
+    def test__12__type_safe__mixed_primitive_and_complex(self):
+        """Test routes that mix Type_Safe__Primitive in path/query with Type_Safe in body"""
+
+        class ResourceID(Type_Safe__Primitive, str):
+            def __new__(cls, value):
+                if not value.startswith('RES-'):
+                    value = f'RES-{value}'
+                return str.__new__(cls, value.upper())
+
+        class UpdateData(Type_Safe):
+            content    : str
+            version    : int = 1
+            resource_id: ResourceID
+
+        class PUT_Routes(Fast_API_Routes):
+            tag = 'resource'
+
+            def update_resource__id(self, data: UpdateData) -> dict:
+                assert isinstance(data, UpdateData)
+
+                return { 'resource_id': str(data.resource_id),
+                         'content': data.content ,
+                         'version': data.version }
+
+            def setup_routes(self):
+                self.add_route_put(self.update_resource__id)            # This will create route: /resource/update-resource/{id}
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+            def setup_routes(self):
+                self.add_routes(PUT_Routes)
+
+        an_fast_api = An_Fast_API().setup()
+        assert an_fast_api.routes_paths() == ['/resource/update-resource/{id}']
+
+        # Test PUT with path parameter and body
+        update_data = UpdateData(resource_id='abc').json()
+        response = an_fast_api.client().put('/resource/update-resource/123', json=update_data)
+
+        assert response.status_code == 200
+        assert response.json() == {'content'    : ''       ,
+                                   'resource_id': 'RES-ABC',
+                                   'version'    : 1        }
