@@ -18,7 +18,7 @@ from osbot_fast_api.utils.type_safe.Dataclass__To__BaseModel import dataclass__t
 from osbot_fast_api.utils.type_safe.Type_Safe__To__Dataclass import type_safe__to__dataclass
 
 
-class test_type_safe__Fast_API_Routes__conversions(TestCase):
+class test__type_safe__Fast_API_Routes__conversions(TestCase):
 
     def test__1__with_BaseModel__indirect_support(self):  # Using Pydantic BaseModel with Type_Safe conversion
 
