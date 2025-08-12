@@ -1,9 +1,6 @@
-import re
 from unittest                                                import TestCase
-
-import pytest
-from pydantic                                                import BaseModel, Field
-from osbot_utils.utils.Misc                                  import random_string, random_text
+from pydantic                                                import Field
+from osbot_utils.utils.Misc                                  import random_text
 from pydantic                                                import BaseModel
 from dataclasses                                             import dataclass, field, is_dataclass
 from typing                                                  import List, Optional, Dict

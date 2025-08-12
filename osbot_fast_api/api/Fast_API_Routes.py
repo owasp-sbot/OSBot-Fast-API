@@ -1,15 +1,11 @@
 import functools
 import inspect
-from typing                                     import get_type_hints
-from fastapi                                    import APIRouter, FastAPI
-from osbot_utils.type_safe.Type_Safe            import Type_Safe
-from osbot_utils.decorators.lists.index_by      import index_by
-from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
-from fastapi.exceptions                         import RequestValidationError
-from osbot_utils.utils.Dev import pprint
-from pydantic_core                              import ErrorDetails
-
-from osbot_fast_api.utils.type_safe.BaseModel__To__Type_Safe import basemodel__to__type_safe
+from typing                                                  import get_type_hints
+from fastapi                                                 import APIRouter, FastAPI, HTTPException
+from osbot_utils.type_safe.Type_Safe                         import Type_Safe
+from osbot_utils.decorators.lists.index_by                   import index_by
+from osbot_utils.type_safe.Type_Safe__Primitive              import Type_Safe__Primitive
+from fastapi.exceptions                                      import RequestValidationError
 from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel import type_safe__to__basemodel
 
 
@@ -62,7 +58,10 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
                     else:
                         converted_kwargs[param_name] = param_value
 
-                result = function(**converted_kwargs)
+                try:
+                    result = function(**converted_kwargs)
+                except Exception as e:
+                    raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}") # Convert business logic validation errors to HTTP 400
 
                 if isinstance(result, Type_Safe):
                     return type_safe__to__basemodel.convert_instance(result).model_dump()
@@ -103,9 +102,7 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
             return self.add_route(function=function, methods=methods)
 
     def add_route_delete(self, function):
-        #return self.add_route(function=function, methods=['DELETE'])
-
-        return self.add_route_with_body(function, methods=['DELETE'])
+        return self.add_route(function=function, methods=['DELETE'])
 
     def add_route_get(self, function):
         import functools

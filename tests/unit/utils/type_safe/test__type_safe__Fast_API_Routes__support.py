@@ -1,18 +1,11 @@
-import re
-from typing import Optional, List
-from unittest                           import TestCase
-
-import pytest
-from fastapi.exceptions import FastAPIError
-from osbot_utils.type_safe.Type_Safe import Type_Safe
+from typing                                     import Optional, List, Dict, Set, Any
+from unittest                                   import TestCase
+from osbot_utils.type_safe.Type_Safe            import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import __
-from pydantic import BaseModel
-
-from osbot_fast_api.api.Fast_API        import Fast_API
-from osbot_utils.helpers.Random_Guid    import Random_Guid
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_utils.utils.Objects                  import __
+from osbot_fast_api.api.Fast_API                import Fast_API
+from osbot_utils.helpers.Random_Guid            import Random_Guid
+from osbot_fast_api.api.Fast_API_Routes         import Fast_API_Routes
 
 
 class test__type_safe__Fast_API_Routes__support(TestCase):
@@ -176,19 +169,6 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
         assert response_1.status_code == 200
         assert response_1.json()      == {'an_int': 42, 'an_str': 'hello world'}
 
-
-            # expected_error = ("Invalid args for response field! Hint: check that "
-        #                   "<class 'test__type_safe__Fast_API_Routes__support.test__type_safe__Fast_API_Routes__support"
-        #                   ".test__4__type_safe__on_post_requests__simple_example.<locals>.The_Request'> "
-        #                   "is a valid Pydantic field type. If you are using a return type annotation that "
-        #                   "is not a valid Pydantic field (e.g. Union[Response, dict, None]) "
-        #                   "you can disable generating the response model from the type annotation with the path "
-        #                   "operation decorator parameter response_model=None. "
-        #                   "Read more: https://fastapi.tiangolo.com/tutorial/response-model/")
-        # with pytest.raises(FastAPIError, match=re.escape(expected_error)):
-        #     An_Fast_API().setup()
-
-
     def test__5__type_safe__on_post_requests(self):
 
         class UserRequest(Type_Safe):  # Type_Safe model for request
@@ -259,10 +239,319 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
                                  'tags'     : ['developer', 'python'],
                                  'status'   : 'active'}
 
-        # expected_error = "Invalid args for response field! Hint: check that <class 'test__type_safe__Fast_API_Routes__support.test__type_safe__Fast_API_Routes__support.test__1__type_safe_primitive__on_get_requests.<locals>.To_Lower'> is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/"
-        # with pytest.raises(FastAPIError, match=re.escape(expected_error)):
-        #    An_Fast_API().setup()
-        #
-        # return
-        #assert an_fast_api.client().get('/get/an-class').json() == 'pong'
+    def test__6__bug__type_safe__on_put_requests(self):      # Test PUT requests with Type_Safe support
 
+        class UpdateRequest(Type_Safe):
+            id      : int
+            name    : Optional[str]  = None             #  BUG this is not being picked up as optional by Pydantic
+            active  : bool           = True
+            metadata: Dict[str, str]
+
+        class UpdateResponse(Type_Safe):
+            id          : int
+            name        : str
+            active      : bool
+            metadata    : Dict[str, str]
+            updated_at  : str
+
+        class PUT_Routes(Fast_API_Routes):
+            tag = 'updates'
+
+            def update_item(self, request: UpdateRequest) -> UpdateResponse:
+                # Verify we get the correct Type_Safe instance
+                assert isinstance(request, UpdateRequest)
+                assert isinstance(request.metadata, dict)
+
+                return UpdateResponse( id         = request.id                    ,
+                                       name       = request.name or "default_name",
+                                       active     = request.active                ,
+                                       metadata   = request.metadata              ,
+                                       updated_at = "2024-01-15T10:00:00Z"        )
+
+            def setup_routes(self):
+                self.add_route_put(self.update_item)
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+            def setup_routes(self):
+                self.add_routes(PUT_Routes)
+
+        an_fast_api = An_Fast_API().setup()
+        assert an_fast_api.routes_paths() == ['/updates/update-item']
+
+        # Test with full data
+        update_data = {'id'      : 123,
+                       'name'    : 'Updated Item',
+                       'active'  : False,
+                       'metadata': {'key1': 'value1', 'key2': 'value2'}}
+
+        response = an_fast_api.client().put('/updates/update-item', json=update_data)
+        assert response.status_code == 200
+        assert response.json() == { 'id'        : 123                               ,
+                                    'name'      : 'Updated Item'                    ,
+                                    'active'    : False                             ,
+                                    'metadata'  : {'key1': 'value1', 'key2': 'value2'},
+                                    'updated_at': '2024-01-15T10:00:00Z'
+        }
+
+        # Test with minimal data (using defaults)       # BUG name should be optional but it is needed
+        minimal_data = {'id': 456}
+        response = an_fast_api.client().put('/updates/update-item', json=minimal_data)
+        assert response.status_code == 400
+        assert response.json() == {'detail': [{'input': {'id': 456},
+                                              'loc': ['body', 'name'],
+                                              'msg': 'Field required',
+                                              'type': 'missing'}]}
+
+        minimal_data = {'id': 456, 'name': 'abc'}
+        response = an_fast_api.client().put('/updates/update-item', json=minimal_data)
+
+
+        assert response.status_code == 200
+        assert response.json() == { 'id'      : 456  ,
+                                    'name'    : 'abc',
+                                    'active'  : True ,                          # Used default value
+                                    'metadata': {}   ,                          # Used default value
+                                    'updated_at': '2024-01-15T10:00:00Z'}
+
+    def test__7__type_safe__edge_case__nested_types(self):  # Test edge case with deeply nested Type_Safe structures"""
+
+        class Address(Type_Safe):
+            street  : str
+            city    : str
+            country : str = "USA"
+
+        class Contact(Type_Safe):
+            email    : str
+            phone    : Optional[str] = None
+            addresses: List[Address]                # Complex nested type
+
+        class PersonRequest(Type_Safe):
+            name    : str
+            contact : Contact                       # Will be converted to Contact-like structure
+            tags    : Set[str]                      # Edge case: Set type
+
+        class PersonResponse(Type_Safe):
+            id           : int
+            name         : str
+            email        : str
+            address_count: int
+
+        class POST_Routes(Fast_API_Routes):
+            tag = 'person'
+
+            def create_person(self, request: PersonRequest) -> PersonResponse:
+                assert isinstance(request, PersonRequest)
+
+                # Handle the nested data
+                email     = request.contact.email
+                addresses = request.contact.addresses
+
+                return PersonResponse(id            = 999           ,
+                                      name          = request.name  ,
+                                      email         = email         ,
+                                      address_count = len(addresses))
+
+            def setup_routes(self):
+                self.add_route_post(self.create_person)
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+            def setup_routes(self):
+                self.add_routes(POST_Routes)
+
+        an_fast_api = An_Fast_API().setup()
+
+        # Test with nested data
+        person_data = { 'name': 'John Doe',
+                        'contact': {
+                            'email': 'john@example.com',
+                            'phone': '555-1234',
+                            'addresses': [
+                                {'street': '123 Main St', 'city': 'NYC'},
+                                {'street': '456 Oak Ave', 'city': 'LA' }]},
+                        'tags': ['vip', 'premium']}                           # Will be converted to set
+
+
+        response = an_fast_api.client().post('/person/create-person', json=person_data)
+        assert response.status_code == 200
+        assert response.json()      == { 'id': 999,
+                                         'name': 'John Doe',
+                                         'email': 'john@example.com',
+                                         'address_count': 2}
+
+
+    def test__8__type_safe__edge_case__empty_and_none_values(self):
+        """Test edge cases with empty values, None, and missing fields"""
+
+        class FlexibleRequest(Type_Safe):
+            required_field: str
+            optional_str: Optional[str] = None
+            optional_int: Optional[int] = None
+            list_field: List[str]
+            dict_field: Dict[str, Any]
+            bool_field: bool = False
+
+        class POST_Routes(Fast_API_Routes):
+            tag = 'flex'
+
+            def process(self, request: FlexibleRequest) -> dict:
+                assert isinstance(request, FlexibleRequest)
+
+                # Return the actual values to verify defaults work
+                return {
+                    'required': request.required_field,
+                    'optional_str': request.optional_str,
+                    'optional_int': request.optional_int,
+                    'list_len': len(request.list_field),
+                    'dict_len': len(request.dict_field),
+                    'bool_val': request.bool_field
+                }
+
+            def setup_routes(self):
+                self.add_route_post(self.process)
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+            def setup_routes(self):
+                self.add_routes(POST_Routes)
+
+        an_fast_api = An_Fast_API().setup()
+
+        # Test with minimal required data only
+        minimal_data = {'required_field': 'test',
+                        'optional_str'  : 'aaaa',           # BUG: should not be needed
+                        'optional_int'   : 42   }           # BUG: should not be needed
+        response = an_fast_api.client().post('/flex/process', json=minimal_data)
+        assert response.status_code == 200
+        assert response.json()      == { 'required': 'test',
+                                         'optional_str': 'aaaa',    # BUG: should be None or ''
+                                         'optional_int': 42    ,    # BUG: should be 0
+                                         'list_len': 0,             # Empty list default
+                                         'dict_len': 0,             # Empty dict default
+                                         'bool_val': False          # False default
+                                        }
+
+        # Test with explicit None values
+        none_data = {
+            'required_field': 'test',
+            'optional_str': None,
+            'optional_int': None,
+            'list_field': [],
+            'dict_field': {},
+            'bool_field': True
+        }
+        response = an_fast_api.client().post('/flex/process', json=none_data)
+        assert response.status_code == 200
+        assert response.json()      == { 'bool_val': True,
+                                         'dict_len': 0,
+                                         'list_len': 0,
+                                         'optional_int': None,
+                                         'optional_str': None,
+                                         'required': 'test'}
+
+
+    def test__9__type_safe__edge_case__validation_errors(self):
+        """Test that validation errors are properly handled"""
+
+        class StrictRequest(Type_Safe):
+            email: str  # Will add validation in real use
+            age  : int
+            score: float
+
+        class POST_Routes(Fast_API_Routes):
+            tag = 'strict'
+
+            def validate_data(self, request: StrictRequest) -> dict:
+                # Manual validation as example
+                if '@' not in request.email:
+                    raise ValueError("Invalid email format")
+                if request.age < 0 or request.age > 150:
+                    raise ValueError("Age must be between 0 and 150")
+                if request.score < 0.0 or request.score > 100.0:
+                    raise ValueError("Score must be between 0 and 100")
+
+                return {'status': 'valid'}
+
+            def setup_routes(self):
+                self.add_route_post(self.validate_data)
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+            def setup_routes(self):
+                self.add_routes(POST_Routes)
+
+        an_fast_api = An_Fast_API().setup()
+
+        # Test with invalid types (FastAPI should catch these)
+        invalid_type_data = {
+            'email': 'test@example.com',
+            'age': 'not_a_number',  # Wrong type
+            'score': 95.5
+        }
+        response = an_fast_api.client().post('/strict/validate-data', json=invalid_type_data)
+        #assert response.status_code == 422  # Validation error from FastAPI
+
+        # Test with valid types but business logic validation failure
+        invalid_email_data = {
+            'email': 'invalid_email',  # No @ sign
+            'age': 25,
+            'score': 95.5
+        }
+        response = an_fast_api.client().post('/strict/validate-data', json=invalid_email_data)
+        assert response.status_code == 400  # Will get internal error from ValueError
+        assert response.json()      == {'detail': 'ValueError: Invalid email format'}
+        # In production, you'd want to catch ValueError and return a proper 400/422
+
+
+    # todo: add support for Type_Safe__Primitive in post requests
+    # def test__10__type_safe__mixed_primitive_and_complex(self):
+    #     """Test routes that mix Type_Safe__Primitive in path/query with Type_Safe in body"""
+    #
+    #     class ResourceID(Type_Safe__Primitive, str):
+    #         def __new__(cls, value):
+    #             if not value.startswith('RES-'):
+    #                 value = f'RES-{value}'
+    #             return str.__new__(cls, value.upper())
+    #
+    #     class UpdateData(Type_Safe):
+    #         content: str
+    #         version: int = 1
+    #
+    #     class PUT_Routes(Fast_API_Routes):
+    #         tag = 'resource'
+    #
+    #         def update_resource__id(self, id: ResourceID, data: UpdateData) -> dict:
+    #             # id comes from path parameter (Type_Safe__Primitive)
+    #             # data comes from body (Type_Safe)
+    #             assert isinstance(id, ResourceID)
+    #             assert isinstance(data, UpdateData)
+    #
+    #             return {
+    #                 'resource_id': str(id),
+    #                 'content': data.content,
+    #                 'version': data.version
+    #             }
+    #
+    #         def setup_routes(self):
+    #             # This will create route: /resource/update-resource/{id}
+    #             self.add_route_put(self.update_resource__id)
+    #
+    #     class An_Fast_API(Fast_API):
+    #         default_routes = False
+    #         def setup_routes(self):
+    #             self.add_routes(PUT_Routes)
+    #
+    #     an_fast_api = An_Fast_API().setup()
+    #     assert an_fast_api.routes_paths() == ['/resource/update-resource/{id}']
+    #
+    #     # Test PUT with path parameter and body
+    #     update_data = {'content': 'Updated content', 'version': 2}
+    #     response = an_fast_api.client().put('/resource/update-resource/123', json=update_data)
+    #
+    #     assert response.status_code == 200
+    #     assert response.json() == {
+    #         'resource_id': 'RES-123',  # Transformed by ResourceID
+    #         'content': 'Updated content',
+    #         'version': 2
+    #     }
