@@ -2,7 +2,7 @@ from unittest                           import TestCase
 from dataclasses                        import dataclass
 from typing                             import Optional, List
 from osbot_utils.type_safe.Type_Safe    import Type_Safe
-from osbot_utils.utils.Objects import __
+from osbot_utils.utils.Objects          import __
 from pydantic                           import BaseModel
 from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
 from osbot_fast_api.api.Fast_API        import Fast_API

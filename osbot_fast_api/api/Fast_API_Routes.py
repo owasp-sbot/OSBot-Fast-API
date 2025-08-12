@@ -1,8 +1,13 @@
+import functools
 import inspect
-from typing                                 import get_type_hints
-from fastapi                                import APIRouter, FastAPI
-from osbot_utils.type_safe.Type_Safe        import Type_Safe
-from osbot_utils.decorators.lists.index_by  import index_by
+from typing                                                  import get_type_hints
+from fastapi                                                 import APIRouter, FastAPI, HTTPException
+from osbot_utils.type_safe.Type_Safe                         import Type_Safe
+from osbot_utils.decorators.lists.index_by                   import index_by
+from osbot_utils.type_safe.Type_Safe__Primitive              import Type_Safe__Primitive
+from fastapi.exceptions                                      import RequestValidationError
+from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel import type_safe__to__basemodel
+
 
 class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
     router : APIRouter
@@ -22,53 +27,171 @@ class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes
         self.router.add_api_route(path=path, endpoint=function, methods=methods)
         return self
 
-    def add_route_delete(self, function):
-        return self.add_route(function=function, methods=['DELETE'])
-
-    def add_route_get(self, function):
-        return self.add_route(function=function, methods=['GET'])
-
-    def add_route_post(self, function):                         # add post with support for Type_Safe objects
-        sig        = inspect.signature(function)                # Check if function has a Type_Safe parameter
+    def add_route_with_body(self, function, methods):
+        sig        = inspect.signature(function)
         type_hints = get_type_hints(function)
 
-        type_safe_param = False
+        # Find Type_Safe parameters and convert them to BaseModel classes
+        type_safe_conversions = {}
+
         for param_name, param in sig.parameters.items():
             if param_name == 'self':
                 continue
             param_type = type_hints.get(param_name)
             if param_type and inspect.isclass(param_type):
-                if issubclass(param_type, Type_Safe):
-                    type_safe_param = True
-                    break
+                if issubclass(param_type, Type_Safe) and not issubclass(param_type, Type_Safe__Primitive):
+                    basemodel_class = type_safe__to__basemodel.convert_class(param_type)
+                    type_safe_conversions[param_name] = (param_type, basemodel_class)
 
-        if type_safe_param:
-            def wrapper(data: dict):
-                param_object = param_type.from_json(data)
-                kwargs       = { param_name: param_object }
-                result       = function(**kwargs)
+        if type_safe_conversions:
+            @functools.wraps(function)
+            def wrapper(**kwargs):
+                converted_kwargs = {}
+                for param_name, param_value in kwargs.items():
+                    if param_name in type_safe_conversions:
+                        type_safe_class, _ = type_safe_conversions[param_name]
+                        if isinstance(param_value, dict):
+                            converted_kwargs[param_name] = type_safe_class(**param_value)
+                        else:
+                            data = param_value.model_dump()                         # Get the data from BaseModel
+                            converted_kwargs[param_name] = type_safe_class(**data)  # Create instance of original Type_Safe class
+                    else:
+                        converted_kwargs[param_name] = param_value
+
+                try:
+                    result = function(**converted_kwargs)
+                except Exception as e:
+                    raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}") # Convert business logic validation errors to HTTP 400
+
                 if isinstance(result, Type_Safe):
-                    return result.json()
+                    return type_safe__to__basemodel.convert_instance(result).model_dump()
                 return result
 
+            # Build new parameters with BaseModel types
+            new_params = []
+            for param_name, param in sig.parameters.items():
+                if param_name == 'self':
+                    continue
+                if param_name in type_safe_conversions:
+                    _, basemodel_class = type_safe_conversions[param_name]
+                    new_params.append(inspect.Parameter(
+                        name=param_name,
+                        kind=param.kind,
+                        default=param.default,
+                        annotation=basemodel_class
+                    ))
+                else:
+                    new_params.append(param)
 
-            # todo: the code below is not working (need to add support for supporting Type_Safe return values)
-            # Remove the return type annotation to prevent FastAPI validation
-            # wrapper.__annotations__ = function.__annotations__.copy()
-            # if 'return' in wrapper.__annotations__:
-            #     del wrapper.__annotations__['return']  # Remove return type so FastAPI doesn't validate
+            # Set the new signature on the wrapper
+            wrapper.__signature__ = inspect.Signature(parameters=new_params)
 
+            # Also update annotations for FastAPI
+            wrapper.__annotations__ = {}
+            for param_name, param_type in type_hints.items():
+                if param_name in type_safe_conversions:
+                    _, basemodel_class = type_safe_conversions[param_name]
+                    wrapper.__annotations__[param_name] = basemodel_class
+                else:
+                    wrapper.__annotations__[param_name] = param_type
 
-            #path = '/' + function.__name__.replace('_', '-')
             path = self.parse_function_name(function.__name__)
-            self.router.add_api_route(path=path, endpoint=wrapper, methods=['POST'])
+            self.router.add_api_route(path=path, endpoint=wrapper, methods=methods)
             return self
         else:
-            # Normal route
-            return self.add_route(function=function, methods=['POST'])
+            return self.add_route(function=function, methods=methods)
+
+    def add_route_delete(self, function):
+        return self.add_route(function=function, methods=['DELETE'])
+
+    def add_route_get(self, function):
+        import functools
+        sig        = inspect.signature(function)
+        type_hints = get_type_hints(function)
+
+        primitive_conversions = {}                                  # Check for Type_Safe__Primitive parameters
+
+        for param_name, param in sig.parameters.items():
+            if param_name == 'self':
+                continue
+            param_type = type_hints.get(param_name)
+            if param_type and inspect.isclass(param_type):
+                if issubclass(param_type, Type_Safe__Primitive):
+                    primitive_base = param_type.__primitive_base__
+                    if primitive_base is None:
+                        for base in param_type.__mro__:
+                            if base in (str, int, float):
+                                primitive_base = base
+                                break
+
+                    if primitive_base:
+                        primitive_conversions[param_name] = (param_type, primitive_base)
+
+        if primitive_conversions:
+            # Create a wrapper that preserves the exact signature
+            @functools.wraps(function)
+            def wrapper(*args, **kwargs):
+                # Convert primitive values to Type_Safe__Primitive instances
+                converted_kwargs  = {}
+                validation_errors = []
+                for param_name, param_value in kwargs.items():
+                    if param_name in primitive_conversions:
+                        type_safe_primitive_class, _ = primitive_conversions[param_name]
+                        try:
+                            converted_kwargs[param_name] = type_safe_primitive_class(param_value)
+                        except (ValueError, TypeError) as e:
+                            # Create validation error in FastAPI format
+                            validation_errors.append({'type': 'value_error',
+                                                      'loc' : ('query', param_name),
+                                                      'msg' : str(e),
+                                                      'input': param_value})
+                    else:
+                        converted_kwargs[param_name] = param_value
+
+                # If there were validation errors, raise them
+                if validation_errors:
+                    raise RequestValidationError(validation_errors)
+
+                # Call with self if it's in args
+                if args:
+                    result = function(*args, **converted_kwargs)
+                else:
+                    result = function(**converted_kwargs)
+
+                # Convert result if needed
+                if isinstance(result, Type_Safe__Primitive):
+                    return result.__primitive_base__(result)
+                return result
+
+            # Build new parameter list with primitive types
+            new_params = []
+            for param_name, param in sig.parameters.items():
+                if param_name == 'self':
+                    continue  # Skip self
+                if param_name in primitive_conversions:
+                    _, primitive_type = primitive_conversions[param_name]
+                    # Replace with primitive type parameter
+                    new_params.append(inspect.Parameter(
+                        name=param_name,
+                        kind=param.kind,
+                        default=param.default,
+                        annotation=primitive_type
+                    ))
+                else:
+                    new_params.append(param)
+
+            # Create new signature
+            wrapper.__signature__ = inspect.Signature(parameters=new_params)
+
+            return self.add_route(function=wrapper, methods=['GET'])
+        else:
+            return self.add_route(function=function, methods=['GET'])
+
+    def add_route_post(self, function):
+        return self.add_route_with_body(function, methods=['POST'])
 
     def add_route_put(self, function):
-        return self.add_route(function=function, methods=['PUT'])
+        return self.add_route_with_body(function, methods=['PUT'])
 
     def fast_api_utils(self):
         from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
