@@ -1,9 +1,9 @@
 from dataclasses                                         import fields, is_dataclass, asdict, Field, MISSING
 from typing                                              import Type, Dict, Any, Optional, get_args, Union, List, Set, get_type_hints
-from osbot_utils.type_safe.decorators.type_safe          import type_safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe          import type_safe
 from pydantic                                            import BaseModel, Field as PydanticField, create_model
 from osbot_utils.type_safe.Type_Safe                     import Type_Safe
-from osbot_utils.type_safe.shared.Type_Safe__Cache       import type_safe_cache
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache       import type_safe_cache
 
 
 class Dataclass__To__BaseModel(Type_Safe):

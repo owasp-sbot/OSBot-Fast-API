@@ -1,12 +1,12 @@
-from typing                                         import Type, Dict, Any, Optional, get_args, Union, List
-from osbot_utils.type_safe.Type_Safe__Primitive     import Type_Safe__Primitive
-from osbot_utils.type_safe.decorators.type_safe     import type_safe
-from pydantic                                       import BaseModel, Field, create_model
-from osbot_utils.type_safe.Type_Safe                import Type_Safe
-from osbot_utils.type_safe.Type_Safe__List          import Type_Safe__List
-from osbot_utils.type_safe.Type_Safe__Dict          import Type_Safe__Dict
-from osbot_utils.type_safe.Type_Safe__Set           import Type_Safe__Set
-from osbot_utils.type_safe.shared.Type_Safe__Cache  import type_safe_cache
+from typing                                                           import Type, Dict, Any, Optional, get_args, Union, List
+from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set  import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe        import type_safe
+from pydantic                                                         import BaseModel, Field, create_model
+from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache     import type_safe_cache
 
 
 class Type_Safe__To__BaseModel(Type_Safe):

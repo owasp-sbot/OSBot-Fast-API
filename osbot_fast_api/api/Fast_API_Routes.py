@@ -1,13 +1,13 @@
 import functools
 import inspect
-from typing                                                  import get_type_hints
-from fastapi                                                 import APIRouter, FastAPI, HTTPException
-from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-from osbot_utils.decorators.lists.index_by                   import index_by
-from osbot_utils.type_safe.Type_Safe__Primitive              import Type_Safe__Primitive
-from fastapi.exceptions                                      import RequestValidationError
-from osbot_utils.type_safe.shared.Type_Safe__Cache           import type_safe_cache
-from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel import type_safe__to__basemodel
+from typing                                                       import get_type_hints
+from fastapi                                                      import APIRouter, FastAPI, HTTPException
+from osbot_utils.type_safe.Type_Safe                              import Type_Safe
+from osbot_utils.decorators.lists.index_by                        import index_by
+from osbot_utils.type_safe.Type_Safe__Primitive                   import Type_Safe__Primitive
+from fastapi.exceptions                                           import RequestValidationError
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
+from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel      import type_safe__to__basemodel
 
 
 class Fast_API_Routes(Type_Safe):       # refactor to Fast_API__Routes

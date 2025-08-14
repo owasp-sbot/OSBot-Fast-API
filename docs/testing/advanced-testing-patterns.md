@@ -76,8 +76,8 @@ class test_Type_Conversions(TestCase):
 
 ```python
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
-from osbot_utils.helpers.Random_Guid import Random_Guid
-from osbot_utils.helpers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 
 class test_Type_Safe_Primitives(TestCase):
     """Test custom Type_Safe primitive types"""

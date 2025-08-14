@@ -7,7 +7,7 @@ from osbot_fast_api.api.Fast_API__Http_Event__Request   import Fast_API__Http_Ev
 from osbot_fast_api.api.Fast_API__Http_Event__Response  import Fast_API__Http_Event__Response
 from osbot_fast_api.api.Fast_API__Http_Event__Traces    import Fast_API__Http_Event__Traces
 from osbot_utils.type_safe.Type_Safe                 import Type_Safe
-from osbot_utils.helpers.Random_Guid                    import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.helpers.trace.Trace_Call               import Trace_Call
 from osbot_utils.utils.Misc                             import timestamp_utc_now, current_thread_id, str_to_bytes
 from osbot_utils.utils.Objects                          import pickle_to_bytes
