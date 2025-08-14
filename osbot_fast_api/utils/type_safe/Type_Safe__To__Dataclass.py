@@ -1,5 +1,5 @@
 from typing                                                  import Type, Dict, Any
-from osbot_utils.type_safe.decorators.type_safe              import type_safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe              import type_safe
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_fast_api.utils.type_safe.BaseModel__To__Dataclass import basemodel__to__dataclass
 from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel import type_safe__to__basemodel

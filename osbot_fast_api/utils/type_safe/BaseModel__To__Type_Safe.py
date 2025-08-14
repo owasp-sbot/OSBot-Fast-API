@@ -1,11 +1,11 @@
-from typing                                                     import Type, Dict, Any, Optional, get_args, Union, List
-from osbot_utils.type_safe.Type_Safe__Primitive                 import Type_Safe__Primitive
-from osbot_utils.type_safe.decorators.type_safe                 import type_safe
-from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables  import IMMUTABLE_TYPES
-from pydantic                                                   import BaseModel
-from pydantic_core                                              import PydanticUndefined
-from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.type_safe.shared.Type_Safe__Cache              import type_safe_cache
+from typing                                                                     import Type, Dict, Any, Optional, get_args, Union, List
+from osbot_utils.type_safe.Type_Safe__Primitive                                 import Type_Safe__Primitive
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables   import IMMUTABLE_TYPES
+from pydantic                                                                   import BaseModel
+from pydantic_core                                                              import PydanticUndefined
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache               import type_safe_cache
 
 
 class BaseModel__To__Type_Safe(Type_Safe):
