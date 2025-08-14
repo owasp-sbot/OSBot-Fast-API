@@ -657,3 +657,4 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
         assert response.json() == {'content'    : ''       ,
                                    'resource_id': 'RES-ABC',
                                    'version'    : 1        }
+
