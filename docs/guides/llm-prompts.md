@@ -11,8 +11,8 @@ This guide provides prompts for Large Language Models (like Claude, GPT-4, etc.)
 ```
 Create a FastAPI service using OSBot-Fast-API that:
 1. Uses the Fast_API class as the base, not regular FastAPI
-2. Implements routes using Fast_API_Routes classes with descriptive tags
-3. Each route class should extend Fast_API_Routes and implement setup_routes()
+2. Implements routes using Fast_API__Routes classes with descriptive tags
+3. Each route class should extend Fast_API__Routes and implement setup_routes()
 4. Use method naming convention: method_name becomes /method-name
 5. For path parameters use double underscore: method__param becomes /method/{param}
 6. Enable CORS and API key authentication if needed
@@ -24,7 +24,7 @@ Create a FastAPI service using OSBot-Fast-API that:
 
 ```
 Add a new route to OSBot-Fast-API that:
-1. Extends Fast_API_Routes with appropriate tag property
+1. Extends Fast_API__Routes with appropriate tag property
 2. Uses Type_Safe classes (not Pydantic BaseModel) for request/response schemas
 3. Type_Safe classes should inherit from Type_Safe, not BaseModel
 4. Implements add_route_get/post/put/delete in setup_routes() method
@@ -55,7 +55,7 @@ Create Type-Safe schemas for OSBot-Fast-API:
 ```
 When working with OSBot-Fast-API type conversions:
 1. Type_Safe classes are automatically converted to/from BaseModel at API boundaries
-2. Conversion happens in Fast_API_Routes methods automatically
+2. Conversion happens in Fast_API__Routes methods automatically
 3. Manual conversion: type_safe__to__basemodel.convert_class(Type_Safe_Class)
 4. Reverse: basemodel__to__type_safe.convert_instance(basemodel_instance)
 5. Collections (List, Dict, Set) are automatically handled
@@ -211,7 +211,7 @@ Add static files and shell server to OSBot-Fast-API:
 ```
 Create a complete OSBot-Fast-API service with:
 1. Type_Safe schemas for all data models
-2. Fast_API_Routes classes for endpoint organization
+2. Fast_API__Routes classes for endpoint organization
 3. Enable CORS for web clients
 4. API key authentication for security
 5. HTTP event tracking for monitoring
@@ -240,7 +240,7 @@ Implement error handling in OSBot-Fast-API:
 ```
 Follow OSBot-Fast-API best practices:
 1. Always use Type_Safe classes, never raw Pydantic BaseModel
-2. Organize routes in Fast_API_Routes classes by domain
+2. Organize routes in Fast_API__Routes classes by domain
 3. Set meaningful tags for OpenAPI documentation
 4. Enable middleware appropriate for environment
 5. Use environment variables for all configuration
@@ -257,7 +257,7 @@ Follow OSBot-Fast-API best practices:
 Critical OSBot-Fast-API implementation details:
 1. NEVER use FastAPI() directly, always use Fast_API()
 2. NEVER use BaseModel for schemas, always use Type_Safe
-3. NEVER use @app.get(), use Fast_API_Routes methods
+3. NEVER use @app.get(), use Fast_API__Routes methods
 4. ALWAYS call setup() before adding routes
 5. ALWAYS implement setup_routes() in route classes
 6. ALWAYS use add_route_get/post/put/delete, not decorators

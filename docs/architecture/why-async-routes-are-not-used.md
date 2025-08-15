@@ -94,7 +94,7 @@ What makes this particularly dangerous:
 
 ```python
 # ✅ SAFE: OSBot-Fast-API approach
-class Routes_API(Fast_API_Routes):
+class Routes_API(Fast_API__Routes):
     def get_users(self):  # Sync function
         # Safe to use any sync library
         users = db.query("SELECT * FROM users")
@@ -218,7 +218,7 @@ But in a production API where:
 ### Do's ✅
 
 ```python
-class Routes_Safe(Fast_API_Routes):
+class Routes_Safe(Fast_API__Routes):
     def process_data(self, data: dict):
         # Safe to use any sync operation
         result = sync_database.query(data)
@@ -232,7 +232,7 @@ class Routes_Safe(Fast_API_Routes):
 
 ```python
 # Don't try to force async in OSBot-Fast-API
-class Routes_Unsafe(Fast_API_Routes):
+class Routes_Unsafe(Fast_API__Routes):
     async def process_data(self, data: dict):  # Avoid this
         # Mixing async/sync is dangerous
         pass

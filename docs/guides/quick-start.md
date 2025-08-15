@@ -30,21 +30,23 @@ if __name__ == "__main__":
 
 ```python
 from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
+
 
 # Define routes class
-class Routes_Users(Fast_API_Routes):
+class Routes_Users(Fast_API__Routes):
     tag = 'users'  # OpenAPI tag
-    
+
     def list_users(self):
         return {'users': ['alice', 'bob', 'charlie']}
-    
+
     def get_user__id(self, id: str):  # {id} parameter
         return {'user_id': id, 'name': f'User {id}'}
-    
+
     def setup_routes(self):
-        self.add_route_get(self.list_users)   # GET /users/list-users
-        self.add_route_get(self.get_user__id) # GET /users/get-user/{id}
+        self.add_route_get(self.list_users)  # GET /users/list-users
+        self.add_route_get(self.get_user__id)  # GET /users/get-user/{id}
+
 
 # Setup application
 fast_api = Fast_API()
@@ -77,32 +79,33 @@ class UserResponse(Type_Safe):
 ### Use in Routes
 
 ```python
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 
-class Routes_API(Fast_API_Routes):
+
+class Routes_API(Fast_API__Routes):
     tag = 'api'
-    
+
     def create_user(self, user: User) -> UserResponse:
         # Type-Safe object automatically converted from request
         print(f"Creating user: {user.username}")
-        
+
         # Business logic here
         user_id = "user_123"
-        
+
         # Return Type-Safe object (auto-converted to JSON)
         return UserResponse(
             id=user_id,
             username=user.username,
             created=True
         )
-    
+
     def update_user__id(self, id: str, user: User):
         # Path parameter and body
         return {'updated': id, 'new_data': user.json()}
-    
+
     def setup_routes(self):
-        self.add_route_post(self.create_user)    # POST /api/create-user
-        self.add_route_put(self.update_user__id) # PUT /api/update-user/{id}
+        self.add_route_post(self.create_user)  # POST /api/create-user
+        self.add_route_put(self.update_user__id)  # PUT /api/update-user/{id}
 ```
 
 ## 🛡️ Middleware Configuration
@@ -287,7 +290,7 @@ print(paths)  # ['/users/list-users', '/users/get-user/{id}']
 
 ```python
 from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe import Type_Safe
 from typing import List, Optional
 import os
@@ -296,6 +299,7 @@ import os
 os.environ['FAST_API__AUTH__API_KEY__NAME'] = 'X-API-Key'
 os.environ['FAST_API__AUTH__API_KEY__VALUE'] = 'my-secret-key'
 
+
 # Define schemas
 class Product(Type_Safe):
     name: str
@@ -303,34 +307,37 @@ class Product(Type_Safe):
     description: Optional[str] = None
     tags: List[str] = []
 
+
 class Order(Type_Safe):
     product_id: str
     quantity: int
     customer_email: str
+
 
 class OrderResponse(Type_Safe):
     order_id: str
     total: float
     status: str
 
+
 # Define routes
-class Routes_Shop(Fast_API_Routes):
+class Routes_Shop(Fast_API__Routes):
     tag = 'shop'
     products = {}  # In-memory storage
-    
+
     def create_product(self, product: Product):
         product_id = f"prod_{len(self.products)}"
         self.products[product_id] = product
         return {'id': product_id, 'created': True}
-    
+
     def get_product__id(self, id: str):
         if id in self.products:
             return self.products[id].json()
         return {'error': 'Product not found'}
-    
+
     def list_products(self):
         return {'products': [p.json() for p in self.products.values()]}
-    
+
     def create_order(self, order: Order) -> OrderResponse:
         # Calculate total (simplified)
         product = self.products.get(order.product_id)
@@ -346,24 +353,26 @@ class Routes_Shop(Fast_API_Routes):
             total=0.0,
             status="failed"
         )
-    
+
     def setup_routes(self):
         self.add_route_post(self.create_product)
         self.add_route_get(self.get_product__id)
         self.add_route_get(self.list_products)
         self.add_route_post(self.create_order)
 
+
 # Custom FastAPI with monitoring
 class Shop_Fast_API(Fast_API):
     def setup_middlewares(self):
         super().setup_middlewares()
-        
+
         @self.app().middleware("http")
         async def log_requests(request, call_next):
             print(f"Incoming: {request.method} {request.url.path}")
             response = await call_next(request)
             print(f"Outgoing: {response.status_code}")
             return response
+
 
 # Create and configure application
 fast_api = Shop_Fast_API(
@@ -376,9 +385,11 @@ fast_api = Shop_Fast_API(
 fast_api.http_events.max_requests_logged = 100
 fast_api.http_events.clean_data = True
 
+
 # Add callbacks
 def on_request(event):
     print(f"Event ID: {event.event_id}")
+
 
 fast_api.http_events.callback_on_request = on_request
 
@@ -392,13 +403,14 @@ app = fast_api.app()
 # Run server
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
 ## 🎯 Best Practices
 
 1. **Type-Safe First**: Always use Type_Safe classes for request/response schemas
-2. **Route Organization**: Group related endpoints in Fast_API_Routes classes
+2. **Route Organization**: Group related endpoints in Fast_API__Routes classes
 3. **Environment Variables**: Store sensitive configuration in environment
 4. **Error Handling**: Use global exception handlers for consistent errors
 5. **Testing**: Use Fast_API_Server for integration tests

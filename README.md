@@ -30,8 +30,9 @@ pip install osbot-fast-api
 
 ```python
 from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe import Type_Safe
+
 
 # Define Type-Safe schema
 class User(Type_Safe):
@@ -39,20 +40,22 @@ class User(Type_Safe):
     email: str
     age: int
 
+
 # Create routes
-class Routes_Users(Fast_API_Routes):
+class Routes_Users(Fast_API__Routes):
     tag = 'users'
-    
+
     def create_user(self, user: User):
         # user is automatically converted from BaseModel to Type_Safe
         return {'created': user.username}
-    
+
     def get_user__id(self, id: str):  # Becomes /users/get-user/{id}
         return {'user_id': id}
-    
+
     def setup_routes(self):
         self.add_route_post(self.create_user)
         self.add_route_get(self.get_user__id)
+
 
 # Setup application
 fast_api = Fast_API(enable_cors=True)
@@ -145,7 +148,7 @@ class Person(Type_Safe):
     addresses: List[Address] = []
 
 # Use directly in routes - automatic conversion happens
-class Routes_People(Fast_API_Routes):
+class Routes_People(Fast_API__Routes):
     tag = 'people'
     
     def create_person(self, person: Person):
@@ -250,7 +253,7 @@ def lambda_handler(event, context):
 osbot_fast_api/
 ├── api/
 │   ├── Fast_API.py                 # Main FastAPI wrapper
-│   ├── Fast_API_Routes.py          # Route organization base class
+│   ├── Fast_API__Routes.py          # Route organization base class
 │   ├── Fast_API__Http_Event*.py    # Event tracking components
 │   └── middlewares/                # Built-in middleware
 ├── utils/
@@ -291,7 +294,7 @@ Comprehensive documentation is available in the [`/docs`](./docs) folder:
 - **AWS Ready**: Direct Lambda integration with Mangum
 
 ### For Teams
-- **Organized Code**: Clear separation with Fast_API_Routes classes
+- **Organized Code**: Clear separation with Fast_API__Routes classes
 - **Consistent Patterns**: Standardized route naming and structure
 - **Easy Testing**: Type-Safe test utilities
 - **Documentation**: Auto-generated OpenAPI/Swagger docs

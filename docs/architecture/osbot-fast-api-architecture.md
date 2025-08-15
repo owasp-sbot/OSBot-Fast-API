@@ -44,7 +44,7 @@ graph TB
         end
         
         subgraph "Routing"
-            FAR[Fast_API_Routes]
+            FAR[Fast_API__Routes]
             RC[Route Config]
             RM[Route Methods]
         end
@@ -134,7 +134,7 @@ classDiagram
     Fast_API --|> Type_Safe
     Fast_API *-- Fast_API__Http_Events
     Fast_API ..> FastAPI : creates
-    Fast_API ..> Fast_API_Routes : manages
+    Fast_API ..> Fast_API__Routes : manages
 ```
 
 **Responsibilities**:
@@ -144,13 +144,13 @@ classDiagram
 - HTTP event coordination
 - Global exception handling
 
-### Fast_API_Routes Class
+### Fast_API__Routes Class
 
 Base class for organizing routes with automatic Type-Safe conversion:
 
 ```mermaid
 classDiagram
-    class Fast_API_Routes {
+    class Fast_API__Routes {
         +APIRouter router
         +FastAPI app
         +str prefix
@@ -164,9 +164,9 @@ classDiagram
         +setup_routes()
     }
     
-    Fast_API_Routes --|> Type_Safe
-    Fast_API_Routes --> APIRouter
-    Fast_API_Routes --> FastAPI
+    Fast_API__Routes --|> Type_Safe
+    Fast_API__Routes --> APIRouter
+    Fast_API__Routes --> FastAPI
 ```
 
 **Route Path Generation Algorithm**:
@@ -344,7 +344,7 @@ class Custom_Fast_API(Fast_API):
 ### Custom Routes
 
 ```python
-class Custom_Routes(Fast_API_Routes):
+class Custom_Routes(Fast_API__Routes):
     def setup_routes(self):
         # Add routes with Type-Safe support
         self.add_route_get(self.custom_method)

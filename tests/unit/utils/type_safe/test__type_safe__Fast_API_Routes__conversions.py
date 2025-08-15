@@ -6,7 +6,7 @@ from dataclasses                                             import dataclass, f
 from typing                                                  import List, Optional, Dict
 from osbot_utils.utils.Objects                               import __, base_types
 from osbot_fast_api.api.Fast_API                             import Fast_API
-from osbot_fast_api.api.Fast_API_Routes                      import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes                      import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_fast_api.utils.type_safe.BaseModel__To__Dataclass import basemodel__to__dataclass
 from osbot_fast_api.utils.type_safe.BaseModel__To__Type_Safe import basemodel__to__type_safe
@@ -15,7 +15,7 @@ from osbot_fast_api.utils.type_safe.Dataclass__To__BaseModel import dataclass__t
 from osbot_fast_api.utils.type_safe.Type_Safe__To__Dataclass import type_safe__to__dataclass
 
 
-class test__type_safe__Fast_API_Routes__conversions(TestCase):
+class test__type_safe__Fast_API__Routes__conversions(TestCase):
 
     def test__1__with_BaseModel__indirect_support(self):  # Using Pydantic BaseModel with Type_Safe conversion
 
@@ -37,7 +37,7 @@ class test__type_safe__Fast_API_Routes__conversions(TestCase):
             in_stock    : bool
             created_at  : str = "2024-01-01T00:00:00Z"
 
-        class Product_Routes(Fast_API_Routes):
+        class Product_Routes(Fast_API__Routes):
             tag = 'products'
 
             def create_product(self, product_request: ProductRequest) -> ProductResponse:         # Create a new product
@@ -166,7 +166,7 @@ class test__type_safe__Fast_API_Routes__conversions(TestCase):
             comments  : List[CommentDataclass] = field(default_factory=list)
             views     : int = 0
 
-        class Blog_Routes(Fast_API_Routes):
+        class Blog_Routes(Fast_API__Routes):
             tag = 'blog'
 
             def create_post(self, post_request: BlogPostRequest):       # receive request as BaseModel
@@ -271,7 +271,7 @@ class test__type_safe__Fast_API_Routes__conversions(TestCase):
             departments         : Dict[str, list[str]]
             verified            : bool = False
 
-        class Company_Routes(Fast_API_Routes):
+        class Company_Routes(Fast_API__Routes):
             tag = 'company'
 
             def register_company(self, company_request: CompanyRequest              # receive complex nested BaseModel

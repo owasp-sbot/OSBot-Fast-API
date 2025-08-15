@@ -1,4 +1,4 @@
-from osbot_fast_api.api.Fast_API_Routes         import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes        import Fast_API__Routes
 from osbot_fast_api.utils.Fast_API__Server_Info import fast_api__server_info
 from osbot_fast_api.utils.Version               import version__osbot_fast_api
 
@@ -9,7 +9,7 @@ ROUTES__CONFIG = [{ 'http_methods': ['GET'], 'http_path': '/config/info'   , 'me
 
 ROUTES_PATHS__CONFIG = ['/config/status', '/config/version']
 
-class Routes_Config(Fast_API_Routes):
+class Routes_Config(Fast_API__Routes):
     tag : str = 'config'
 
     def info(self):

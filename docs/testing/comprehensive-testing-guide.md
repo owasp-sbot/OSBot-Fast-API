@@ -397,12 +397,13 @@ def test_type_conversions(self):
 ```python
 from unittest import TestCase
 from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 from osbot_fast_api.utils.Fast_API_Server import Fast_API_Server
+
 
 class test_MyFeature(TestCase):
     """Test suite for MyFeature"""
-    
+
     @classmethod
     def setUpClass(cls):
         """One-time setup for all tests"""
@@ -410,31 +411,31 @@ class test_MyFeature(TestCase):
         cls.fast_api.add_routes(MyRoutes)
         cls.server = Fast_API_Server(app=cls.fast_api.app())
         cls.server.start()
-    
+
     @classmethod
     def tearDownClass(cls):
         """One-time cleanup"""
         cls.server.stop()
-    
+
     def setUp(self):
         """Setup for each test"""
         self.test_data = {'key': 'value'}
-    
+
     def test_unit__component(self):
         """Unit test for component"""
         component = MyComponent()
         assert component.process(self.test_data) == expected
-    
+
     def test_integration__workflow(self):
         """Integration test for workflow"""
         # Step 1: Create
         create_response = self.server.requests_post('/create', data=self.test_data)
         assert create_response.status_code == 201
-        
+
         # Step 2: Verify
         get_response = self.server.requests_get(f'/get/{id}')
         assert get_response.json() == self.test_data
-    
+
     def test_edge_case__empty_data(self):
         """Edge case test"""
         response = self.server.requests_post('/create', data={})

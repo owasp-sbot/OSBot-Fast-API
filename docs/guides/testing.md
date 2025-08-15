@@ -54,22 +54,24 @@ def test_basic_api():
 
 ```python
 import pytest
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 
-class Test_Routes(Fast_API_Routes):
+
+class Test_Routes(Fast_API__Routes):
     tag = 'test'
-    
+
     def echo__message(self, message: str):
         return {'echo': message}
-    
+
     def setup_routes(self):
         self.add_route_get(self.echo__message)
+
 
 def test_custom_routes():
     fast_api = Fast_API()
     fast_api.setup()
     fast_api.add_routes(Test_Routes)
-    
+
     with Fast_API_Server(app=fast_api.app()) as server:
         response = server.requests_get('/test/echo/hello')
         assert response.json() == {'echo': 'hello'}
@@ -113,7 +115,7 @@ class UserResponse(Type_Safe):
     username: str
     created: bool
 
-class Routes_Users(Fast_API_Routes):
+class Routes_Users(Fast_API__Routes):
     tag = 'users'
     
     def register(self, user: UserRequest) -> UserResponse:
@@ -230,7 +232,7 @@ def test_http_events():
 ```python
 from fastapi import Request
 
-class Routes_Debug(Fast_API_Routes):
+class Routes_Debug(Fast_API__Routes):
     tag = 'debug'
     
     def event_info(self, request: Request):
@@ -317,7 +319,7 @@ def test_memory_usage():
 ### Exception Handling
 
 ```python
-class Routes_Errors(Fast_API_Routes):
+class Routes_Errors(Fast_API__Routes):
     tag = 'errors'
     
     def trigger_error(self):
