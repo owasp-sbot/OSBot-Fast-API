@@ -1,5 +1,5 @@
 from osbot_utils.utils.Files import path_combine, file_not_exists, file_create_bytes, parent_folder, folder_create
-from osbot_utils.utils.Http import GET, GET_bytes
+from osbot_utils.utils.Http  import GET_bytes
 
 import osbot_fast_api
 from fastapi                                import FastAPI

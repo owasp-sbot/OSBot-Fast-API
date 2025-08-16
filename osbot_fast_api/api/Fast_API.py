@@ -5,9 +5,9 @@ from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text      import S
 from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Version    import Safe_Str__Version
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
 from starlette.staticfiles                                              import StaticFiles
-from osbot_fast_api.api.Fast_API__Offline_Docs import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, \
-    URL__STATIC__DOCS, NAME__STATIC__DOCS
+from osbot_fast_api.api.Fast_API__Offline_Docs                          import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, URL__STATIC__DOCS, NAME__STATIC__DOCS
 from osbot_fast_api.api.events.Fast_API__Http_Events                    import Fast_API__Http_Events
+from osbot_fast_api.api.routes.Routes__Config                           import Routes__Config
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                    import Safe_Str__Fast_API__Name
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix           import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.utils.Version                                       import version__osbot_fast_api
@@ -166,12 +166,11 @@ class Fast_API(Type_Safe):
     def setup_routes     (self): return self     # overwrite to add rules
 
     def setup_default_routes(self):
-        from osbot_fast_api.api.routes.Routes_Config import Routes_Config
 
         if self.default_routes:
             self.setup_add_root_route()
             self.setup_offline_docs  ()
-            self.add_routes(Routes_Config)
+            self.add_routes(Routes__Config)
 
     def setup_add_root_route(self):
         from starlette.responses import RedirectResponse

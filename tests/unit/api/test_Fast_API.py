@@ -7,16 +7,13 @@ from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Version import Safe
 from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text   import Safe_Str__Text
 from starlette.testclient                                            import TestClient
 from osbot_fast_api.api.Fast_API                                     import Fast_API
-from osbot_fast_api.api.routes.Routes_Config import ROUTES__CONFIG, ROUTES__STATIC_DOCS
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                 import Safe_Str__Fast_API__Name
+from osbot_fast_api.schemas.consts__Fast_API                         import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS
 from osbot_fast_api.utils.Fast_API_Utils                             import FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils                             import Fast_API_Utils
 from osbot_fast_api.utils.Version                                    import version__osbot_fast_api
 from tests.unit.fast_api__for_tests                                  import fast_api, fast_api_client
 
-EXPECTED_ROUTES_METHODS = ['info', 'redirect_to_docs', 'status', 'version'         ]
-EXPECTED_ROUTES_PATHS   = ['/', '/config/info', '/config/status', '/config/version']
-EXPECTED_DEFAULT_ROUTES = ['/docs', '/openapi.json', '/redoc', '/static-docs'      ]
 
 class test_Fast_API(TestCase):
 

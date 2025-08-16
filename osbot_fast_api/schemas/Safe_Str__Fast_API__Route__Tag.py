@@ -1,5 +1,4 @@
 import re
-
 from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
 
 TYPE_SAFE_STR__FASTAPI__ROUTE__REGEX = re.compile(r'[^a-zA-Z0-9\-_/{}.]')
