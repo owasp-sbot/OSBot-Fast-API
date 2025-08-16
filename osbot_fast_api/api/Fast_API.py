@@ -8,14 +8,13 @@ from starlette.staticfiles                                              import S
 from osbot_fast_api.api.Fast_API__Offline_Docs                          import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, URL__STATIC__DOCS, NAME__STATIC__DOCS
 from osbot_fast_api.api.events.Fast_API__Http_Events                    import Fast_API__Http_Events
 from osbot_fast_api.api.routes.Routes__Config                           import Routes__Config
+from osbot_fast_api.api.routes.Routes__Set_Cookie                       import Routes__Set_Cookie
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                    import Safe_Str__Fast_API__Name
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix           import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.consts__Fast_API                            import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.utils.Version                                       import version__osbot_fast_api
 
-DEFAULT_ROUTES_PATHS                    = ['/', '/config/status', '/config/version']
-DEFAULT__NAME__FAST_API                 = 'Fast_API'
-ENV_VAR__FAST_API__AUTH__API_KEY__NAME  = 'FAST_API__AUTH__API_KEY__NAME'
-ENV_VAR__FAST_API__AUTH__API_KEY__VALUE = 'FAST_API__AUTH__API_KEY__VALUE'
+
 
 class Fast_API(Type_Safe):
     base_path      : Safe_Str__Fast_API__Route__Prefix = '/'
@@ -116,8 +115,13 @@ class Fast_API(Type_Safe):
     def path_static_folder(self):        # override this to add support for serving static files from this directory
         return None
 
-    def mount(self, parent_app):
+    def mount(self, parent_app):                            # use this from the child Fast_Api instance
         parent_app.mount(self.base_path, self.app())
+        return self
+
+    def mount_fast_api(self, class_fast_api):               # use this from the parent Fast_Api instance
+        class_fast_api().setup().mount(self.app())
+        return self
 
     def setup(self):
         self.add_global_exception_handlers()
@@ -168,9 +172,10 @@ class Fast_API(Type_Safe):
     def setup_default_routes(self):
 
         if self.default_routes:
-            self.setup_add_root_route()
-            self.setup_offline_docs  ()
-            self.add_routes(Routes__Config)
+            self.setup_add_root_route        ()
+            self.setup_offline_docs          ()
+            self.add_routes(Routes__Config    )
+            self.add_routes(Routes__Set_Cookie)
 
     def setup_add_root_route(self):
         from starlette.responses import RedirectResponse

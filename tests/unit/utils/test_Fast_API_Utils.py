@@ -1,7 +1,6 @@
 from unittest                                  import TestCase
 from osbot_fast_api.api.Fast_API               import Fast_API
-from osbot_fast_api.schemas.consts__Fast_API import ROUTES__CONFIG
-from osbot_fast_api.utils.Fast_API_Utils       import ROUTE_REDIRECT_TO_DOCS
+from osbot_fast_api.schemas.consts__Fast_API   import ROUTES__CONFIG, ROUTE_REDIRECT_TO_DOCS
 
 
 class test_Fast_API_Utils(TestCase):

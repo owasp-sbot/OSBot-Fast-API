@@ -4,6 +4,7 @@ import requests
 from unittest                                           import TestCase
 from osbot_utils.utils.Env                              import load_dotenv
 from osbot_utils.utils.Misc                             import list_set
+from osbot_fast_api.schemas.consts__Fast_API            import EXPECTED_ROUTES_PATHS
 from osbot_fast_api.utils.Fast_API_Server               import Fast_API_Server
 from osbot_fast_api.api.Fast_API                        import Fast_API
 from osbot_fast_api.utils.http_shell.Http_Shell__Client import Http_Shell__Client
@@ -56,7 +57,7 @@ class test_Http_Shell__Client(TestCase):
         del options_headers['date']
 
         assert response_shell_invoke.json()         == expected_result
-        assert self.fast_api.routes_paths()         == ['/', '/config/info', '/config/routes/html', '/config/routes/json', '/config/status', '/config/version', '/http-shell-server']
+        assert self.fast_api.routes_paths()         == EXPECTED_ROUTES_PATHS + [ '/http-shell-server']
         assert self.fast_api_server.port            >  19999
         assert self.fast_api_server.is_port_open()  is True
         assert response_options.json()              == { "detail"             : "Method Not Allowed" }

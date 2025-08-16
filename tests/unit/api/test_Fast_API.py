@@ -8,8 +8,7 @@ from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text   import Safe
 from starlette.testclient                                            import TestClient
 from osbot_fast_api.api.Fast_API                                     import Fast_API
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                 import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.consts__Fast_API                         import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS
-from osbot_fast_api.utils.Fast_API_Utils                             import FAST_API_DEFAULT_ROUTES
+from osbot_fast_api.schemas.consts__Fast_API                         import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES
 from osbot_fast_api.utils.Fast_API_Utils                             import Fast_API_Utils
 from osbot_fast_api.utils.Version                                    import version__osbot_fast_api
 from tests.unit.fast_api__for_tests                                  import fast_api, fast_api_client

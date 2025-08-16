@@ -1,7 +1,7 @@
 import requests
-from unittest                           import TestCase
-from unittest.mock                      import patch
-from osbot_fast_api.cli.Fast_API__CLI   import Fast_API__CLI
+from unittest                                import TestCase
+from unittest.mock                           import patch
+from osbot_fast_api.cli.Fast_API__CLI        import Fast_API__CLI
 from osbot_fast_api.schemas.consts__Fast_API import EXPECTED_ROUTES_PATHS
 
 
