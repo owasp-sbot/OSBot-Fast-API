@@ -9,6 +9,7 @@ from fastapi.exceptions                                           import Request
 from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path import Safe_Str__File__Path
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
 
+from osbot_fast_api.api.Fast_API__Route__Parser import Fast_API__Route__Parser
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix import Safe_Str__FastAPI__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag import Safe_Str__FastAPI__Route__Tag
 from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel      import type_safe__to__basemodel
@@ -27,7 +28,7 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
             self.prefix = Safe_Str__FastAPI__Route__Prefix(self.tag)        # create the prefix from the lower case tag and with a starting /
 
     def add_route(self,function, methods):
-        path = self.parse_function_name(function.__name__)
+        path = self.parse_function_name(function)
         self.router.add_api_route(path=path, endpoint=function, methods=methods)
         return self
 
@@ -37,13 +38,23 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
 
         type_safe_conversions = {}                                                                              # Map param_name -> (Type_Safe class, BaseModel class)
         primitive_field_types = {}                                                                              # Track which fields are Type_Safe__Primitive
+        primitive_conversions = {}
 
         for param_name, param in sig.parameters.items():                                                        # Process each parameter
             if param_name == 'self':                                                                            # Skip self parameter
                 continue
             param_type = type_hints.get(param_name)                                                             # Get parameter's type hint
             if param_type and inspect.isclass(param_type):                                                      # Check if it's a class type
-                if issubclass(param_type, Type_Safe) and not issubclass(param_type, Type_Safe__Primitive):      # Type_Safe but not primitive
+                if issubclass(param_type, Type_Safe__Primitive):                                                # Handle Type_Safe__Primitive parameters
+                    primitive_base = param_type.__primitive_base__                                              # Get the primitive base (str, int, float)
+                    if primitive_base is None:                                                                  # If not explicitly set, search MRO
+                        for base in param_type.__mro__:                                                         # Walk up the class hierarchy
+                            if base in (str, int, float):                                                       # Find the primitive type
+                                primitive_base = base
+                                break
+                    if primitive_base:                                                                          # Store conversion info
+                        primitive_conversions[param_name] = (param_type, primitive_base)
+                elif issubclass(param_type, Type_Safe) and not issubclass(param_type, Type_Safe__Primitive):    # Type_Safe but not primitive
 
                     annotations = type_safe_cache.get_class_annotations(param_type)                             # For Type_Safe classes, also track their primitive fields
                     for field_name, field_type in annotations:                                                  # Check each field in the Type_Safe class
@@ -55,12 +66,15 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
                     basemodel_class = type_safe__to__basemodel.convert_class(param_type)                        # Convert Type_Safe to BaseModel
                     type_safe_conversions[param_name] = (param_type, basemodel_class)                           # Store conversion mapping
 
-        if type_safe_conversions:                                                                               # Need wrapper if Type_Safe params exist
+        if type_safe_conversions or primitive_conversions:                                                      # Need wrapper if Type_Safe params OR primitives exist
             @functools.wraps(function)
             def wrapper(**kwargs):                                                                              # Wrapper to handle conversions
                 converted_kwargs = {}                                                                           # Store converted parameters
                 for param_name, param_value in kwargs.items():                                                  # Process each parameter value
-                    if param_name in type_safe_conversions:                                                     # Handle Type_Safe parameters
+                    if param_name in primitive_conversions:                                                     # Handle Type_Safe__Primitive parameters
+                        type_safe_primitive_class, _ = primitive_conversions[param_name]                        # Get the Type_Safe__Primitive class
+                        converted_kwargs[param_name] = type_safe_primitive_class(param_value)                   # Convert to Type_Safe__Primitive instance
+                    elif param_name in type_safe_conversions:
                         type_safe_class, _ = type_safe_conversions[param_name]                                  # Get the Type_Safe class
                         if isinstance(param_value, dict):                                                       # If value came as dict (from JSON)
                             # Convert primitive fields back to Type_Safe__Primitive instances
@@ -94,7 +108,15 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
             for param_name, param in sig.parameters.items():                                                    # Process each original parameter
                 if param_name == 'self':                                                                        # Skip self
                     continue
-                if param_name in type_safe_conversions:                                                         # Replace Type_Safe with BaseModel
+                if param_name in primitive_conversions:                                                         # Replace Type_Safe__Primitive with base type
+                    _, primitive_type = primitive_conversions[param_name]                                       # Get the primitive type (str, int, float)
+                    new_params.append(inspect.Parameter(                                                        # Create new parameter with primitive type
+                        name=param_name,
+                        kind=param.kind,
+                        default=param.default,
+                        annotation=primitive_type
+                    ))
+                elif param_name in type_safe_conversions:                                                       # Replace Type_Safe with BaseModel
                     _, basemodel_class = type_safe_conversions[param_name]                                      # Get the BaseModel class
                     new_params.append(inspect.Parameter(                                                        # Create new parameter with BaseModel type
                         name=param_name,
@@ -111,7 +133,10 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
             # Also update annotations for FastAPI
             wrapper.__annotations__ = {}                                                                        # Build new annotations dict
             for param_name, param_type in type_hints.items():                                                   # Process each type hint
-                if param_name in type_safe_conversions:                                                         # Use BaseModel for Type_Safe params
+                if param_name in primitive_conversions:                                                         # Use primitive type for Type_Safe__Primitive params
+                    _, primitive_type = primitive_conversions[param_name]
+                    wrapper.__annotations__[param_name] = primitive_type
+                elif param_name in type_safe_conversions:                                                       # Use BaseModel for Type_Safe params
                     _, basemodel_class = type_safe_conversions[param_name]
                     wrapper.__annotations__[param_name] = basemodel_class
                 else:
@@ -123,7 +148,7 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
                     basemodel_return = type_safe__to__basemodel.convert_class(return_type)                      # Convert to BaseModel for FastAPI
                     wrapper.__annotations__['return'] = basemodel_return                                        # Update return type annotation
 
-            path = self.parse_function_name(function.__name__)                                                  # Parse function name to route path
+            path = self.parse_function_name(function)                                                  # Parse function name to route path
             self.router.add_api_route(path=path, endpoint=wrapper, methods=methods)                             # Register route with FastAPI
             return self
         else:
@@ -251,26 +276,34 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
     def add_route_put(self, function):
         return self.add_route_with_body(function, methods=['PUT'])
 
+    def add_routes_delete(self, *functions):
+        for function in functions:
+            self.add_route_delete(function)
+        return self
+
+    def add_routes_get(self, *functions):
+        for function in functions:
+            self.add_route_get(function)
+        return self
+
+    def add_routes_post(self, *functions):
+        for function in functions:
+            self.add_route_post(function)
+        return self
+
+    def add_routes_put(self, *functions):
+        for function in functions:
+            self.add_route_put(function)
+        return self
+
     def fast_api_utils(self):
         from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
         return Fast_API_Utils(self.app)
 
-    def parse_function_name(self, function_name):                           # added support for routes that have resource ids in the path
-        parts = function_name.split('__')
-        path_segments = []
-
-        for i, part in enumerate(parts):
-            if i == 0:                                                  # First part is always literal
-                path_segments.append(part.replace('_', '-'))
-            else:
-                if '_' in part:                                         # After __, check if it's a parameter or literal
-                    subparts = part.split('_', 1)                       # Contains underscore, split into param and literal
-                    path_segments.append('{' + subparts[0] + '}')
-                    path_segments.append(subparts[1].replace('_', '-'))
-                else:
-                    path_segments.append('{' + part + '}')              # Just a parameter
-
-        return '/' + '/'.join(path_segments)
+    def parse_function_name(self, function):                           # added support for routes that have resource ids in the path
+        route_parser  = Fast_API__Route__Parser()  # Create parser instance
+        function_path = route_parser.parse_route_path(function)
+        return function_path
 
     @index_by
     def routes(self):

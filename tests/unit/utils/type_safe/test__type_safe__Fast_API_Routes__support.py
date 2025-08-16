@@ -631,7 +631,7 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
         class PUT_Routes(Fast_API__Routes):
             tag = 'resource'
 
-            def update_resource__id(self, data: UpdateData) -> dict:
+            def update_resource__id(self, data: UpdateData) -> dict:                                                    # note that there is no id var in the function
                 assert isinstance(data, UpdateData)
 
                 return { 'resource_id': str(data.resource_id),
@@ -639,7 +639,7 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                          'version': data.version }
 
             def setup_routes(self):
-                self.add_route_put(self.update_resource__id)            # This will create route: /resource/update-resource/{id}
+                self.add_route_put(self.update_resource__id)            # This will create route: /resource/update-resource/id (because there is no id field in the method definition)
 
         class An_Fast_API(Fast_API):
             default_routes = False
@@ -647,11 +647,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_routes(PUT_Routes)
 
         an_fast_api = An_Fast_API().setup()
-        assert an_fast_api.routes_paths() == ['/resource/update-resource/{id}']
+        assert an_fast_api.routes_paths() == ['/resource/update-resource/id']
 
         # Test PUT with path parameter and body
         update_data = UpdateData(resource_id='abc').json()
-        response = an_fast_api.client().put('/resource/update-resource/123', json=update_data)
+        response = an_fast_api.client().put('/resource/update-resource/id', json=update_data)
 
         assert response.status_code == 200
         assert response.json() == {'content'    : ''       ,

@@ -3,6 +3,7 @@ from dataclasses                        import dataclass
 from typing                             import Optional, List
 from osbot_utils.type_safe.Type_Safe    import Type_Safe
 from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects          import __
 from pydantic                           import BaseModel
 from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
@@ -325,6 +326,36 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
 
         response_3 = an_fast_api.client().get('/obj/return-object', params={'an_str':'123'})
         assert response_3.json() == {'an_str': '123'}
+
+    def test__7__with_Type_Safe__and_path_params(self):
+
+        class An_User(Type_Safe):
+            user_name  : str
+            user_id : str
+
+        class POST_Routes(Fast_API__Routes):
+            tag = 'v1/post'
+            def create__user_id(self, user_id: str, an_user: An_User):              # receive and return An_Class object
+                an_user.user_id = user_id
+                return an_user
+
+
+            def setup_routes(self):
+                self.add_route_post(self.create__user_id)
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+            def setup_routes(self):
+                self.add_routes(POST_Routes)
+
+        an_fast_api = An_Fast_API().setup()
+
+        assert an_fast_api.routes_paths() == ['/v1/post/create/{user_id}']
+
+        an_user =  An_User(user_name='abc').json()
+        response = an_fast_api.client().post('/v1/post/create/user-abc', json=an_user)
+        assert response.status_code == 200
+        assert response.json()      == {'user_id': 'user-abc', 'user_name': 'abc'}
 
     def test__regression__primitive_type__not_supported_on__init(self):
         class An_Class(Type_Safe):
