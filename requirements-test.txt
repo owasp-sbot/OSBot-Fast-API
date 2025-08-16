@@ -6,13 +6,6 @@ coverage
 httpx
 
 # for flask testing
-flask_testing
-blinker
-bs4
-
-# for playwright
-osbot-playwright
-playwright
-psutil
-
-
+#flask_testing
+#blinker
+#bs4
