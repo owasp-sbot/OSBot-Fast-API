@@ -300,10 +300,13 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
         from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
         return Fast_API_Utils(self.app)
 
-    def parse_function_name(self, function):                           # added support for routes that have resource ids in the path
-        route_parser  = Fast_API__Route__Parser()  # Create parser instance
-        function_path = route_parser.parse_route_path(function)
-        return function_path
+    def parse_function_name(self, function):                            # added support for routes that have resource ids in the path
+        if hasattr(function, '__route_path__'):                         # Check for decorator attribute
+            return function.__route_path__                              # Use explicit path
+        else:
+            route_parser  = Fast_API__Route__Parser()                   # Create parser instance
+            function_path = route_parser.parse_route_path(function)
+            return function_path
 
     @index_by
     def routes(self):
@@ -313,7 +316,7 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
         return list(self.routes(index_by='method_name'))
 
     def routes_paths(self):
-        return list(self.routes(index_by='http_path'))
+        return sorted(list(self.routes(index_by='http_path')))
 
     def setup(self):
         self.setup_routes()

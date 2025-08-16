@@ -1,13 +1,8 @@
-import re
-from unittest import TestCase
-
-import pytest
-from fastapi.exceptions import FastAPIError
+from unittest                                           import TestCase
 from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
-
-from osbot_fast_api.api.Fast_API         import Fast_API
-from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
-from osbot_utils.type_safe.Type_Safe     import Type_Safe
+from osbot_fast_api.api.Fast_API                        import Fast_API
+from osbot_fast_api.api.Fast_API__Routes                import Fast_API__Routes
+from osbot_utils.type_safe.Type_Safe                    import Type_Safe
 
 
 class test_Fast_API__Routes__path_parsing(TestCase):
@@ -30,8 +25,8 @@ class test_Fast_API__Routes__path_parsing(TestCase):
             _.add_routes_post(an_post     ,
                               an__user_id ,
                               an__user__id)
-            assert _.routes_paths()  == ['/no-params', '/no/vars', '/an/{var}',
-                                         '/an-post', '/an/{user_id}', '/an/{user}/id']
+            assert _.routes_paths()  == sorted(['/no-params', '/no/vars', '/an/{var}',
+                                                '/an-post', '/an/{user_id}', '/an/{user}/id'])
 
     def test_edge_cases__underscores_and_hyphens(self):
         def api_v1__data            (self                       ): pass                  # Simple with underscore
@@ -49,12 +44,12 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                             fetch__user_profile_id     )
             _.add_route_post(update__profile_user_id)
 
-            assert _.routes_paths() == ['/api-v1/data'                  ,
-                                       '/api-v2/user-profile'           ,
-                                       '/get/{user_id}'                 ,
-                                       '/get/{user_profile_id}'          ,
-                                       '/fetch/{user}/profile-id'         ,
-                                       '/update/{profile_user_id}'       ]
+            assert _.routes_paths() == sorted(['/api-v1/data'             ,
+                                               '/api-v2/user-profile'     ,
+                                               '/get/{user_id}'           ,
+                                               '/get/{user_profile_id}'   ,
+                                               '/fetch/{user}/profile-id' ,
+                                               '/update/{profile_user_id}'])
 
     def test_multiple_path_segments(self):
         def api__v1__users(self): pass                                                  # Multiple segments, no params
@@ -72,12 +67,12 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                             api__user_profile__post_details ,
                             get__user_id__profile__settings )
 
-            assert _.routes_paths() == ['/api/v1/users'                          ,
-                                        '/api/v1/{user}'                         ,
-                                        '/api/v1/{user}/posts'                   ,
-                                        '/api/v1/{user}/{post}'                  ,
-                                        '/api/{user}/profile/{post}/details'     ,
-                                        '/get/{user_id}/profile/settings'        ]
+            assert _.routes_paths() == sorted(['/api/v1/users'                      ,
+                                               '/api/v1/{user}'                     ,
+                                               '/api/v1/{user}/posts'               ,
+                                               '/api/v1/{user}/{post}'              ,
+                                               '/api/{user}/profile/{post}/details' ,
+                                               '/get/{user_id}/profile/settings'    ])
 
     def test_confusing_parameter_names(self):
         def get__id                      (id             ): pass            # '/get/{id}'
@@ -98,12 +93,12 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                               update__user_profile_id__data )
 
             # Note: get__id_user appears twice with different params, last one wins
-            assert _.routes_paths() == [ '/get/{id}'                        ,
-                                         '/get/{id}/user'                   ,
-                                         '/fetch/user-id-profile'           ,
-                                         '/fetch/{user_id}/profile'         ,
-                                         '/update/user-profile-id-data'     ,
-                                         '/update/{user_profile_id}/data'  ]
+            assert _.routes_paths() == sorted([ '/get/{id}'                        ,
+                                                '/get/{id}/user'                   ,
+                                                '/fetch/user-id-profile'           ,
+                                                '/fetch/{user_id}/profile'         ,
+                                                '/update/user-profile-id-data'     ,
+                                                '/update/{user_profile_id}/data'   ])
 
     def test_empty_and_special_cases(self):
         def __(self): pass                                                              # Just double underscore
@@ -121,12 +116,12 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                              api__      ,
                              __user__)
 
-            assert _.routes_paths() == ['/'      ,                                      # Empty first part
-                                        '/a'     ,                                      # Empty after __
-                                        '/b'     ,                                      # Empty before __
-                                        '/a/b'   ,                                      # Empty middle segment
-                                        '/api'   ,                                      # Trailing empty
-                                        '/{user}']                                      # Param with empty around
+            assert _.routes_paths() == sorted(['/'      ,                                      # Empty first part
+                                               '/a'     ,                                      # Empty after __
+                                               '/b'     ,                                      # Empty before __
+                                               '/a/b'   ,                                      # Empty middle segment
+                                               '/api'   ,                                      # Trailing empty
+                                               '/{user}'])                                     # Param with empty around
 
     def test_with_fast_api_client__get_routes(self):
         class Test_Routes(Fast_API__Routes):
@@ -273,11 +268,11 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                             get__user_123          ,
                             fetch__id_123_456      )
 
-            assert _.routes_paths() == ['/api/v1'                    ,
-                                        '/api/v2-beta'               ,
-                                        '/item/123'                  ,                   # Numeric literal (no param named 123)
-                                        '/get/{user_123}'            ,
-                                        '/fetch/{id_123_456}'        ]
+            assert _.routes_paths() == sorted(['/api/v1'             ,
+                                               '/api/v2-beta'        ,
+                                               '/item/123'           ,                   # Numeric literal (no param named 123)
+                                               '/get/{user_123}'     ,
+                                               '/fetch/{id_123_456}' ])
 
     def test_with_safe_str_primitives(self):
         from osbot_utils.type_safe.primitives.safe_str.Safe_Str                                  import Safe_Str
@@ -610,12 +605,12 @@ class test_Fast_API__Routes__path_parsing(TestCase):
             _.add_routes_post(update__user_profile_id_data  ,
                               update__user_profile_id__data )
 
-            assert _.routes_paths() == [ '/get/{id}'                        ,
-                                         '/get/{id}/user'                   ,       # todo: see how to detect and raise exception when two functions point to the same path, in this case get__id_user and get__id__user
-                                         '/fetch/user-id-profile'           ,
-                                         '/fetch/{user_id}/profile'         ,
-                                         '/update/user-profile-id-data'     ,
-                                         '/update/{user_profile_id}/data'  ]
+            assert _.routes_paths() == sorted([ '/get/{id}'                     ,
+                                                '/get/{id}/user'                ,       # todo: see how to detect and raise exception when two functions point to the same path, in this case get__id_user and get__id__user
+                                                '/fetch/user-id-profile'        ,
+                                                '/fetch/{user_id}/profile'      ,
+                                                '/update/user-profile-id-data'  ,
+                                                '/update/{user_profile_id}/data'])
 
     def test_parameter_matching_rules(self):
         """
@@ -646,12 +641,12 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                             boundary__user__profile_data   )
 
             # Results show the clear pattern
-            assert _.routes_paths() == ['/exact/{user_id}'                  ,
-                                       '/exact/{user_id_extra}'             ,  # Last registration with matching param
-                                       '/split/{user_profile}'              ,  # Last registration with matching param
-                                       '/boundary/{user}/{profile}/data'    ,
-                                       '/boundary/{user_profile}/data'      ,
-                                       '/boundary/{user}/profile-data'      ]
+            assert _.routes_paths() == sorted(['/exact/{user_id}'                ,
+                                               '/exact/{user_id_extra}'          ,  # Last registration with matching param
+                                               '/split/{user_profile}'           ,  # Last registration with matching param
+                                               '/boundary/{user}/{profile}/data' ,
+                                               '/boundary/{user_profile}/data'   ,
+                                               '/boundary/{user}/profile-data'   ])
 
     def test_best_practices_for_clear_routes(self):
         """
@@ -689,13 +684,13 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                             get__customer_order_id_details         ,
                             get__customer_order_id__details        )
 
-            assert _.routes_paths() == ['/api/v1/users/{id}/profile'              ,
-                                       '/api/v1/users/{user_id}/profile'          ,
-                                       '/api/user-id-profile'                     ,  # Not what you might expect!
-                                       '/api/{user_id}/profile'                   ,  # This is clearer
-                                       '/get/{customer_order_id}'                 ,
-                                       '/get/customer-order-id-details'           ,  # Not what you might expect!
-                                       '/get/{customer_order_id}/details'         ]  # This is clearer
+            assert _.routes_paths() == sorted(['/api/v1/users/{id}/profile'              ,
+                                               '/api/v1/users/{user_id}/profile'          ,
+                                               '/api/user-id-profile'                     ,  # Not what you might expect!
+                                               '/api/{user_id}/profile'                   ,  # This is clearer
+                                               '/get/{customer_order_id}'                 ,
+                                               '/get/customer-order-id-details'           ,  # Not what you might expect!
+                                               '/get/{customer_order_id}/details'         ])  # This is clearer
 
     def test_underscore_parameter_detection_rules(self):
         """
@@ -736,14 +731,14 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                             process__very_long_param_name     ,
                             process__id_123_456               )
 
-            assert _.routes_paths() == ['/fetch/{user}/id'                  ,
-                                       '/fetch/{order}/status'              ,
-                                       '/fetch/{item}/count'                ,
-                                       '/get/{user_id_profile}'              ,  # Exact match
-                                       '/get/{user_id}/profile'              ,  # With __
-                                       '/process/{long_param_name}'          ,
-                                       '/process/{very_long_param_name}'     ,
-                                       '/process/{id_123_456}'               ]
+            assert _.routes_paths() ==sorted(['/fetch/{user}/id'                  ,
+                                              '/fetch/{order}/status'              ,
+                                              '/fetch/{item}/count'                ,
+                                              '/get/{user_id_profile}'              ,  # Exact match
+                                              '/get/{user_id}/profile'              ,  # With __
+                                              '/process/{long_param_name}'          ,
+                                              '/process/{very_long_param_name}'     ,
+                                              '/process/{id_123_456}'               ])
 
     def test_pattern_summary(self):
         """
