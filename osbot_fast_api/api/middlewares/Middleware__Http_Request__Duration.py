@@ -4,7 +4,7 @@
 # from starlette.middleware.base                   import BaseHTTPMiddleware
 # from starlette.responses                         import Response
 #
-# from osbot_fast_api.api.Fast_API__Http_Events import Fast_API__Http_Events
+# from osbot_fast_api.api.events.Fast_API__Http_Events import Fast_API__Http_Events
 #
 #
 # class Middleware__Http_Request__Duration(BaseHTTPMiddleware):

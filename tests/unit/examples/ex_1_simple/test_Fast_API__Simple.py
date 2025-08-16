@@ -46,10 +46,10 @@ class test_Fast_API__Simple(TestCase):
         response = self.client.get('/docs')
         fast_api_request_id = response.headers.get('fast-api-request-id')
         assert response.status_code == 200
-        assert '<title>FastAPI - Swagger UI</title>' in response.text
-        assert dict(response.headers) == {'content-length': '931',
-                                          'content-type': 'text/html; charset=utf-8',
-                                          'fast-api-request-id':fast_api_request_id,}
+        assert 'Fast_API__Simple - Swagger UI' in response.text
+        assert dict(response.headers) == {'content-length'     : '817'                      ,
+                                          'content-type'       : 'text/html; charset=utf-8' ,
+                                          'fast-api-request-id': fast_api_request_id        }
 
 
     def test_route__root(self):

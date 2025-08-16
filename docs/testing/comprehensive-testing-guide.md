@@ -397,7 +397,7 @@ def test_type_conversions(self):
 ```python
 from unittest import TestCase
 from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
+from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
 from osbot_fast_api.utils.Fast_API_Server import Fast_API_Server
 
 

@@ -1,5 +1,5 @@
 from unittest                                   import TestCase
-from osbot_fast_api.api.Fast_API__Route__Parser import Fast_API__Route__Parser
+from osbot_fast_api.api.routes.Fast_API__Route__Parser import Fast_API__Route__Parser
 
 
 class test_Fast_API__Route__Parser(TestCase):

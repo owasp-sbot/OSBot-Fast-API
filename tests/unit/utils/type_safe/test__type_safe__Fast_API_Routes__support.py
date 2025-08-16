@@ -11,7 +11,7 @@ from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id              
 from osbot_utils.utils.Objects                                                   import __
 from osbot_fast_api.api.Fast_API                                                 import Fast_API
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid           import Random_Guid
-from osbot_fast_api.api.Fast_API__Routes                                         import Fast_API__Routes
+from osbot_fast_api.api.routes.Fast_API__Routes                                         import Fast_API__Routes
 
 
 class test__type_safe__Fast_API__Routes__support(TestCase):

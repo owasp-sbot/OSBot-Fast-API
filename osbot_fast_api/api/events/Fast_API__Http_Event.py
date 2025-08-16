@@ -2,10 +2,10 @@ import logging
 import time
 from decimal                                            import Decimal
 from fastapi                                            import Response, Request
-from osbot_fast_api.api.Fast_API__Http_Event__Info      import Fast_API__Http_Event__Info
-from osbot_fast_api.api.Fast_API__Http_Event__Request   import Fast_API__Http_Event__Request
-from osbot_fast_api.api.Fast_API__Http_Event__Response  import Fast_API__Http_Event__Response
-from osbot_fast_api.api.Fast_API__Http_Event__Traces    import Fast_API__Http_Event__Traces
+from osbot_fast_api.api.events.Fast_API__Http_Event__Info      import Fast_API__Http_Event__Info
+from osbot_fast_api.api.events.Fast_API__Http_Event__Request   import Fast_API__Http_Event__Request
+from osbot_fast_api.api.events.Fast_API__Http_Event__Response  import Fast_API__Http_Event__Response
+from osbot_fast_api.api.events.Fast_API__Http_Event__Traces    import Fast_API__Http_Event__Traces
 from osbot_utils.type_safe.Type_Safe                 import Type_Safe
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                    import Random_Guid
 from osbot_utils.helpers.trace.Trace_Call               import Trace_Call

@@ -1,8 +1,8 @@
 from unittest                                                   import TestCase
 from fastapi                                                    import FastAPI, APIRouter
-from osbot_fast_api.api.Fast_API__Routes                        import Fast_API__Routes
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix   import Safe_Str__FastAPI__Route__Prefix
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag      import Safe_Str__FastAPI__Route__Tag
+from osbot_fast_api.api.routes.Fast_API__Routes                        import Fast_API__Routes
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix   import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag      import Safe_Str__Fast_API__Route__Tag
 from osbot_fast_api.utils.Fast_API_Utils                        import Fast_API_Utils
 
 
@@ -58,8 +58,8 @@ class test_Fast_API__Routes(TestCase):
         with Fast_API__Routes(tag='abc') as _:
             assert _.tag          == 'abc'
             assert _.prefix       == '/abc'
-            assert type(_.tag   ) is Safe_Str__FastAPI__Route__Tag
-            assert type(_.prefix) is Safe_Str__FastAPI__Route__Prefix
+            assert type(_.tag   ) is Safe_Str__Fast_API__Route__Tag
+            assert type(_.prefix) is Safe_Str__Fast_API__Route__Prefix
 
         with Fast_API__Routes(tag='a/bc') as _:
             assert _.tag    == 'a/bc'
@@ -72,8 +72,8 @@ class test_Fast_API__Routes(TestCase):
         with Fast_API__Routes(tag='/a/b/c') as _:
             assert _.tag          == '/a/b/c'
             assert _.prefix       == '/a/b/c'
-            assert type(_.tag   ) is Safe_Str__FastAPI__Route__Tag
-            assert type(_.prefix) is Safe_Str__FastAPI__Route__Prefix
+            assert type(_.tag   ) is Safe_Str__Fast_API__Route__Tag
+            assert type(_.prefix) is Safe_Str__Fast_API__Route__Prefix
 
 
     def test__tag_and_prefix__edge_cases(self):
@@ -113,7 +113,7 @@ class test_Fast_API__Routes(TestCase):
             assert _.prefix == '/custom/path'
 
         # Both tag and prefix with type safety
-        with Fast_API__Routes(tag    = Safe_Str__FastAPI__Route__Tag('USERS')          ,
-                              prefix = Safe_Str__FastAPI__Route__Prefix('/API/V2/USERS')) as _:
+        with Fast_API__Routes(tag    = Safe_Str__Fast_API__Route__Tag('USERS')          ,
+                              prefix = Safe_Str__Fast_API__Route__Prefix('/API/V2/USERS')) as _:
             assert _.tag == 'USERS'  # Tag keeps case
             assert _.prefix == '/api/v2/users'  # Prefix lowercase

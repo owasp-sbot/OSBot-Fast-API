@@ -1,20 +1,27 @@
-import pytest
-from unittest                                   import TestCase
-from fastapi                                    import FastAPI
-from starlette.testclient                       import TestClient
-from osbot_fast_api.api.routes.Routes_Config    import ROUTES__CONFIG
-from osbot_fast_api.utils.Fast_API_Utils        import FAST_API_DEFAULT_ROUTES
-from osbot_fast_api.utils.Fast_API_Utils        import Fast_API_Utils
-from tests.unit.fast_api__for_tests             import fast_api, fast_api_client
+import re
 
-EXPECTED_ROUTES_METHODS = ['info', 'redirect_to_docs', 'status', 'version']
+import pytest
+from unittest                                                        import TestCase
+from fastapi                                                         import FastAPI
+from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Version import Safe_Str__Version
+from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text   import Safe_Str__Text
+from starlette.testclient                                            import TestClient
+from osbot_fast_api.api.Fast_API                                     import Fast_API
+from osbot_fast_api.api.routes.Routes_Config import ROUTES__CONFIG, ROUTES__STATIC_DOCS
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                 import Safe_Str__Fast_API__Name
+from osbot_fast_api.utils.Fast_API_Utils                             import FAST_API_DEFAULT_ROUTES
+from osbot_fast_api.utils.Fast_API_Utils                             import Fast_API_Utils
+from osbot_fast_api.utils.Version                                    import version__osbot_fast_api
+from tests.unit.fast_api__for_tests                                  import fast_api, fast_api_client
+
+EXPECTED_ROUTES_METHODS = ['info', 'redirect_to_docs', 'status', 'version'         ]
 EXPECTED_ROUTES_PATHS   = ['/', '/config/info', '/config/status', '/config/version']
-EXPECTED_DEFAULT_ROUTES = ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
+EXPECTED_DEFAULT_ROUTES = ['/docs', '/openapi.json', '/redoc', '/static-docs'      ]
 
 class test_Fast_API(TestCase):
 
     def setUp(self):
-        self.fast_api = fast_api        #Fast_API().setup()
+        self.fast_api = fast_api        # Fast_API().setup()
         self.client   = fast_api_client # self.fast_api.client()
 
     def test__init__(self):
@@ -22,8 +29,8 @@ class test_Fast_API(TestCase):
 
     
     def test_add_flask_app(self):
-        flask = pytest.importorskip("flask", reason="Flask is not installed")
-        from flask import Flask
+        flask = pytest.importorskip("flask", reason="Flask is not installed")       # noqa
+        from flask import Flask                                                     # noqa
         path      = '/flask-app'
         flask_app = Flask(__name__)
 
@@ -44,11 +51,11 @@ class test_Fast_API(TestCase):
         assert type(app) == FastAPI
         assert app.openapi_version      == '3.1.0'
         assert app.debug                is False
-        assert app.docs_url             == '/docs'
+        #assert app.docs_url             == '/docs'
         assert app.dependency_overrides == {}
         assert app.openapi_url          == '/openapi.json'
-        assert app.title                == 'FastAPI'
-        assert app.version              == '0.1.0'
+        assert app.title                == 'Fast_API'
+        assert app.version              == version__osbot_fast_api
 
         assert self.fast_api.enable_cors is False
 
@@ -71,7 +78,7 @@ class test_Fast_API(TestCase):
         assert dict(response.headers) == {'content-length': '0', 'location': '/docs', 'fast-api-request-id': fast_api_request_id}
 
     def test_routes(self):
-        expected_routes = FAST_API_DEFAULT_ROUTES + ROUTES__CONFIG
+        expected_routes = FAST_API_DEFAULT_ROUTES + ROUTES__CONFIG + ROUTES__STATIC_DOCS
         routes          = self.fast_api.routes(include_default=True)
         assert routes == expected_routes
 
@@ -92,3 +99,36 @@ class test_Fast_API(TestCase):
         params = {'http_events' : http_events}
         assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': params, 'type': 'Middleware__Http_Request'     },
                                                     {'function_name': None, 'params': {}     ,'type': 'Middleware__Detect_Disconnect'}]
+
+    def test__verify__title_description_version(self):
+
+        app = self.fast_api.app()
+        assert type(app) is FastAPI
+        assert app.title       == 'Fast_API'
+        assert app.version     == version__osbot_fast_api
+        assert app.description == ''
+
+        kwargs = dict(name        = 'An Fast API !!',
+                      version     = 'v0.1.0'        ,
+                      description = 'now with more available charts to talk about Fast API !! @£$%^&*()')
+        with Fast_API(**kwargs) as _:
+            assert _.name       == 'An Fast API __'                                                         # note the chars sanitization
+            assert _.version    ==  'v0.1.0'
+            assert _.description == 'now with more available charts to talk about Fast API __ ______*()'    # note the chars sanitization
+
+            assert type(_.name       ) is Safe_Str__Fast_API__Name
+            assert type(_.version    ) is Safe_Str__Version
+            assert type(_.description) is Safe_Str__Text
+
+            app = _.app()
+            assert type(app) is FastAPI
+            assert app.title         == Safe_Str__Fast_API__Name('An Fast API __')
+            assert app.version       == Safe_Str__Version        ('v0.1.0')
+            assert app.description   == Safe_Str__Text('now with more available charts to talk about Fast API __ ______*()')
+
+        error_message = 'Value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$'
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            Fast_API(version="0.1.1")                                       # confirm validation provided by Safe_Str__Version
+
+
+
