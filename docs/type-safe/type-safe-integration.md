@@ -198,15 +198,16 @@ async def create_user(user: UserRequestModel):
 ### Automatic Conversion in Routes
 
 ```python
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 
-class Routes_API(Fast_API_Routes):
+
+class Routes_API(Fast_API__Routes):
     tag = 'api'
-    
+
     def create_user(self, user: User):  # User is Type_Safe class
         # Automatic conversion happens here
         return {'created': user.username}
-    
+
     def setup_routes(self):
         self.add_route_post(self.create_user)
 ```
@@ -298,7 +299,7 @@ class Schema__Encryption__Request(Type_Safe):
     encryption_type: Enum__Encryption_Type
 
 # Route with automatic conversion
-class Routes__Encryption(Fast_API_Routes):
+class Routes__Encryption(Fast_API__Routes):
     def encrypt(self, request: Schema__Encryption__Request):
         # request is Type_Safe, validated and converted
         return self.service_encryption.encrypt(request)

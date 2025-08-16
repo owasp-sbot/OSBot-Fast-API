@@ -103,7 +103,7 @@ def test_api_key_middleware():
 **Use Case**: Testing dynamic route parameters
 
 ```python
-class Routes_Users(Fast_API_Routes):
+class Routes_Users(Fast_API__Routes):
     tag = 'users'
     
     def get__user_id(self, user_id: str):

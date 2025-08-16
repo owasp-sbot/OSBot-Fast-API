@@ -11,10 +11,10 @@ from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id              
 from osbot_utils.utils.Objects                                                   import __
 from osbot_fast_api.api.Fast_API                                                 import Fast_API
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid           import Random_Guid
-from osbot_fast_api.api.Fast_API_Routes                                          import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes                                         import Fast_API__Routes
 
 
-class test__type_safe__Fast_API_Routes__support(TestCase):
+class test__type_safe__Fast_API__Routes__support(TestCase):
 
     def test__1__type_safe_primitive__on_get_requests(self):
         class To_Lower(Type_Safe__Primitive, str):              # example of a Type_Safe__Primitive class
@@ -22,7 +22,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
                 lower_value = value.lower()                     # which just converts a string to lower
                 return str.__new__(cls, lower_value)
 
-        class GET_Routes(Fast_API_Routes):
+        class GET_Routes(Fast_API__Routes):
             tag = 'get'
 
             def with_primitive(self, to_lower: To_Lower):
@@ -66,7 +66,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
                     raise ValueError(f"Port must be between 1 and 65535, got {port}")
                 return int.__new__(cls, port)
 
-        class API_Routes(Fast_API_Routes):
+        class API_Routes(Fast_API__Routes):
             tag = 'api'
 
             def validate_email(self, email: Email):
@@ -111,7 +111,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
     def test__3__random_guid_example(self):
         """Test that Random_Guid works as a Type_Safe__Primitive"""
 
-        class GUID_Routes(Fast_API_Routes):
+        class GUID_Routes(Fast_API__Routes):
             tag = 'guid'
 
             def validate_guid(self, guid: Random_Guid):
@@ -150,7 +150,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             an_int: int
             an_str: str
 
-        class POST_Routes(Fast_API_Routes):
+        class POST_Routes(Fast_API__Routes):
             tag = 'post'
 
             def with_type_safe(self, the_request: The_Request) -> The_Response:
@@ -191,7 +191,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             tags    : List[str]
             status  : str = "active"
 
-        class POST_Routes(Fast_API_Routes):
+        class POST_Routes(Fast_API__Routes):
             tag = 'users'
 
             def create_user(self, user: UserRequest) -> UserResponse:  # Using Type_Safe classes directly
@@ -260,7 +260,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             metadata    : Dict[str, str]
             updated_at  : str
 
-        class PUT_Routes(Fast_API_Routes):
+        class PUT_Routes(Fast_API__Routes):
             tag = 'updates'
 
             def update_item(self, request: UpdateRequest) -> UpdateResponse:
@@ -343,7 +343,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             email        : str
             address_count: int
 
-        class POST_Routes(Fast_API_Routes):
+        class POST_Routes(Fast_API__Routes):
             tag = 'person'
 
             def create_person(self, request: PersonRequest) -> PersonResponse:
@@ -398,7 +398,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             dict_field: Dict[str, Any]
             bool_field: bool = False
 
-        class POST_Routes(Fast_API_Routes):
+        class POST_Routes(Fast_API__Routes):
             tag = 'flex'
 
             def process(self, request: FlexibleRequest) -> dict:
@@ -465,7 +465,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             age  : int
             score: float
 
-        class POST_Routes(Fast_API_Routes):
+        class POST_Routes(Fast_API__Routes):
             tag = 'strict'
 
             def validate_data(self, request: StrictRequest) -> dict:
@@ -520,7 +520,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             an_int  : int
             to_lower: To_Lower                              # FIXED: BUG: Type_Safe__Primitive is currently not supported
 
-        class POST_Routes(Fast_API_Routes):
+        class POST_Routes(Fast_API__Routes):
             tag = 'post'
 
             # def with_primitive(self, to_lower: To_Lower):   # QUESTION: Is this a realistic scenario?
@@ -540,7 +540,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
                 self.add_routes(POST_Routes)
 
         # error_message =  ("Unable to generate pydantic-core schema for "
-        #                   "<class 'test__type_safe__Fast_API_Routes__support.test__type_safe__Fast_API_Routes__support."
+        #                   "<class 'test__type_safe__Fast_API__Routes__support.test__type_safe__Fast_API__Routes__support."
         #                   "test__10__bug__type_safe_primitive__on_type_safe.<locals>.To_Lower'>. "
         #                   "Set `arbitrary_types_allowed=True` in the model_config to ignore this error or implement "
         #                   "`__get_pydantic_core_schema__` on your type to fully support it.\n\nIf you got this error by calling handler(<some type>) "
@@ -576,7 +576,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             to_lower                    : To_Lower
 
 
-        class POST_Routes(Fast_API_Routes):
+        class POST_Routes(Fast_API__Routes):
             tag = 'post'
 
             def with_type_safe(self, an_class: An_Class) -> An_Class:
@@ -628,10 +628,10 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
             version    : int = 1
             resource_id: ResourceID
 
-        class PUT_Routes(Fast_API_Routes):
+        class PUT_Routes(Fast_API__Routes):
             tag = 'resource'
 
-            def update_resource__id(self, data: UpdateData) -> dict:
+            def update_resource__id(self, data: UpdateData) -> dict:                                                    # note that there is no id var in the function
                 assert isinstance(data, UpdateData)
 
                 return { 'resource_id': str(data.resource_id),
@@ -639,7 +639,7 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
                          'version': data.version }
 
             def setup_routes(self):
-                self.add_route_put(self.update_resource__id)            # This will create route: /resource/update-resource/{id}
+                self.add_route_put(self.update_resource__id)            # This will create route: /resource/update-resource/id (because there is no id field in the method definition)
 
         class An_Fast_API(Fast_API):
             default_routes = False
@@ -647,11 +647,11 @@ class test__type_safe__Fast_API_Routes__support(TestCase):
                 self.add_routes(PUT_Routes)
 
         an_fast_api = An_Fast_API().setup()
-        assert an_fast_api.routes_paths() == ['/resource/update-resource/{id}']
+        assert an_fast_api.routes_paths() == ['/resource/update-resource/id']
 
         # Test PUT with path parameter and body
         update_data = UpdateData(resource_id='abc').json()
-        response = an_fast_api.client().put('/resource/update-resource/123', json=update_data)
+        response = an_fast_api.client().put('/resource/update-resource/id', json=update_data)
 
         assert response.status_code == 200
         assert response.json() == {'content'    : ''       ,

@@ -1,13 +1,13 @@
 from unittest                               import TestCase
 from osbot_fast_api.api.Fast_API            import Fast_API
-from osbot_fast_api.api.Fast_API_Routes     import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes    import Fast_API__Routes
 
 
-class test_Fast_API_Routes__with_path_params(TestCase):
+class test_Fast_API__Routes__with_path_params(TestCase):
 
     def test__get_method__with_path__params(self):
 
-        class Param_Routes(Fast_API_Routes):
+        class Param_Routes(Fast_API__Routes):
             tag = 'param'
 
             def an__guid(self, guid: str):

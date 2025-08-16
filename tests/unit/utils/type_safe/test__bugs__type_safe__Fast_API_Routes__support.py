@@ -1,14 +1,11 @@
-import re
-import pytest
 from unittest                                   import TestCase
-from fastapi.exceptions                         import FastAPIError
 from osbot_utils.type_safe.Type_Safe            import Type_Safe
 from osbot_fast_api.api.Fast_API                import Fast_API
-from osbot_fast_api.api.Fast_API_Routes         import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes        import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
 
-class test__bugs__type_safe__Fast_API_Routes__support(TestCase):
+class test__bugs__type_safe__Fast_API__Routes__support(TestCase):
 
     def test__regression__type_safe_classes__fail__on_get_requests__return_value(self):
         class To_Lower(Type_Safe__Primitive, str):              # example of a Type_Safe__Primitive class
@@ -19,7 +16,7 @@ class test__bugs__type_safe__Fast_API_Routes__support(TestCase):
         class An_Class(Type_Safe):
             an_str: str
 
-        class GET_Routes(Fast_API_Routes):
+        class GET_Routes(Fast_API__Routes):
             tag = 'get'
 
             def with_primitive(self, to_lower: To_Lower) -> To_Lower:               # this works ok
@@ -41,7 +38,7 @@ class test__bugs__type_safe__Fast_API_Routes__support(TestCase):
                 self.add_routes(GET_Routes)
 
         # error_message  = ("Invalid args for response field! Hint: check that "
-        #                   "<class 'test__bugs__type_safe__Fast_API_Routes__support.test__bugs__type_safe__Fast_API_Routes__support."
+        #                   "<class 'test__bugs__type_safe__Fast_API__Routes__support.test__bugs__type_safe__Fast_API__Routes__support."
         #                   "test__type_safe_classes__fail__on_get_requests__return_value.<locals>.An_Class'> "
         #                   "is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field "
         #                   "(e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation "

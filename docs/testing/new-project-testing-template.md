@@ -116,26 +116,27 @@ test_Routes__YourDomain.py
 Direct testing of route methods without HTTP layer
 """
 from unittest import TestCase
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe import Type_Safe
 from osbot_utils.utils.Objects import base_classes
 
 from your_api.fast_api.routes.Routes__YourDomain import Routes__YourDomain
 
+
 class test_Routes__YourDomain(TestCase):
     """Direct route testing - no HTTP overhead"""
-    
+
     @classmethod
     def setUpClass(cls):
         """Initialize route instance"""
         cls.routes = Routes__YourDomain()
-    
+
     def test_setUpClass(self):
         """Verify route setup"""
         with self.routes as _:
             assert type(_) == Routes__YourDomain
-            assert base_classes(_) == [Fast_API_Routes, Type_Safe, object]
-    
+            assert base_classes(_) == [Fast_API__Routes, Type_Safe, object]
+
     def test_direct_method_call(self):
         """Test route method directly"""
         with self.routes as _:
@@ -143,11 +144,11 @@ class test_Routes__YourDomain(TestCase):
             result = _.get_items()
             assert type(result) is dict
             assert 'items' in result
-            
+
             # Test with parameters
             item = _.get_item__id(item_id='123')
             assert item.get('id') == '123'
-    
+
     def test_business_logic(self):
         """Test complex business logic without HTTP overhead"""
         with self.routes as _:

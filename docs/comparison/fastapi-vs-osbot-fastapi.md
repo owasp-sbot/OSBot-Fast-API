@@ -78,10 +78,12 @@ if __name__ == "__main__":
 ```
 
 #### OSBot-Fast-API
+
 ```python
 from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe import Type_Safe
+
 
 # Type-Safe schemas (stronger than Pydantic)
 class User(Type_Safe):
@@ -89,15 +91,17 @@ class User(Type_Safe):
     email: str
     age: int
 
+
 class UserResponse(Type_Safe):
     id: str
     username: str
     created: bool
 
+
 # Organized routes in classes
-class Routes_Users(Fast_API_Routes):
+class Routes_Users(Fast_API__Routes):
     tag = 'users'
-    
+
     def create(self, user: User) -> UserResponse:
         # Automatic type conversion
         return UserResponse(
@@ -105,18 +109,19 @@ class Routes_Users(Fast_API_Routes):
             username=user.username,
             created=True
         )
-    
+
     def get__user_id(self, user_id: str):
         return {"user_id": user_id}
-    
+
     def setup_routes(self):
         self.add_route_post(self.create)
         self.add_route_get(self.get__user_id)
 
+
 # Simple setup with built-in features
 fast_api = Fast_API(
-    enable_cors=True,      # CORS configured
-    enable_api_key=True    # API key validation built-in
+    enable_cors=True,  # CORS configured
+    enable_api_key=True  # API key validation built-in
 )
 fast_api.setup()
 fast_api.add_routes(Routes_Users)
@@ -296,7 +301,7 @@ async def create_user(): ...
 
 #### OSBot-Fast-API - Organized by Design
 ```python
-class Routes_Users(Fast_API_Routes):
+class Routes_Users(Fast_API__Routes):
     tag = 'users'  # All routes prefixed with /users
     
     def list(self): ...           # GET /users/list

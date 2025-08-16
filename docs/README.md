@@ -19,7 +19,7 @@ This documentation follows a structured approach to thoroughly document the OSBo
 
 ### API Documentation
 - [Fast_API Class](./code/osbot_fast_api/api/Fast_API.py.md) - Main FastAPI wrapper
-- [Fast_API_Routes](./code/osbot_fast_api/api/Fast_API_Routes.py.md) - Route organization
+- [Fast_API__Routes](./code/osbot_fast_api/api/Fast_API__Routes.py.md) - Route organization
 - [Type Converters](./code/osbot_fast_api/utils/type_safe/) - Type-Safe to BaseModel converters
 
 ### Usage Guides
@@ -39,7 +39,7 @@ graph TB
     
     subgraph "OSBot-Fast-API Core"
         FA[Fast_API Wrapper]
-        FAR[Fast_API_Routes Base]
+        FAR[Fast_API__Routes Base]
         TS[Type Converters]
         HE[HTTP Events]
         MW[Middleware Stack]
@@ -84,7 +84,7 @@ graph TB
 | Component | Purpose | Location |
 |-----------|---------|----------|
 | `Fast_API` | Main FastAPI wrapper with Type-Safe support | `/api/Fast_API.py` |
-| `Fast_API_Routes` | Base class for route organization | `/api/Fast_API_Routes.py` |
+| `Fast_API__Routes` | Base class for route organization | `/api/Fast_API__Routes.py` |
 | `Fast_API__Http_Events` | HTTP request/response tracking | `/api/Fast_API__Http_Events.py` |
 | `Type_Safe__To__BaseModel` | Type conversion system | `/utils/type_safe/` |
 | `Fast_API_Server` | Test server for integration testing | `/utils/Fast_API_Server.py` |
@@ -93,8 +93,9 @@ graph TB
 
 ```python
 from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
+from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe import Type_Safe
+
 
 # Define a Type-Safe schema
 class User(Type_Safe):
@@ -102,15 +103,17 @@ class User(Type_Safe):
     email: str
     age: int
 
+
 # Create routes
-class Routes_Users(Fast_API_Routes):
+class Routes_Users(Fast_API__Routes):
     tag = 'users'
-    
+
     def create_user(self, user: User):
         return {'created': user.name}
-    
+
     def setup_routes(self):
         self.add_route_post(self.create_user)
+
 
 # Setup application
 fast_api = Fast_API()

@@ -1,18 +1,19 @@
-from unittest                           import TestCase
-from dataclasses                        import dataclass
-from typing                             import Optional, List
-from osbot_utils.type_safe.Type_Safe    import Type_Safe
-from osbot_utils.utils.Objects          import __
-from pydantic                           import BaseModel
-from osbot_fast_api.api.Fast_API_Routes import Fast_API_Routes
-from osbot_fast_api.api.Fast_API        import Fast_API
+from unittest                                                                   import TestCase
+from dataclasses                                                                import dataclass
+from typing                                                                     import Optional, List
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.utils.Objects                                                  import __
+from pydantic                                                                   import BaseModel
+from osbot_fast_api.api.Fast_API__Routes                                        import Fast_API__Routes
+from osbot_fast_api.api.Fast_API                                                import Fast_API
 
 
-class test_Fast_API_Routes__with_Type_Safe(TestCase):
+class test_Fast_API__Routes__with_Type_Safe(TestCase):
 
     def test__1__current_get_support(self):
 
-        class GET_Routes(Fast_API_Routes):
+        class GET_Routes(Fast_API__Routes):
             tag = 'get'
 
             def ping(self):
@@ -32,7 +33,7 @@ class test_Fast_API_Routes__with_Type_Safe(TestCase):
 
     def test__2__current_post_support__json(self):
 
-        class POST_Routes(Fast_API_Routes):
+        class POST_Routes(Fast_API__Routes):
             tag = 'post'
 
             def post_data(self, data: dict):
@@ -78,7 +79,7 @@ class test_Fast_API_Routes__with_Type_Safe(TestCase):
             tags    : List[str]
             status  : str = "active"
 
-        class User_Routes(Fast_API_Routes):
+        class User_Routes(Fast_API__Routes):
             tag = 'users'
 
             def create_user(self, user: UserRequest):                   # Create a new user with dataclass validation
@@ -153,7 +154,7 @@ class test_Fast_API_Routes__with_Type_Safe(TestCase):
             tags    : List[str]
             status  : str = "active"
 
-        class User_Routes(Fast_API_Routes):
+        class User_Routes(Fast_API__Routes):
             tag = 'users'
 
             def create_user(self, user: UserRequest):                   # Create a new user with Pydantic validation
@@ -222,7 +223,7 @@ class test_Fast_API_Routes__with_Type_Safe(TestCase):
             tags    : List[str]
             status  : str = "active"
 
-        class User_Routes(Fast_API_Routes):
+        class User_Routes(Fast_API__Routes):
             tag = 'users'
 
             def create_user(self, data: dict):                                         # Create a new user
@@ -290,7 +291,7 @@ class test_Fast_API_Routes__with_Type_Safe(TestCase):
         class An_Class(Type_Safe):
             an_str : str
 
-        class Obj_Routes(Fast_API_Routes):
+        class Obj_Routes(Fast_API__Routes):
             tag = 'obj'
             def create_object(self, an_class: An_Class):                  # receive An_Class object
                 return True
@@ -324,3 +325,49 @@ class test_Fast_API_Routes__with_Type_Safe(TestCase):
 
         response_3 = an_fast_api.client().get('/obj/return-object', params={'an_str':'123'})
         assert response_3.json() == {'an_str': '123'}
+
+    def test__7__with_Type_Safe__and_path_params(self):
+
+        class An_User(Type_Safe):
+            user_name  : str
+            user_id : str
+
+        class POST_Routes(Fast_API__Routes):
+            tag = 'v1/post'
+            def create__user_id(self, user_id: str, an_user: An_User):              # receive and return An_Class object
+                an_user.user_id = user_id
+                return an_user
+
+
+            def setup_routes(self):
+                self.add_route_post(self.create__user_id)
+
+        class An_Fast_API(Fast_API):
+            default_routes = False
+            def setup_routes(self):
+                self.add_routes(POST_Routes)
+
+        an_fast_api = An_Fast_API().setup()
+
+        assert an_fast_api.routes_paths() == ['/v1/post/create/{user_id}']
+
+        an_user =  An_User(user_name='abc').json()
+        response = an_fast_api.client().post('/v1/post/create/user-abc', json=an_user)
+        assert response.status_code == 200
+        assert response.json()      == {'user_id': 'user-abc', 'user_name': 'abc'}
+
+    def test__regression__primitive_type__not_supported_on__init(self):
+        class An_Class(Type_Safe):
+            tag : Safe_Str__File__Path
+
+        an_class = An_Class(tag='abc')
+        assert an_class.tag == 'abc'
+        an_class.tag = '123'
+        assert an_class.tag == '123'
+
+        Fast_API__Routes(tag='abc')
+
+        class An_Class_2(Type_Safe):
+            tag : Safe_Str__File__Path = 'aaa/bbbb'
+
+        assert An_Class_2().obj() == __(tag='aaa/bbbb')
