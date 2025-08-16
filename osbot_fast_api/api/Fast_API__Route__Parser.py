@@ -1,5 +1,3 @@
-# osbot_fast_api/utils/Fast_API__Route_Parser.py
-
 import inspect
 from typing                                                    import Callable, Set
 from osbot_utils.type_safe.Type_Safe                           import Type_Safe
