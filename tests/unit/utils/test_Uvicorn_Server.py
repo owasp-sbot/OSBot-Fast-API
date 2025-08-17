@@ -45,7 +45,7 @@ class test_Uvicorn_Server(TestCase):
         assert self.uvicorn_server.start() is True
 
         assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is True
-        assert '<title>FastAPI - Swagger UI</title>' in self.uvicorn_server.http_GET('docs')
+        assert '<title>Fast_API - Swagger UI</title>' in self.uvicorn_server.http_GET('docs')
 
         assert self.uvicorn_server.stop() is True
         assert is_port_open(UVICORN_SERVER_NAME, self.uvicorn_server.port) is False

@@ -1,14 +1,17 @@
-from fastapi                    import Request, status
-from starlette.middleware.base  import BaseHTTPMiddleware
-from starlette.responses        import Response
-from osbot_utils.utils.Env      import get_env
-from osbot_utils.utils.Json     import to_json_str
-from osbot_utils.utils.Status   import status_error
+from fastapi                                 import Request, status
+from starlette.middleware.base               import BaseHTTPMiddleware
+from starlette.responses                     import Response
+from osbot_utils.utils.Env                   import get_env
+from osbot_utils.utils.Json                  import to_json_str
+from osbot_utils.utils.Status                import status_error
+from osbot_fast_api.schemas.consts__Fast_API import AUTH__EXCLUDED_PATHS
 
 ERROR_MESSAGE__NO_KEY_NAME_SETUP   = f"Server does not have API key name setup"
 ERROR_MESSAGE__NO_KEY_VALUE_SETUP  = f"Server does not have API key value setup"
 ERROR_MESSAGE__API_KEY_MISSING     = f"Client API key is missing, you need to set it on a header or cookie"
 ERROR_MESSAGE__API_KEY_INVALID     = "Invalid API key value"
+
+
 
 class Middleware__Check_API_Key(BaseHTTPMiddleware):
 
@@ -24,6 +27,10 @@ class Middleware__Check_API_Key(BaseHTTPMiddleware):
                         media_type  = "application/json"            )
 
     async def dispatch(self, request: Request, call_next) -> Response:
+
+        if request.url.path in AUTH__EXCLUDED_PATHS:                                                 # allow for the seeing the docs and accessing the methods to set the cookie
+            return await call_next(request)
+
         if not self.api_key__name:
             return self.return_error(ERROR_MESSAGE__NO_KEY_NAME_SETUP)
         api_key_header = request.headers.get(self.api_key__name)                                     # Check for API key in headers

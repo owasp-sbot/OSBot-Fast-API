@@ -1,31 +1,29 @@
 import functools
 import inspect
-from typing                                                       import get_type_hints
-from fastapi                                                      import APIRouter, FastAPI, HTTPException
-from osbot_utils.type_safe.Type_Safe                              import Type_Safe
-from osbot_utils.decorators.lists.index_by                        import index_by
-from osbot_utils.type_safe.Type_Safe__Primitive                   import Type_Safe__Primitive
-from fastapi.exceptions                                           import RequestValidationError
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path import Safe_Str__File__Path
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
-
-from osbot_fast_api.api.Fast_API__Route__Parser import Fast_API__Route__Parser
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix import Safe_Str__FastAPI__Route__Prefix
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag import Safe_Str__FastAPI__Route__Tag
-from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel      import type_safe__to__basemodel
+from typing                                                         import get_type_hints
+from fastapi                                                        import APIRouter, FastAPI, HTTPException
+from osbot_utils.type_safe.Type_Safe                                import Type_Safe
+from osbot_utils.decorators.lists.index_by                          import index_by
+from osbot_utils.type_safe.Type_Safe__Primitive                     import Type_Safe__Primitive
+from fastapi.exceptions                                             import RequestValidationError
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache   import type_safe_cache
+from osbot_fast_api.api.routes.Fast_API__Route__Parser              import Fast_API__Route__Parser
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix       import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag          import Safe_Str__Fast_API__Route__Tag
+from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel        import type_safe__to__basemodel
 
 
 class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
     router    : APIRouter
     app       : FastAPI                          = None
-    prefix    : Safe_Str__FastAPI__Route__Prefix = None
-    tag       : Safe_Str__FastAPI__Route__Tag                                        # note: breaking change this was converted to str_safe before  (in the __init__)
+    prefix    : Safe_Str__Fast_API__Route__Prefix = None
+    tag       : Safe_Str__Fast_API__Route__Tag                                        # note: breaking change this was converted to str_safe before  (in the __init__)
     filter_tag: bool                             = True
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if not self.prefix:                                                 # if not set explicitly
-            self.prefix = Safe_Str__FastAPI__Route__Prefix(self.tag)        # create the prefix from the lower case tag and with a starting /
+            self.prefix = Safe_Str__Fast_API__Route__Prefix(self.tag)        # create the prefix from the lower case tag and with a starting /
 
     def add_route(self,function, methods):
         path = self.parse_function_name(function)

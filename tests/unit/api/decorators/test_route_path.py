@@ -1,6 +1,6 @@
 from unittest                                                          import TestCase
 from osbot_fast_api.api.Fast_API                                       import Fast_API
-from osbot_fast_api.api.Fast_API__Routes                               import Fast_API__Routes
+from osbot_fast_api.api.routes.Fast_API__Routes                        import Fast_API__Routes
 from osbot_fast_api.api.decorators.route_path                          import route_path
 from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
 from osbot_utils.type_safe.primitives.safe_str.Safe_Str                import Safe_Str

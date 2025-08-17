@@ -1,7 +1,7 @@
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag import Safe_Str__FastAPI__Route__Tag
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag import Safe_Str__Fast_API__Route__Tag
 
 
-class Safe_Str__FastAPI__Route__Prefix(Safe_Str__FastAPI__Route__Tag):
+class Safe_Str__Fast_API__Route__Prefix(Safe_Str__Fast_API__Route__Tag):
     """
     FastAPI route prefix derived from tag.
     Ensures:

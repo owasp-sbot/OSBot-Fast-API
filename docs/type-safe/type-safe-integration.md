@@ -198,7 +198,7 @@ async def create_user(user: UserRequestModel):
 ### Automatic Conversion in Routes
 
 ```python
-from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
+from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
 
 
 class Routes_API(Fast_API__Routes):

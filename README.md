@@ -1,6 +1,6 @@
 # OSBot-Fast-API
 
-![Current Release](https://img.shields.io/badge/release-v0.13.0-blue)
+![Current Release](https://img.shields.io/badge/release-v0.13.4-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-red)
 ![Type-Safe](https://img.shields.io/badge/Type--Safe-✓-brightgreen)
@@ -30,7 +30,7 @@ pip install osbot-fast-api
 
 ```python
 from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
+from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe import Type_Safe
 
 

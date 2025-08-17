@@ -6,7 +6,7 @@ from dataclasses                                             import dataclass, f
 from typing                                                  import List, Optional, Dict
 from osbot_utils.utils.Objects                               import __, base_types
 from osbot_fast_api.api.Fast_API                             import Fast_API
-from osbot_fast_api.api.Fast_API__Routes                      import Fast_API__Routes
+from osbot_fast_api.api.routes.Fast_API__Routes                      import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_fast_api.utils.type_safe.BaseModel__To__Dataclass import basemodel__to__dataclass
 from osbot_fast_api.utils.type_safe.BaseModel__To__Type_Safe import basemodel__to__type_safe

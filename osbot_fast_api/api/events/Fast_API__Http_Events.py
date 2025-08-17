@@ -1,6 +1,6 @@
 import types
 from collections                                    import deque
-from osbot_utils.type_safe.Type_Safe             import Type_Safe
+from osbot_utils.type_safe.Type_Safe                import Type_Safe
 from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
 
 
@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from fastapi                                    import Request
     from starlette.responses                        import Response
-    from osbot_fast_api.api.Fast_API__Http_Event    import Fast_API__Http_Event
+    from osbot_fast_api.api.events.Fast_API__Http_Event    import Fast_API__Http_Event
 
 class Fast_API__Http_Events(Type_Safe):
     #log_requests          : bool = False                           # todo: change this to save on S3 and disk
@@ -71,8 +71,8 @@ class Fast_API__Http_Events(Type_Safe):
         #print(f">>>>> on on_response_stream_end : {state}")
 
     def create_request_data(self, request):
-        from osbot_fast_api.api.Fast_API__Http_Event import Fast_API__Http_Event
-        from osbot_fast_api.api.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
+        from osbot_fast_api.api.events.Fast_API__Http_Event       import Fast_API__Http_Event
+        from osbot_fast_api.api.events.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
 
         kwargs                         = dict(fast_api_name = self.fast_api_name)
         http_event_info                = Fast_API__Http_Event__Info(**kwargs)

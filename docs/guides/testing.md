@@ -54,7 +54,7 @@ def test_basic_api():
 
 ```python
 import pytest
-from osbot_fast_api.api.Fast_API__Routes import Fast_API__Routes
+from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
 
 
 class Test_Routes(Fast_API__Routes):
