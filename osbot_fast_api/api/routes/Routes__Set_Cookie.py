@@ -10,7 +10,7 @@ class Schema__Set_Cookie(Type_Safe):
 class Routes__Set_Cookie(Fast_API__Routes):
     tag: str = 'auth'
 
-    def auth_cookie_form(self, request: Request):   # Display form to edit auth cookie with JSON submission
+    def set_cookie_form(self, request: Request):   # Display form to edit auth cookie with JSON submission
         current_cookie = request.cookies.get(ENV_VAR__FAST_API__AUTH__API_KEY__NAME, '')
 
         html_content = f"""
@@ -125,5 +125,5 @@ class Routes__Set_Cookie(Fast_API__Routes):
         }
 
     def setup_routes(self):
-        self.add_route_get(self.auth_cookie_form)
+        self.add_route_get (self.set_cookie_form)
         self.add_route_post(self.set_auth_cookie)

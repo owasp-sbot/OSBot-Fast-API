@@ -1,5 +1,4 @@
 import re
-
 import pytest
 from unittest                                                        import TestCase
 from fastapi                                                         import FastAPI
