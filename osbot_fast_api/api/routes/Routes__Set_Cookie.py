@@ -1,6 +1,7 @@
 from fastapi                                    import Request, Response
 from fastapi.responses                          import HTMLResponse
 from osbot_utils.type_safe.Type_Safe            import Type_Safe
+from osbot_utils.utils.Env                      import get_env
 from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
 from osbot_fast_api.schemas.consts__Fast_API    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME
 
@@ -11,7 +12,8 @@ class Routes__Set_Cookie(Fast_API__Routes):
     tag: str = 'auth'
 
     def set_cookie_form(self, request: Request):   # Display form to edit auth cookie with JSON submission
-        current_cookie = request.cookies.get(ENV_VAR__FAST_API__AUTH__API_KEY__NAME, '')
+        cookie_name    = get_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME)
+        current_cookie = request.cookies.get(cookie_name, '')
 
         html_content = f"""
         <!DOCTYPE html>
@@ -108,21 +110,17 @@ class Routes__Set_Cookie(Fast_API__Routes):
 
         return HTMLResponse(content=html_content)
 
-    def set_auth_cookie(self, set_cookie: Schema__Set_Cookie, response: Response):
-        """Set the auth cookie via JSON request"""
-        cookie_name = ENV_VAR__FAST_API__AUTH__API_KEY__NAME
-        response.set_cookie(
-            key=cookie_name,
-            value=set_cookie.cookie_value,
-            httponly=True,
-            secure=True,
-            samesite='strict'
-        )
-        return {
-            "message": "Cookie set successfully",
-            "cookie_name": cookie_name,
-            "cookie_value": set_cookie.cookie_value
-        }
+    def set_auth_cookie(self, set_cookie: Schema__Set_Cookie, request: Request, response: Response):  # Set the auth cookie via JSON request
+        cookie_name = get_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME)
+        secure_flag = request.url.scheme == 'https'
+        response.set_cookie(key         = cookie_name            ,
+                            value       = set_cookie.cookie_value,
+                            httponly    = True                   ,
+                            secure      = secure_flag            ,
+                            samesite    ='strict'                )
+        return {    "message"     : "Cookie set successfully",
+                    "cookie_name" : cookie_name              ,
+                    "cookie_value": set_cookie.cookie_value  }
 
     def setup_routes(self):
         self.add_route_get (self.set_cookie_form)

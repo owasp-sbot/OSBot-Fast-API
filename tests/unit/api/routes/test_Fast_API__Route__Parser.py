@@ -180,9 +180,9 @@ class test_Fast_API__Route__Parser(TestCase):
             assert _.parse_route_path(get__user_id__profile)     == '/get/{user}/id/profile'
             assert _.parse_route_path(get__user__id__profile_full) == '/get/{user}/{id}/profile-full'
 
-    # Test integration with Fast_API_Routes patterns
+    # Test integration with Fast_API__Routes patterns
     def test_fast_api_routes_patterns(self):
-        # Test patterns that would be used in Fast_API_Routes
+        # Test patterns that would be used in Fast_API__Routes
         def status(self):                                                              # Simple route
             pass
 

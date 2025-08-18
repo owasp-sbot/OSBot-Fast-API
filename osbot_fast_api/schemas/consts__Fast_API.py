@@ -2,7 +2,7 @@ import re
 
 # todo: the names of these variables need a bit of refactoring and normalising
 
-AUTH__EXCLUDED_PATHS = [  '/auth/auth-cookie-form',
+AUTH__EXCLUDED_PATHS = [  '/auth/set-cookie-form',
                           '/auth/set-auth-cookie' ,
                           '/docs'                 ,           # Maybe also exclude docs
                           '/openapi.json'         ,
