@@ -5,7 +5,7 @@ from dataclasses                                             import is_dataclass
 from typing                                                  import List, Dict, Optional, Union, Set
 from unittest                                                import TestCase
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-from osbot_fast_api.utils.type_safe.Type_Safe__To__Dataclass import Type_Safe__To__Dataclass, type_safe__to__dataclass
+from osbot_fast_api.api.transformers.Type_Safe__To__Dataclass import Type_Safe__To__Dataclass, type_safe__to__dataclass
 
 
 class test_Type_Safe__To__Dataclass(TestCase):

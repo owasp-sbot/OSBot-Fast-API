@@ -8,11 +8,11 @@ from osbot_utils.utils.Objects                               import __, base_typ
 from osbot_fast_api.api.Fast_API                             import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes                      import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-from osbot_fast_api.utils.type_safe.BaseModel__To__Dataclass import basemodel__to__dataclass
-from osbot_fast_api.utils.type_safe.BaseModel__To__Type_Safe import basemodel__to__type_safe
-from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel import type_safe__to__basemodel
-from osbot_fast_api.utils.type_safe.Dataclass__To__BaseModel import dataclass__to__basemodel
-from osbot_fast_api.utils.type_safe.Type_Safe__To__Dataclass import type_safe__to__dataclass
+from osbot_fast_api.api.transformers.BaseModel__To__Dataclass import basemodel__to__dataclass
+from osbot_fast_api.api.transformers.BaseModel__To__Type_Safe import basemodel__to__type_safe
+from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel import type_safe__to__basemodel
+from osbot_fast_api.api.transformers.Dataclass__To__BaseModel import dataclass__to__basemodel
+from osbot_fast_api.api.transformers.Type_Safe__To__Dataclass import type_safe__to__dataclass
 
 
 class test__type_safe__Fast_API__Routes__conversions(TestCase):
