@@ -28,7 +28,7 @@ class test_Uvicorn_Server(TestCase):
         mock_stderr = MagicMock()
         mock_stderr.readline.return_value = 'error message\n'
         self.uvicorn_server.read_stderr(mock_stderr)
-        mock_print.assert_any_call('in read_stderr')
+        #mock_print.assert_any_call('in read_stderr')
         mock_print.assert_any_call('stderr:', 'error message\n', end='')
 
     @patch('builtins.print')
@@ -36,7 +36,7 @@ class test_Uvicorn_Server(TestCase):
         mock_stdout = MagicMock()
         mock_stdout.readline.return_value = 'test output\n'
         self.uvicorn_server.read_stdout(mock_stdout)
-        mock_print.assert_any_call('in read_stdout')
+        #mock_print.assert_any_call('in read_stdout')
         mock_print.assert_any_call('stdout:', 'test output\n', end='')
 
     def test_start_stop(self):

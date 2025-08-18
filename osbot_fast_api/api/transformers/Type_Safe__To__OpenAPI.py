@@ -1,11 +1,10 @@
 import json
-from typing                                                     import Type, Dict, Any, List, Optional
-from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe  import type_safe
+from typing                                                       import Type, Dict, Any, List, Optional
+from osbot_utils.type_safe.Type_Safe                              import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe    import type_safe
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
-from osbot_utils.utils.Toml import toml_dict_to_file
-
-from osbot_fast_api.api.transformers.Type_Safe__To__Json        import type_safe__to__json
+from osbot_utils.utils.Toml                                       import toml_dict_to_file
+from osbot_fast_api.api.transformers.Type_Safe__To__Json          import type_safe__to__json
 
 
 class Type_Safe__To__OpenAPI(Type_Safe):                        # Converts Type_Safe classes to OpenAPI 3.0 schema components

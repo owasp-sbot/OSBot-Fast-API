@@ -60,7 +60,7 @@ class test_Fast_API__Simple(TestCase):
 
     def test_routes(self):
         routes = self.fast_api.routes()
-        assert (routes ==  [ROUTE_REDIRECT_TO_DOCS] + ROUTES__CONFIG + EX_1_ROUTES)
+        assert routes ==  [ROUTE_REDIRECT_TO_DOCS] + ROUTES__CONFIG + EX_1_ROUTES
 
     def test_routes_paths(self):
         assert self.fast_api.routes_paths(expand_mounts=True) == sorted(EXPECTED_ROUTES_PATHS + ['/an-post', '/static'])

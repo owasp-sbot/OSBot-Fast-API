@@ -13,7 +13,6 @@ class Routes__Set_Cookie(Fast_API__Routes):
 
     def set_cookie_form(self, request: Request):   # Display form to edit auth cookie with JSON submission
         load_dotenv()
-        print('here!!!!', get_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME) )
         cookie_name    = get_env(ENV_VAR__FAST_API__AUTH__API_KEY__NAME) or 'auth-cookie'  # Fallback if not set
         current_cookie = request.cookies.get(cookie_name, '') if cookie_name else ''
 
