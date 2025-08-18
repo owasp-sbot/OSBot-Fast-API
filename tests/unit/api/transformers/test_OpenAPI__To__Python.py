@@ -1,9 +1,6 @@
-import re
-import pytest
 import unittest
 from osbot_utils.utils.Misc                                 import list_set
 from osbot_utils.utils.Objects                              import class_functions
-from requests.exceptions                                    import MissingSchema
 from osbot_fast_api.api.Fast_API                            import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes             import Fast_API__Routes
 from osbot_fast_api.api.routes.Routes__Config               import Routes__Config
@@ -72,7 +69,7 @@ class test_OpenAPI__To__Python(unittest.TestCase):
     def test_2__generate_from_app(self):
         client__python_code = self.openai_to_python.generate_from_app(self.fast_api.app())             # generate the python code with the client
         client              = self.util__create_client_instance__from__client_code(client__python_code)
-        assert client.now_ping_now_get() == 'pong'                                                  # todo: BUG: this should just be client.get__ping_now()
+        assert client.get_ping_now() == 'pong'                                                  # todo: BUG: this should just be client.get__ping_now()
 
     def test_3__generate_from_route(self):
         with self.fast_api as _:
@@ -80,7 +77,7 @@ class test_OpenAPI__To__Python(unittest.TestCase):
             response__openapi_py = _.client().get('/config/openapi.py')                             # invoke it
             client__python_code  = response__openapi_py.text  # get python client code
             client               = self.util__create_client_instance__from__client_code(client__python_code)
-            assert client.now_ping_now_get() == 'pong'                                                  # todo: BUG: this should just be client.get__ping_now()
+            assert client.get_ping_now() == 'pong'                                                  # todo: BUG: this should just be client.get__ping_now()
 
     def test_4__check_client_on_test_fast_api(self):
         from tests.unit.fast_api__for_tests import fast_api                                             # let's use the main fast_api instance used in most tests
@@ -91,27 +88,17 @@ class test_OpenAPI__To__Python(unittest.TestCase):
             exec(python_code, namespace)
             Client__Fast_API         = namespace['Client__Fast_API']
             client = Client__Fast_API(url=self.fast_api__url)
-            assert client.config.url == self.fast_api__url
+            assert client.config.base_url == self.fast_api__url
 
         api_functions = list_set(class_functions(client))
-        assert 'status_config_status_get'             in api_functions      # BUG: should be config_status__get
-        assert 'info_config_info_get'                 in api_functions      # BUG: should be config_info__get
-        assert 'openapi_python_config_openapi_py_get' in api_functions      # BUG: should be config_openapi_py__get
-        assert 'version_config_version_get'           in api_functions      # BUG: should be config_version__get
+        assert 'get_config_status'     in api_functions
+        assert 'get_config_info'       in api_functions
+        assert 'get_config_openapi_py' in api_functions
+        assert 'get_config_version'    in api_functions
 
         with client as _:
-            error_message = "Invalid URL 'None/config/version': No scheme supplied. Perhaps you meant https://None/config/version?"
-            with pytest.raises(MissingSchema, match=re.escape(error_message)):
-                _.version_config_version_get()
-
-            error_message = "Invalid URL 'None/config/info': No scheme supplied. Perhaps you meant https://None/config/info?"
-            with pytest.raises(MissingSchema, match=re.escape(error_message)):
-                _.info_config_info_get()
-
-            error_message = "Invalid URL 'None/config/status': No scheme supplied. Perhaps you meant https://None/config/status?"
-            with pytest.raises(MissingSchema, match=re.escape(error_message)):
-                _.status_config_status_get()
-
+            assert _.get_config_version() == { 'version': version__osbot_fast_api }
+            assert _.get_config_status () == {'status'  : 'ok'                    }
 
 
 

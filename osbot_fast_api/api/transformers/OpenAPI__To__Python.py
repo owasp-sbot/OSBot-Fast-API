@@ -110,10 +110,8 @@ class OpenAPI__To__Python(Type_Safe):
         return IR_Spec(title=title, version=version, servers=servers, operations=ops, spec_hash=Safe_Str(spec_hash))
 
     def _op_id(self, path: str, method: str, explicit: Optional[str]) -> str:
-        if explicit:
-            return self._sanitize_method_name(explicit)
-        # synthesize: get_/config/status -> get_config_status
-        name = f"{method}_{re.sub(r'[^a-zA-Z0-9]+', '_', path).strip('_')}"
+        path_clean = re.sub(r'[^a-zA-Z0-9]+', '_', path).strip('_')             # Always generate from path, ignore explicit operationId
+        name = f"{method.lower()}_{path_clean}"  # get_config_status
         return self._sanitize_method_name(name)
 
     def _sanitize_method_name(self, name: str) -> str:
@@ -259,7 +257,7 @@ class {class_name}(Type_Safe):
     def __init__(self, url:Safe_Str__Url=None, **kwargs):
         super().__init__(**kwargs)
         if url:
-            self.config.url = url
+            self.config.base_url = url
         self.http   = Fast_API__Client__Http(config=self.config)
 
 {methods_section}"""
