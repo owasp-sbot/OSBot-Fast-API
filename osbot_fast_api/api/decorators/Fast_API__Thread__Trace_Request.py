@@ -1,10 +1,6 @@
-
-import sys
 from functools                              import wraps
 from fastapi                                import Request
 from osbot_utils.helpers.trace.Trace_Call   import Trace_Call
-from osbot_utils.utils.Objects import obj_info
-
 
 # this is needed to add support for tracing a request for the FastAPI requests that execute in the threat pool
 #   i.e. any request that doesn't use async in the method definition

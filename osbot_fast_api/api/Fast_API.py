@@ -112,6 +112,9 @@ class Fast_API(Type_Safe):
 
         return Fast_API_Utils(self.app())
 
+    def open_api_json(self):
+        return self.app().openapi()
+
     def path_static_folder(self):        # override this to add support for serving static files from this directory
         return None
 

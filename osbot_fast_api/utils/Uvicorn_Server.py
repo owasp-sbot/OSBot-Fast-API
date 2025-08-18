@@ -1,10 +1,9 @@
 import selectors
 import subprocess
-from urllib.parse import urljoin
-
-from osbot_utils.utils.Files import parent_folder
-from osbot_utils.utils.Http import GET, wait_for_http, wait_for_port_closed
-from osbot_utils.utils.Misc import random_port
+from urllib.parse               import urljoin
+from osbot_utils.utils.Files    import parent_folder
+from osbot_utils.utils.Http     import GET, wait_for_http, wait_for_port_closed
+from osbot_utils.utils.Misc     import random_port
 
 UVICORN_SERVER_NAME = 'localhost'
 
@@ -35,13 +34,13 @@ class Uvicorn_Server:
         return self.wait_for_server_started()
 
     def read_stderr(self, stderr):
-        print('in read_stderr')
+        #print('in read_stderr')
         line = stderr.readline()
         if line:
             print('stderr:', line, end='')
 
     def read_stdout(self, stdout):          # todo: bug: figure out why the stdout and stderr are not being read
-        print('in read_stdout')
+        #print('in read_stdout')
         line = stdout.readline()
         if line:
             print('stdout:', line, end='')

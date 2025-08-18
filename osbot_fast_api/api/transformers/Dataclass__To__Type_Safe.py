@@ -2,8 +2,8 @@ from typing                                                  import Type, Dict, 
 from dataclasses                                             import is_dataclass
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe              import type_safe
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-from osbot_fast_api.utils.type_safe.BaseModel__To__Type_Safe import basemodel__to__type_safe
-from osbot_fast_api.utils.type_safe.Dataclass__To__BaseModel import dataclass__to__basemodel
+from osbot_fast_api.api.transformers.BaseModel__To__Type_Safe import basemodel__to__type_safe
+from osbot_fast_api.api.transformers.Dataclass__To__BaseModel import dataclass__to__basemodel
 
 
 class Dataclass__To__Type_Safe(Type_Safe):

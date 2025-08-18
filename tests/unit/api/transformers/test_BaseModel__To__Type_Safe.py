@@ -6,8 +6,8 @@ from unittest                                                    import TestCase
 from osbot_utils.utils.Objects                                   import __
 from pydantic                                                    import BaseModel, Field
 from osbot_utils.type_safe.Type_Safe                             import Type_Safe
-from osbot_fast_api.utils.type_safe.BaseModel__To__Type_Safe     import BaseModel__To__Type_Safe, basemodel__to__type_safe
-from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel     import type_safe__to__basemodel
+from osbot_fast_api.api.transformers.BaseModel__To__Type_Safe     import BaseModel__To__Type_Safe, basemodel__to__type_safe
+from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel     import type_safe__to__basemodel
 
 
 class test_BaseModel__To__Type_Safe(TestCase):

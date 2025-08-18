@@ -1,35 +1,39 @@
 import sys
 import pytest
-from dataclasses                                                import dataclass, field
-from typing                                                     import List, Dict, Optional, Union, Set
-from unittest                                                   import TestCase
-from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_fast_api.utils.type_safe.Dataclass__To__Type_Safe    import Dataclass__To__Type_Safe, dataclass__to__type_safe
-from osbot_fast_api.utils.type_safe.Type_Safe__To__Dataclass    import type_safe__to__dataclass
+from dataclasses                                             import dataclass, field
+from typing                                                  import List, Dict, Optional, Union, Set
+from unittest                                                import TestCase
+from pydantic                                                import BaseModel, ValidationError
+from osbot_fast_api.api.transformers.BaseModel__To__Dataclass import basemodel__to__dataclass
+from osbot_fast_api.api.transformers.Dataclass__To__BaseModel import Dataclass__To__BaseModel, dataclass__to__basemodel
 
 
-class test_Dataclass__To__Type_Safe(TestCase):
+class test_Dataclass__To__BaseModel(TestCase):
 
     def setUp(self):                                                                      # Initialize test environment
-        self.converter = Dataclass__To__Type_Safe()
+        self.converter = Dataclass__To__BaseModel()
         self.converter.class_cache.clear()                                                # Clear cache for clean tests
 
-    def test__simple_conversion(self):                                                    # Test simple dataclass to Type_Safe
+    def test__simple_conversion(self):                                                    # Test simple dataclass to BaseModel
         @dataclass
         class SimpleDataclass:
             name   : str
             age    : int
             active : bool = True
 
-        TypeSafeClass = self.converter.convert_class(SimpleDataclass)                     # Convert class
+        BaseModelClass = self.converter.convert_class(SimpleDataclass)                    # Convert class
 
-        assert issubclass(TypeSafeClass, Type_Safe)                                       # Verify it's a Type_Safe subclass
-        assert TypeSafeClass.__name__ == "SimpleDataclass__Type_Safe"
+        assert issubclass(BaseModelClass, BaseModel)                                      # Verify it's a BaseModel subclass
+        assert BaseModelClass.__name__ == "SimpleDataclass__BaseModel"
 
-        instance = TypeSafeClass(name="John", age=30)                                     # Create instance and verify fields
+        instance = BaseModelClass(name="John", age=30)                                    # Create instance and verify fields
         assert instance.name   == "John"
         assert instance.age    == 30
         assert instance.active == True                                                    # Default value preserved
+
+        # Verify Pydantic validation works
+        with pytest.raises(ValidationError):
+            BaseModelClass(name="John", age="not_an_int")
 
     def test__instance_conversion(self):                                                  # Test dataclass instance conversion
         @dataclass
@@ -39,15 +43,18 @@ class test_Dataclass__To__Type_Safe(TestCase):
             email : Optional[str] = None
 
         person_dc  = PersonDataclass(name="Alice", age=25, email="alice@example.com")     # Create dataclass instance
-        type_safe  = self.converter.convert_instance(person_dc)                           # Convert to Type_Safe
+        base_model = self.converter.convert_instance(person_dc)                           # Convert to BaseModel
 
-        assert isinstance(type_safe, Type_Safe)                                           # Verify conversion
-        assert type_safe.name  == "Alice"
-        assert type_safe.age   == 25
-        assert type_safe.email == "alice@example.com"
+        assert isinstance(base_model, BaseModel)                                          # Verify conversion
+        assert base_model.name  == "Alice"
+        assert base_model.age   == 25
+        assert base_model.email == "alice@example.com"
 
-        type_safe_dict = type_safe.json()                                                 # Verify Type_Safe methods work
-        assert type_safe_dict == {'name': 'Alice', 'age': 25, 'email': 'alice@example.com'}
+        model_dict = base_model.model_dump()                                              # Verify BaseModel methods work
+        assert model_dict == {'name': 'Alice', 'age': 25, 'email': 'alice@example.com'}
+
+        model_json = base_model.model_dump_json()
+        assert model_json == '{"name":"Alice","age":25,"email":"alice@example.com"}'
 
     def test__nested_dataclass_classes(self):                                             # Test nested dataclass classes
         @dataclass
@@ -64,19 +71,18 @@ class test_Dataclass__To__Type_Safe(TestCase):
         address_dc = AddressDataclass(street="123 Main St", city="Boston", zip_code="02101")
         person_dc  = PersonDataclass(name="Bob", address=address_dc)                      # Create nested dataclass
 
-        type_safe = self.converter.convert_instance(person_dc)                            # Convert to Type_Safe
+        base_model = self.converter.convert_instance(person_dc)                           # Convert to BaseModel
 
-        assert isinstance(type_safe, Type_Safe)                                           # Verify Type_Safe structure
-        assert type_safe.name == "Bob"
-        assert isinstance(type_safe.address, Type_Safe)                                   # Nested is also Type_Safe
-        assert type_safe.address.street   == "123 Main St"
-        assert type_safe.address.city     == "Boston"
-        assert type_safe.address.zip_code == "02101"
+        assert isinstance(base_model, BaseModel)                                          # Verify BaseModel structure
+        assert base_model.name == "Bob"
+        assert base_model.address.street   == "123 Main St"
+        assert base_model.address.city     == "Boston"
+        assert base_model.address.zip_code == "02101"
 
-        assert type_safe.json() == { 'name'   : 'Bob'                     ,               # Verify JSON structure
-                                     'address' : { 'street'   : '123 Main St' ,
-                                                 'city'     : 'Boston'       ,
-                                                 'zip_code' : '02101'        }}
+        assert base_model.model_dump() == { 'name'    : 'Bob'                         ,   # Verify dict structure
+                                            'address' : { 'street'   : '123 Main St'  ,
+                                                          'city'     : 'Boston'       ,
+                                                          'zip_code' : '02101'        }}
 
     def test__list_conversion(self):                                                      # Test List fields conversion
         if sys.version_info < (3, 10):
@@ -98,15 +104,15 @@ class test_Dataclass__To__Type_Safe(TestCase):
                                          TeamMemberDataclass(name="Bob", role="Developer")   ],
                                tags    = ["python", "backend"]                                )
 
-        type_safe = self.converter.convert_instance(team_dc)                              # Convert to Type_Safe
+        base_model = self.converter.convert_instance(team_dc)                             # Convert to BaseModel
 
-        assert isinstance(type_safe, Type_Safe)                                           # Verify Type_Safe
-        assert type_safe.name              == "Development"                               # Verify list conversion
-        assert len(type_safe.members)      == 2
-        assert type_safe.members[0].name   == "Alice"
-        assert type_safe.members[0].role   == "Lead"
-        assert type_safe.members[1].name   == "Bob"
-        assert type_safe.tags              == ["python", "backend"]
+        assert isinstance(base_model, BaseModel)                                          # Verify BaseModel
+        assert base_model.name              == "Development"                              # Verify list conversion
+        assert len(base_model.members)      == 2
+        assert base_model.members[0].name   == "Alice"
+        assert base_model.members[0].role   == "Lead"
+        assert base_model.members[1].name   == "Bob"
+        assert base_model.tags              == ["python", "backend"]
 
     def test__dict_conversion(self):                                                      # Test Dict fields conversion
         if sys.version_info < (3, 10):
@@ -120,11 +126,11 @@ class test_Dataclass__To__Type_Safe(TestCase):
         config_dc = ConfigDataclass(settings = {"env": "prod", "region": "us-east"} ,     # Create dataclass with dicts
                                    values   = {"timeout": 30, "retries": 3}        )
 
-        type_safe = self.converter.convert_instance(config_dc)                            # Convert to Type_Safe
+        base_model = self.converter.convert_instance(config_dc)                           # Convert to BaseModel
 
-        assert isinstance(type_safe, Type_Safe)                                           # Verify Type_Safe
-        assert type_safe.settings == {"env": "prod", "region": "us-east"}                 # Verify dict conversion
-        assert type_safe.values   == {"timeout": 30, "retries": 3}
+        assert isinstance(base_model, BaseModel)                                          # Verify BaseModel
+        assert base_model.settings == {"env": "prod", "region": "us-east"}                # Verify dict conversion
+        assert base_model.values   == {"timeout": 30, "retries": 3}
 
     def test__set_conversion(self):                                                       # Test Set fields conversion
         if sys.version_info < (3, 10):
@@ -138,11 +144,11 @@ class test_Dataclass__To__Type_Safe(TestCase):
         tags_dc = TagsDataclass(required_tags = {"python", "backend", "api"}  ,           # Create dataclass with sets
                                optional_tags = {"testing", "documentation"}  )
 
-        type_safe = self.converter.convert_instance(tags_dc)                              # Convert to Type_Safe
+        base_model = self.converter.convert_instance(tags_dc)                             # Convert to BaseModel
 
-        assert isinstance(type_safe, Type_Safe)                                           # Verify Type_Safe
-        assert type_safe.required_tags == {"python", "backend", "api"}                    # Verify set conversion
-        assert type_safe.optional_tags == {"testing", "documentation"}
+        assert isinstance(base_model, BaseModel)                                          # Verify BaseModel
+        assert base_model.required_tags == {"python", "backend", "api"}                   # Verify set conversion
+        assert base_model.optional_tags == {"testing", "documentation"}
 
     def test__optional_and_union_types(self):                                            # Test Optional and Union types
         @dataclass
@@ -151,15 +157,15 @@ class test_Dataclass__To__Type_Safe(TestCase):
             optional    : Optional[int]    = None
             union_field : Union[str, int] = "default"
 
-        dc1       = FlexibleDataclass(required="test")                                    # Test with optional None
-        type_safe1 = self.converter.convert_instance(dc1)
-        assert type_safe1.optional    is None
-        assert type_safe1.union_field == "default"
+        dc1        = FlexibleDataclass(required="test")                                   # Test with optional None
+        base_model1 = self.converter.convert_instance(dc1)
+        assert base_model1.optional    is None
+        assert base_model1.union_field == "default"
 
-        dc2       = FlexibleDataclass(required="test", optional=42, union_field=100)      # Test with values set
-        type_safe2 = self.converter.convert_instance(dc2)
-        assert type_safe2.optional    == 42
-        assert type_safe2.union_field == 100
+        dc2        = FlexibleDataclass(required="test", optional=42, union_field=100)     # Test with values set
+        base_model2 = self.converter.convert_instance(dc2)
+        assert base_model2.optional    == 42
+        assert base_model2.union_field == 100
 
     def test__field_with_default_factory(self):                                           # Test fields with default_factory
         @dataclass
@@ -168,13 +174,13 @@ class test_Dataclass__To__Type_Safe(TestCase):
             items : List[str] = field(default_factory=list)
             config: Dict[str, str] = field(default_factory=lambda: {"debug": "false"})
 
-        dc        = DataclassWithFactory(id="test")                                       # Create with defaults
-        type_safe = self.converter.convert_instance(dc)
+        dc = DataclassWithFactory(id="test")                                              # Create with defaults
+        base_model = self.converter.convert_instance(dc)
 
-        assert isinstance(type_safe, Type_Safe)                                           # Verify Type_Safe
-        assert type_safe.id     == "test"
-        assert type_safe.items  == []                                                     # Default factory worked
-        assert type_safe.config == {"debug": "false"}                                     # Lambda factory worked
+        assert isinstance(base_model, BaseModel)                                          # Verify BaseModel
+        assert base_model.id     == "test"
+        assert base_model.items  == []                                                    # Default factory worked
+        assert base_model.config == {"debug": "false"}                                    # Lambda factory worked
 
     def test__caching(self):                                                              # Test class conversion caching
         @dataclass
@@ -187,22 +193,22 @@ class test_Dataclass__To__Type_Safe(TestCase):
         assert class1 is class2                                                           # Should be same class
         assert CachedDataclass in self.converter.class_cache                              # Verify cache contains class
 
-    def test__round_trip_conversion(self):                                                # Test Type_Safe → Dataclass → Type_Safe
-        class OriginalClass(Type_Safe):
+    def test__round_trip_conversion(self):                                                # Test BaseModel → Dataclass → BaseModel
+        class OriginalModel(BaseModel):
             name    : str
             age     : int
             scores  : List[float]
             metadata: Dict[str, str]
 
-        original = OriginalClass(name     = "Test"              ,                         # Create original Type_Safe
+        original = OriginalModel(name     = "Test"              ,                         # Create original BaseModel
                                 age      = 30                   ,
                                 scores   = [95.5, 87.3, 92.0]   ,
                                 metadata = {"level": "advanced"} )
 
-        dataclass_obj     = type_safe__to__dataclass.convert_instance(original)           # Convert to dataclass
-        back_to_type_safe = self.converter.convert_instance(dataclass_obj)                # Convert back to Type_Safe
+        dataclass_obj = basemodel__to__dataclass.convert_instance(original)               # Convert to dataclass
+        back_to_model = self.converter.convert_instance(dataclass_obj)                    # Convert back to BaseModel
 
-        assert back_to_type_safe.json() == original.json()                                # Verify round-trip fidelity
+        assert back_to_model.model_dump() == original.model_dump()                        # Verify round-trip fidelity
 
     def test__complex_nested_structure(self):                                             # Test complex nested structures
         @dataclass
@@ -230,16 +236,35 @@ class test_Dataclass__To__Type_Safe(TestCase):
                                     metadata = {"source": "web", "priority": "high"}                )]
         )
 
-        type_safe = self.converter.convert_instance(customer_dc)                          # Convert to Type_Safe
+        base_model = self.converter.convert_instance(customer_dc)                         # Convert to BaseModel
 
-        assert isinstance(type_safe, Type_Safe)                                           # Verify complex structure
-        assert type_safe.name                         == "John"
-        assert len(type_safe.orders)                  == 1
-        assert type_safe.orders[0].order_id           == "001"
-        assert len(type_safe.orders[0].items)         == 2
-        assert type_safe.orders[0].items[0].name      == "Widget"
-        assert type_safe.orders[0].items[0].price     == 9.99
-        assert type_safe.orders[0].metadata["source"] == "web"
+        assert isinstance(base_model, BaseModel)                                          # Verify complex structure
+        assert base_model.name                         == "John"
+        assert len(base_model.orders)                  == 1
+        assert base_model.orders[0].order_id           == "001"
+        assert len(base_model.orders[0].items)         == 2
+        assert base_model.orders[0].items[0].name      == "Widget"
+        assert base_model.orders[0].items[0].price     == 9.99
+        assert base_model.orders[0].metadata["source"] == "web"
+
+    def test__validation_errors_propagate(self):                                          # Test Pydantic validation
+        @dataclass
+        class ValidatedDataclass:
+            email : str
+            age   : int
+
+        ModelClass = self.converter.convert_class(ValidatedDataclass)
+
+        valid = ModelClass(email="test@example.com", age=25)                              # Valid instance
+        assert valid.email == "test@example.com"
+        assert valid.age   == 25
+
+        with pytest.raises(ValidationError) as exc_info:                                  # Invalid age type
+            ModelClass(email="test@example.com", age="twenty-five")
+
+        errors = exc_info.value.errors()
+        assert len(errors) > 0
+        assert any(error['loc'] == ('age',) for error in errors)
 
     def test__convert_class__check_type_validation(self):                                 # Test type validation
         expected_error = "Parameter 'dataclass_type' expected a type class but got <class 'str'>"
@@ -271,10 +296,10 @@ class test_Dataclass__To__Type_Safe(TestCase):
         class TestDataclass:
             value : int
 
-        TypeSafeClass = dataclass__to__type_safe.convert_class(TestDataclass)             # Use singleton
-        instance = TypeSafeClass(value=42)
+        BaseModelClass = dataclass__to__basemodel.convert_class(TestDataclass)            # Use singleton
+        instance = BaseModelClass(value=42)
         assert instance.value == 42
-        assert isinstance(instance, Type_Safe)
+        assert isinstance(instance, BaseModel)
 
     def test__empty_collections(self):                                                    # Test empty collection handling
         @dataclass
@@ -283,10 +308,10 @@ class test_Dataclass__To__Type_Safe(TestCase):
             empty_dict : Dict[str, int] = field(default_factory=dict)
             empty_set  : Set[str]       = field(default_factory=set)
 
-        dc        = EmptyDataclass()
-        type_safe = self.converter.convert_instance(dc)
+        dc = EmptyDataclass()
+        base_model = self.converter.convert_instance(dc)
 
-        assert isinstance(type_safe, Type_Safe)
-        assert type_safe.empty_list == []
-        assert type_safe.empty_dict == {}
-        assert type_safe.empty_set  == set()
+        assert isinstance(base_model, BaseModel)
+        assert base_model.empty_list == []
+        assert base_model.empty_dict == {}
+        assert base_model.empty_set  == set()

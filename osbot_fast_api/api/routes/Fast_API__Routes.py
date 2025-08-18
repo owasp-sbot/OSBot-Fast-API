@@ -8,9 +8,9 @@ from osbot_utils.type_safe.Type_Safe__Primitive                     import Type_
 from fastapi.exceptions                                             import RequestValidationError
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache   import type_safe_cache
 from osbot_fast_api.api.routes.Fast_API__Route__Parser              import Fast_API__Route__Parser
+from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel       import type_safe__to__basemodel
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix       import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag          import Safe_Str__Fast_API__Route__Tag
-from osbot_fast_api.utils.type_safe.Type_Safe__To__BaseModel        import type_safe__to__basemodel
 
 
 class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
@@ -208,7 +208,7 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
                             })
                     elif param_name in type_safe_conversions:                                               # Handle Type_Safe params (complex objects in GET)
                         type_safe_class, _ = type_safe_conversions[param_name]                              # Get the Type_Safe class
-                        converted_kwargs[param_name] = param_value                                          # Placeholder - needs custom query param parsing
+                        converted_kwargs[param_name] = param_value                                          # todo: question: is this comment this relevant (with current codebase) -> Placeholder - needs custom query param parsing
                     else:
                         converted_kwargs[param_name] = param_value                                          # Pass through unchanged
 
