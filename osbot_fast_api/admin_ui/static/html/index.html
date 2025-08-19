@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FastAPI Admin UI</title>
+        <link rel="stylesheet" href="/admin/admin-static/serve-css/base.css">
+        <link rel="stylesheet" href="/admin/admin-static/serve-css/layout.css">
+        <link rel="stylesheet" href="/admin/admin-static/serve-css/components.css">
+    </head>
+    <body>
+        <div id="app">
+            <nav-header></nav-header>
+            <div class="admin-layout">
+                <nav-sidebar></nav-sidebar>
+                <main id="main-content" class="main-content">
+                    <div id="page-content">
+                        <!-- Content will be loaded here -->
+                    </div>
+                </main>
+            </div>
+            <div id="toast-container"></div>
+        </div>
+
+        <!-- Import modules first -->
+        <script type="module" src="/admin/admin-static/serve-js/components/navigation.js"></script>
+        <script type="module" src="/admin/admin-static/serve-js/components/dashboard.js"></script>
+        <script type="module" src="/admin/admin-static/serve-js/components/cookie_editor.js"></script>
+        <script type="module" src="/admin/admin-static/serve-js/components/api_explorer.js"></script>
+
+        <!-- Import and initialize AdminUI -->
+        <script type="module">
+            import { AdminUI } from '/admin/admin-static/serve-js/admin_ui.js';
+
+            // Wait for DOM and custom elements to be ready
+            document.addEventListener('DOMContentLoaded', async () => {
+                // Create and initialize AdminUI instance
+                const adminUI = new AdminUI();
+
+                // Make it globally available if needed
+                window.adminUI = adminUI;
+
+                try {
+                    await adminUI.init();
+                    console.log('AdminUI initialized successfully');
+                } catch (error) {
+                    console.error('Failed to initialize AdminUI:', error);
+                }
+            });
+        </script>
+    </body>
+</html>
