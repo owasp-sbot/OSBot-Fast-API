@@ -63,7 +63,8 @@ def setup__admin_ui_test_objs(with_parent=True, with_server=False):
                                              version        = 'v1.0.99'                    ,
                                              description    = 'Parent API for Admin UI testing',
                                              enable_api_key = False                            ,  # Disable for tests
-                                             enable_cors    = True                             )
+                                             enable_cors    = True                             ,
+                                             add_admin_ui   = True                             )
         test_objs.parent_fast_api.setup()
 
         # Add some test routes to parent

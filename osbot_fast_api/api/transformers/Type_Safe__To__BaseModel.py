@@ -35,6 +35,11 @@ class Type_Safe__To__BaseModel(Type_Safe):
                                         **pydantic_fields ,
                                         __base__=BaseModel)
 
+        if not hasattr(base_model_class, 'model_dump'):                             # Add model_dump() method for Pydantic v1 compatibility
+            def model_dump(self):
+                return self.dict()
+
+            base_model_class.model_dump = model_dump
         self.model_cache[type_safe_class] = base_model_class                        # Add to cache
         return base_model_class
 
