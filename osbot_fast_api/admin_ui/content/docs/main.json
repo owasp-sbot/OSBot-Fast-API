@@ -1,0 +1,14 @@
+{
+  "title": "FastAPI Admin UI Documentation",
+  "version": "1.0.0",
+  "sections": [
+    {
+      "title": "Overview",
+      "content": "<p>Welcome to the FastAPI Admin UI documentation...</p>"
+    },
+    {
+      "title": "Features",
+      "content": "<ul><li>Real-time monitoring</li><li>API testing</li></ul>"
+    }
+  ]
+}

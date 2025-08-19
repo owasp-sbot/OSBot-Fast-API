@@ -1,0 +1,18 @@
+{
+  "templates": [
+    {
+      "id": "openai",
+      "name": "OpenAI Configuration",
+      "description": "Cookies for OpenAI API integration",
+      "cookies": [
+        {
+          "name": "openai-api-key",
+          "description": "OpenAI API Key",
+          "required": true,
+          "category": "llm",
+          "validator": "^sk-[a-zA-Z0-9]{48}$"
+        }
+      ]
+    }
+  ]
+}

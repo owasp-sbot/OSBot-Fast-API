@@ -1,66 +1,98 @@
 /**
- * Main Admin UI Application Module
+ * Main Admin UI Application Module - Updated with Deep Linking
  * Handles routing, API communication, and component orchestration
  */
 
 export class AdminUI {
     constructor() {
         this.currentPage = 'dashboard';
+        this.currentSubPage = null;
         this.apiBase     = '/admin';
         this.components  = new Map();
-        this.appData     = { serverInfo : null  ,
-                             appInfo    : null  ,
-                             routes     : []    ,
-                             cookies    : []    ,
-                             docs       : []    };
+        this.appData     = {
+            serverInfo : null,
+            appInfo    : null,
+            routes     : [],
+            cookies    : [],
+            docs       : []
+        };
     }
 
     async init() {
-        this.setupRouter                 ();
-        await this.loadInitialData       ();
-        this.registerEventListeners      ();
-        await this.navigateToHash        ();
+        this.setupRouter();
+        await this.loadInitialData();
+        this.registerEventListeners();
+        await this.navigateToHash();
     }
 
-    setupRouter() {                 // Handle hash-based routing
+    setupRouter() {
+        // Handle hash-based routing with support for sub-pages
         window.addEventListener('hashchange', () => this.navigateToHash());
     }
 
     async navigateToHash() {
         const hash = window.location.hash.slice(1) || 'dashboard';
-        await this.navigateTo(hash);
+
+        // Parse hash for main page and sub-page
+        // Format: #docs/quickstart or just #dashboard
+        const parts = hash.split('/');
+        const mainPage = parts[0];
+        const subPage = parts[1] || null;
+
+        await this.navigateTo(mainPage, subPage);
     }
 
-    async navigateTo(page) {
+    async navigateTo(page, subPage = null) {
         this.currentPage = page;
-        await this.renderPage(page);
-        this.updateNavigation(page);                                    // Update active nav items
+        this.currentSubPage = subPage;
+
+        await this.renderPage(page, subPage);
+        this.updateNavigation(page, subPage);
     }
 
-    updateNavigation(activePage) {                                      // Update sidebar navigation
+    updateNavigation(activePage, activeSubPage) {
+        // Update sidebar navigation
         const sidebar = document.querySelector('nav-sidebar');
         if (sidebar && sidebar.setActivePage) {
             sidebar.setActivePage(activePage);
         }
 
-        const header = document.querySelector('nav-header');            // Update header if needed
+        // Update header if needed
+        const header = document.querySelector('nav-header');
         if (header && header.updateTitle) {
-            const titles = { 'dashboard': 'Dashboard'    ,
-                             'routes'   : 'API Routes'    ,
-                             'cookies'  : 'Cookie Manager',
-                             'docs'     : 'Documentation'
+            const titles = {
+                'dashboard': 'Dashboard',
+                'routes'   : 'API Routes',
+                'cookies'  : 'Cookie Manager',
+                'docs'     : 'Documentation'
             };
-            header.updateTitle(titles[activePage] || 'Admin UI');
+
+            let title = titles[activePage] || 'Admin UI';
+
+            // Add sub-page to title if in docs
+            if (activePage === 'docs' && activeSubPage) {
+                const subTitles = {
+                    'quickstart': 'Quick Start',
+                    'installation': 'Installation',
+                    'authentication': 'Authentication',
+                    'endpoints': 'Endpoints',
+                    'schemas': 'Schemas'
+                };
+                if (subTitles[activeSubPage]) {
+                    title += ` / ${subTitles[activeSubPage]}`;
+                }
+            }
+
+            header.updateTitle(title);
         }
     }
 
-    async renderPage(page) {
+    async renderPage(page, subPage = null) {
         const contentEl = document.getElementById('page-content');
         if (!contentEl) return;
 
-        contentEl.innerHTML = '';                                           // Clear current content
-
-        contentEl.innerHTML = '<div class="loading">Loading...</div>';      // Add loading indicator
+        contentEl.innerHTML = '';
+        contentEl.innerHTML = '<div class="loading">Loading...</div>';
 
         try {
             switch (page) {
@@ -74,7 +106,7 @@ export class AdminUI {
                     await this.renderCookies(contentEl);
                     break;
                 case 'docs':
-                    await this.renderDocs(contentEl);
+                    await this.renderDocs(contentEl, subPage);
                     break;
                 default:
                     contentEl.innerHTML = '<div class="error">Page not found</div>';
@@ -86,22 +118,24 @@ export class AdminUI {
     }
 
     async renderDashboard(container) {
-        await this.loadServerInfo();                                            // Fetch latest data
+        await this.loadServerInfo();
         await this.loadStats();
 
-        const dashboard = document.createElement('admin-dashboard');            // Create dashboard component
-        dashboard.setData({ serverInfo  : this.appData.serverInfo,
-                            appInfo     : this.appData.appInfo   ,
-                            stats       : this.appData.stats    });
+        const dashboard = document.createElement('admin-dashboard');
+        dashboard.setData({
+            serverInfo: this.appData.serverInfo,
+            appInfo   : this.appData.appInfo,
+            stats     : this.appData.stats
+        });
 
         container.innerHTML = '';
         container.appendChild(dashboard);
     }
 
     async renderRoutes(container) {
-        await this.loadRoutes();                                                // Fetch routes data
+        await this.loadRoutes();
 
-        const explorer = document.createElement('api-explorer');                // Create routes explorer component
+        const explorer = document.createElement('api-explorer');
         explorer.setRoutes(this.appData.routes);
 
         container.innerHTML = '';
@@ -109,9 +143,9 @@ export class AdminUI {
     }
 
     async renderCookies(container) {
-        await this.loadCookies();                                               // Fetch cookies data
+        await this.loadCookies();
 
-        const editor = document.createElement('cookie-editor');                 // Create cookie editor component
+        const editor = document.createElement('cookie-editor');
         editor.setCookies(this.appData.cookies);
         editor.setTemplates(this.appData.cookieTemplates);
 
@@ -119,20 +153,27 @@ export class AdminUI {
         container.appendChild(editor);
     }
 
-    async renderDocs(container) {
-        await this.loadDocs();                                                  // Fetch docs endpoints
+    async renderDocs(container, subPage = null) {
+        await this.loadDocs();
 
-        const viewer = document.createElement('docs-viewer');                   // Create docs viewer component
+        const viewer = document.createElement('docs-viewer');
         viewer.setDocs(this.appData.docs);
 
         container.innerHTML = '';
         container.appendChild(viewer);
+
+        // Load the appropriate content immediately (no setTimeout needed)
+        const docToLoad = subPage || 'overview';
+        viewer.loadDocContent(docToLoad);
     }
 
-    async apiCall(endpoint, options = {}) {                                     // API Methods
-        const url            = `${this.apiBase}${endpoint}`;
-        const defaultOptions = { headers    : {  'Content-Type': 'application/json' },
-                                 credentials: 'same-origin'                         };
+    // API Methods
+    async apiCall(endpoint, options = {}) {
+        const url = `${this.apiBase}${endpoint}`;
+        const defaultOptions = {
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin'
+        };
 
         const response = await fetch(url, { ...defaultOptions, ...options });
 
@@ -145,8 +186,10 @@ export class AdminUI {
 
     async loadInitialData() {
         try {
-            await Promise.all([this.loadServerInfo(),                               // Load basic app info
-                               this.loadAppInfo   () ]);
+            await Promise.all([
+                this.loadServerInfo(),
+                this.loadAppInfo()
+            ]);
         } catch (error) {
             console.error('Error loading initial data:', error);
             this.showToast('Error loading application data', 'error');
@@ -178,7 +221,8 @@ export class AdminUI {
         this.appData.docs = await this.apiCall('/admin-docs/api/docs-endpoints');
     }
 
-    async setCookie(name, value) {                                                  // Cookie Management
+    // Cookie Management
+    async setCookie(name, value) {
         return await this.apiCall(`/admin-cookies/api/cookie-set/${name}`, {
             method: 'POST',
             body: JSON.stringify({ value })
@@ -195,14 +239,29 @@ export class AdminUI {
         return await this.apiCall(`/admin-cookies/api/generate-value?value_type=${type}`);
     }
 
-    registerEventListeners() {                                                      // Utility Methods
-        document.addEventListener('cookie-updated', async (e) => {                  // Listen for custom events from components
+    // Utility Methods
+    registerEventListeners() {
+        // Listen for custom events from components
+        document.addEventListener('cookie-updated', async (e) => {
             this.showToast(`Cookie "${e.detail.name}" updated`, 'success');
-            await this.loadCookies();                                               // Refresh cookie data
+            await this.loadCookies();
         });
 
-        document.addEventListener('navigate',async (e) => {
-            await this.navigateTo(e.detail.page);
+        document.addEventListener('navigate', async (e) => {
+            const { page, subPage } = e.detail;
+
+            // Update the hash to reflect navigation
+            if (subPage) {
+                window.location.hash = `${page}/${subPage}`;
+            } else {
+                window.location.hash = page;
+            }
+        });
+
+        // Listen for navigate-to-doc events from docs viewer
+        document.addEventListener('navigate-to-doc', async (e) => {
+            const { docId } = e.detail;
+            window.location.hash = `docs/${docId}`;
         });
     }
 
@@ -216,9 +275,9 @@ export class AdminUI {
 
         container.appendChild(toast);
 
-        setTimeout(() => toast.classList.add('show'), 10);                      // Animate in
+        setTimeout(() => toast.classList.add('show'), 10);
 
-        setTimeout(() => {                                                      // Remove after duration
+        setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => container.removeChild(toast), 300);
         }, duration);
@@ -245,4 +304,5 @@ export class AdminUI {
     }
 }
 
-window.AdminUI = AdminUI;                                                   // Export for use in other modules
+// Export for use in other modules
+window.AdminUI = AdminUI;

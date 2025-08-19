@@ -1,5 +1,3 @@
-# todo fix these tests
-
 # import time
 # from unittest                                               import TestCase
 #

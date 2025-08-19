@@ -1,5 +1,8 @@
+import json
 from typing                                     import Dict, Any, List, Optional
+import osbot_fast_api
 from fastapi                                    import Request, Response
+from osbot_utils.utils.Files                    import path_combine, file_exists
 from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
 from osbot_utils.type_safe.Type_Safe            import Type_Safe
 from osbot_utils.utils.Misc                     import random_guid
@@ -32,77 +35,90 @@ class Cookies__Templates(Type_Safe):
 
 class Routes__Admin__Cookies(Fast_API__Routes):         # API routes for cookie management
     tag        = 'admin-cookies'
-    parent_app = None                                   # Will be set by Admin_UI__Fast_API
+    parent_app            = None                                   # Will be set by Admin_UI__Fast_API
+    _templates : list     = None
 
-    # Predefined cookie templates
-    COOKIE_TEMPLATES = [                                # todo: move to .json file which can then be changed by the multiple implementations (especialy since by default we should not have have all this cookies set in the main Fast_API package)
-        {
-            "id": "openai",
-            "name": "OpenAI Configuration",
-            "description": "Cookies for OpenAI API integration",
-            "cookies": [
-                {
-                    "name": "openai-api-key",
-                    "description": "OpenAI API Key",
-                    "required": True,
-                    "category": "llm",
-                    "validator": "^sk-[a-zA-Z0-9]{48}$"
-                },
-                {
-                    "name": "openai-org-id",
-                    "description": "OpenAI Organization ID",
-                    "required": False,
-                    "category": "llm"
-                }
-            ]
-        },
-        {
-            "id": "anthropic",
-            "name": "Anthropic Configuration",
-            "description": "Cookies for Anthropic Claude API",
-            "cookies": [
-                {
-                    "name": "anthropic-api-key",
-                    "description": "Anthropic API Key",
-                    "required": True,
-                    "category": "llm",
-                    "validator": "^sk-ant-[a-zA-Z0-9-]{95}$"
-                }
-            ]
-        },
-        {
-            "id": "groq",
-            "name": "Groq Configuration",
-            "description": "Cookies for Groq API",
-            "cookies": [
-                {
-                    "name": "groq-api-key",
-                    "description": "Groq API Key",
-                    "required": True,
-                    "category": "llm"
-                }
-            ]
-        },
-        {
-            "id": "auth",
-            "name": "Authentication",
-            "description": "Authentication cookies",
-            "cookies": [
-                {
-                    "name": "auth-token",
-                    "description": "Authentication token",
-                    "required": False,
-                    "category": "auth"
-                },
-                {
-                    "name": "api-key",
-                    "description": "API Key for protected endpoints",
-                    "required": False,
-                    "category": "auth"
-                }
-            ]
-        }
-    ]
+    @property
+    def COOKIE_TEMPLATES(self):
+        if self._templates is None:
+            template_path = path_combine(osbot_fast_api.path, 'admin_ui/content/templates/cookies.json')
+            if file_exists(template_path):
+                with open(template_path, 'r') as f:
+                    data = json.load(f)
+                    self._templates = data.get('templates', [])
+            else:
+                self._templates = []  # Fallback to empty
+        return self._templates
+
+    # # Predefined cookie templates
+    # COOKIE_TEMPLATES = [                                # todo: move to .json file which can then be changed by the multiple implementations (especialy since by default we should not have have all this cookies set in the main Fast_API package)
+    #     {
+    #         "id": "openai",
+    #         "name": "OpenAI Configuration",
+    #         "description": "Cookies for OpenAI API integration",
+    #         "cookies": [
+    #             {
+    #                 "name": "openai-api-key",
+    #                 "description": "OpenAI API Key",
+    #                 "required": True,
+    #                 "category": "llm",
+    #                 "validator": "^sk-[a-zA-Z0-9]{48}$"
+    #             },
+    #             {
+    #                 "name": "openai-org-id",
+    #                 "description": "OpenAI Organization ID",
+    #                 "required": False,
+    #                 "category": "llm"
+    #             }
+    #         ]
+    #     },
+    #     {
+    #         "id": "anthropic",
+    #         "name": "Anthropic Configuration",
+    #         "description": "Cookies for Anthropic Claude API",
+    #         "cookies": [
+    #             {
+    #                 "name": "anthropic-api-key",
+    #                 "description": "Anthropic API Key",
+    #                 "required": True,
+    #                 "category": "llm",
+    #                 "validator": "^sk-ant-[a-zA-Z0-9-]{95}$"
+    #             }
+    #         ]
+    #     },
+    #     {
+    #         "id": "groq",
+    #         "name": "Groq Configuration",
+    #         "description": "Cookies for Groq API",
+    #         "cookies": [
+    #             {
+    #                 "name": "groq-api-key",
+    #                 "description": "Groq API Key",
+    #                 "required": True,
+    #                 "category": "llm"
+    #             }
+    #         ]
+    #     },
+    #     {
+    #         "id": "auth",
+    #         "name": "Authentication",
+    #         "description": "Authentication cookies",
+    #         "cookies": [
+    #             {
+    #                 "name": "auth-token",
+    #                 "description": "Authentication token",
+    #                 "required": False,
+    #                 "category": "auth"
+    #             },
+    #             {
+    #                 "name": "api-key",
+    #                 "description": "API Key for protected endpoints",
+    #                 "required": False,
+    #                 "category": "auth"
+    #             }
+    #         ]
+    #     }
+    # ]
 
     def api__cookies_list(self, request: Request) -> List[Dict[str, Any]]:                  # Get list of all cookies with their current values
         cookies = []

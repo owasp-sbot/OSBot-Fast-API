@@ -1,4 +1,9 @@
+import json
 from typing                                     import Dict, Any, List
+
+import osbot_fast_api
+from osbot_utils.utils.Files import path_combine, file_exists
+
 from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
 
 
@@ -153,7 +158,41 @@ fetch('{base_url}/admin/api/cookie/set/api-key', {{
 
         return list(tags.values())
 
+    def api__content__doc_id(self, doc_id: str) -> Dict[str, Any]:  # Serve documentation content from markdown/JSON files
+
+        # Map doc_id to content files
+        content_path = path_combine(osbot_fast_api.path, f'admin_ui/content/docs/{doc_id}.md')
+        json_path = path_combine(osbot_fast_api.path, f'admin_ui/content/docs/{doc_id}.json')
+
+        # Try markdown first
+        if file_exists(content_path):
+            with open(content_path, 'r', encoding='utf-8') as f:  # Add encoding
+                content = f.read()
+                return {
+                    "markdown": content,
+                    "format": "markdown",
+                    "doc_id": doc_id
+                }
+
+        # Try JSON
+        elif file_exists(json_path):
+            with open(json_path, 'r', encoding='utf-8') as f:  # Add encoding
+                data = json.load(f)
+                return {
+                    "sections": data.get("sections", []),
+                    "format": "json",
+                    "doc_id": doc_id
+                }
+
+        # Return error (not default content - let frontend handle it)
+        return {
+            "error": "Content not found",
+            "doc_id": doc_id,
+            "format": "error"
+        }
+
     def setup_routes(self):
         self.add_route_get(self.api__docs_endpoints)
         self.add_route_get(self.api__client_examples)
         self.add_route_get(self.api__api_info)
+        self.add_route_get(self.api__content__doc_id)

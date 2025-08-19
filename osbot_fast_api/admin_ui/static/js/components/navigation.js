@@ -229,7 +229,7 @@ class NavSidebar extends HTMLElement {                          // Sidebar Navig
                     </a>
                     <a href="#routes" class="nav-item" data-page="routes">
                         <span class="nav-item-icon">🛣️</span>
-                        API Routes
+                        API Explorer
                     </a>
                 </div>
 
