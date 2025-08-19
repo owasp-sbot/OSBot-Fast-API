@@ -5,6 +5,7 @@ from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text      import S
 from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Version    import Safe_Str__Version
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
 from starlette.staticfiles                                              import StaticFiles
+from osbot_fast_api.admin_ui.api.Admin_UI__Config                       import Admin_UI__Config
 from osbot_fast_api.api.Fast_API__Offline_Docs                          import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, URL__STATIC__DOCS, NAME__STATIC__DOCS
 from osbot_fast_api.api.events.Fast_API__Http_Events                    import Fast_API__Http_Events
 from osbot_fast_api.api.routes.Routes__Config                           import Routes__Config
@@ -18,10 +19,12 @@ from osbot_fast_api.utils.Version                                       import v
 
 class Fast_API(Type_Safe):
     base_path      : Safe_Str__Fast_API__Route__Prefix = '/'
+    add_admin_ui   : bool                     = True
     docs_offline   : bool                     = True
     enable_cors    : bool                     = False
     enable_api_key : bool                     = False
     default_routes : bool                     = True
+    admin_config   : Admin_UI__Config
     name           : Safe_Str__Fast_API__Name = None
     version        : Safe_Str__Version        = version__osbot_fast_api
     description    : Safe_Str__Text           = None
@@ -122,8 +125,8 @@ class Fast_API(Type_Safe):
         parent_app.mount(self.base_path, self.app())
         return self
 
-    def mount_fast_api(self, class_fast_api):               # use this from the parent Fast_Api instance
-        class_fast_api().setup().mount(self.app())
+    def mount_fast_api(self, class_fast_api, **kwargs):               # use this from the parent Fast_Api instance
+        class_fast_api(**kwargs).setup().mount(self.app())
         return self
 
     def setup(self):
@@ -133,6 +136,7 @@ class Fast_API(Type_Safe):
         self.setup_static_routes          ()
         self.setup_static_routes_docs     ()
         self.setup_routes                 ()        # overwrite to add routes
+        self.setup_admin_ui               ()
         return self
 
     @index_by
@@ -162,6 +166,14 @@ class Fast_API(Type_Safe):
 
     def routes_paths_all(self):
         return self.routes_paths(include_default=True, expand_mounts=True)
+
+
+    def setup_admin_ui(self):                                                                # Set up and mount the Admin UI to this FastAPI instance.
+        if self.add_admin_ui:                                                                # Create admin UI instance
+            from osbot_fast_api.admin_ui.api.Admin_UI__Fast_API import Admin_UI__Fast_API    # import here due to circular dependencies
+            kwargs = dict(admin_config=self.admin_config, parent_app=self)
+            self.mount_fast_api(Admin_UI__Fast_API, **kwargs)
+        return self
 
     def setup_middlewares(self):                 # overwrite to add more middlewares
         self.setup_middleware__detect_disconnect()
