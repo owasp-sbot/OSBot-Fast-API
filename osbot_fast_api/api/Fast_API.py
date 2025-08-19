@@ -19,7 +19,7 @@ from osbot_fast_api.utils.Version                                       import v
 
 class Fast_API(Type_Safe):
     base_path      : Safe_Str__Fast_API__Route__Prefix = '/'
-    add_admin_ui   : bool                     = True
+    add_admin_ui   : bool                     = False
     docs_offline   : bool                     = True
     enable_cors    : bool                     = False
     enable_api_key : bool                     = False
