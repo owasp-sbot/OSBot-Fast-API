@@ -14,4 +14,5 @@ class Fast_API__Server_Info(Type_Safe):
     server_instance_id: Random_Guid
     server_boot_time  : Timestamp_Now
 
+
 fast_api__server_info = Fast_API__Server_Info()

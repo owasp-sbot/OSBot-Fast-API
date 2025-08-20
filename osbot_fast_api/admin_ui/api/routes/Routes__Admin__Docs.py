@@ -123,8 +123,6 @@ fetch('{base_url}/admin/api/cookie/set/api-key', {{
         return examples
 
     def api__api_info(self) -> Dict[str, Any]:                                                                          # Get API metadata and information
-        if not self.parent_app:
-            return {"error": "Parent app not configured"}
 
         openapi = self.parent_app.open_api_json()
 

@@ -247,7 +247,7 @@ class Fast_API(Type_Safe):
         return self
 
 
-    def user_middlewares(self):
+    def user_middlewares(self, include_params=True):
         import types
 
         middlewares = []
@@ -261,8 +261,9 @@ class Fast_API(Type_Safe):
                 else:
                     function_name = None
                 middleware = { 'type'         : type_name     ,
-                               'function_name': function_name ,
-                               'params'       : options       }
+                               'function_name': function_name }
+                if include_params:
+                    middleware['params'] = options
                 middlewares.append(middleware)
         return middlewares
 

@@ -66,19 +66,24 @@ class Fast_API_Server(Type_Safe):
         self.running = False
         return result
 
+    def requests_delete(self, path='', **kwargs):
+        url = url_join_safe(self.url(), path)
+        return requests.delete(url, **kwargs)
+
     def requests_get(self, path='', **kwargs):
         url = url_join_safe(self.url(), path)
         return requests.get(url, **kwargs)
 
-    def requests_post(self, path='', data=None):
-        if Type_Safe in base_types(data):
-            json_data = data.json()
-        elif type(data) is dict:
-            json_data = data
-        else:
-            raise ValueError("data must be a Type_Safe or a dict")
+    def requests_post(self, path='', data=None, json=None, **kwargs):
+        if json is None:
+            if Type_Safe in base_types(data):
+                json = data.json()
+            elif type(data) is dict:
+                json = data
+            else:
+                raise ValueError("data must be a Type_Safe or a dict")
         url = urljoin(self.url(), path)
-        return requests.post(url, json=json_data)
+        return requests.post(url, json=json, **kwargs)
 
     def url(self):
         return f'http://{FAST_API__HOST}:{self.port}/'

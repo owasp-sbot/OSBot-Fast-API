@@ -236,7 +236,7 @@ export class AdminUI {
     }
 
     async generateValue(type = 'uuid') {
-        return await this.apiCall(`/admin-cookies/api/generate-value?value_type=${type}`);
+        return await this.apiCall(`/admin-cookies/api/generate-value/${type}`);
     }
 
     // Utility Methods

@@ -948,7 +948,7 @@ class CookieEditor extends HTMLElement {
 
     async generateValue(type) {
         try {
-            const response = await fetch(`${this.apiBase}/generate-value?value_type=${type}`);
+            const response = await fetch(`${this.apiBase}/generate-value/${type}`);
             const result = await response.json();
 
             if (result.value) {
