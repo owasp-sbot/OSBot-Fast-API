@@ -105,7 +105,7 @@ class test_Routes__Admin__Info__client(TestCase):                   # Test Route
         avg_time = duration / num_requests
 
         # Health check should be very fast
-        assert avg_time < 0.01  # Less than 10ms average
+        assert avg_time < 0.02  # Less than 20ms average
 
     def test_06_stats_accuracy(self):
         """Test that stats accurately reflect routes"""

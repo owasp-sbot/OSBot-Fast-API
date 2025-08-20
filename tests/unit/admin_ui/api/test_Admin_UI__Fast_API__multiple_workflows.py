@@ -1,14 +1,12 @@
-from unittest                             import TestCase
-
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import list_set
-from starlette.testclient import TestClient
-
-from osbot_fast_api.admin_ui.api.Admin_UI__Config import Admin_UI__Config
-from osbot_fast_api.admin_ui.api.Admin_UI__Fast_API import Admin_UI__Fast_API
+from unittest                                                   import TestCase
+from osbot_utils.utils.Env                                      import in_github_action
+from osbot_utils.utils.Misc                                     import list_set
+from starlette.testclient                                       import TestClient
+from osbot_fast_api.admin_ui.api.Admin_UI__Config               import Admin_UI__Config
+from osbot_fast_api.admin_ui.api.Admin_UI__Fast_API             import Admin_UI__Fast_API
 from osbot_fast_api.admin_ui.api.testing.Admin_UI__Test_Context import Admin_UI__Test_Context
-from osbot_fast_api.api.Fast_API          import Fast_API
-from osbot_fast_api.utils.Fast_API_Server import Fast_API_Server
+from osbot_fast_api.api.Fast_API                                import Fast_API
+from osbot_fast_api.utils.Fast_API_Server                       import Fast_API_Server
 
 import concurrent.futures
 import time
@@ -236,12 +234,13 @@ class test_Admin_UI__Fast_API__multiple_workflows(TestCase):         # Full inte
             assert all(r.status_code == 200 for r in results)
 
             # Should complete in reasonable time
-            assert duration < 1.5  # 100 requests in under 1.5 seconds :)
-
-            # Calculate throughput
-            throughput = len(results) / duration
-            #print(f"Throughput: {throughput:.1f} requests/second")
-            assert throughput > 200  # At least 300 req/s
+            throughput = len(results) / duration                    # Calculate throughput
+            if in_github_action():
+                assert duration   < 3    # 100 requests in under 3 seconds
+                assert throughput > 100  # At least 100 req/s
+            else:
+                assert duration   < 0.3  # 100 requests in under 0.3 seconds (locally)
+                assert throughput > 500  # At least 500 req/s                (locally)
 
     def test_05_error_handling(self):
         """Test error handling in Admin UI"""
