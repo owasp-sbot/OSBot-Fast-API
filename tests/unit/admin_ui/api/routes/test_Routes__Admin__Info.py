@@ -72,14 +72,6 @@ class test_Routes__Admin__Info(TestCase):                   # Test Routes__Admin
         assert result['enable_cors'   ] is True
         assert result['enable_api_key'] is False
 
-    def test_04_api__app_info_no_parent(self):                              # Test app info without parent app
-        routes = Routes__Admin__Info()
-        routes.parent_app = None
-
-        result = routes.api__app_info()
-
-        assert result == {"error": "Parent app not configured"}
-
     def test_05_api__stats(self):                                           # Test stats method directly
         result = self.routes_info.api__stats()
 
@@ -106,13 +98,13 @@ class test_Routes__Admin__Info(TestCase):                   # Test Routes__Admin
         # Check test routes are counted
         assert '/test' in result['prefixes'] or '/test/hello' in str(result['prefixes'])
 
-    def test_06_api__stats_no_parent(self):                         # Test stats without parent app
-        routes = Routes__Admin__Info()
-        routes.parent_app = None
-
-        result = routes.api__stats()
-
-        assert result == {"error": "Parent app not configured"}
+    # def test_06_api__stats_no_parent(self):                         # Test stats without parent app
+    #     routes = Routes__Admin__Info()
+    #     routes.parent_app = None
+    #
+    #     result = routes.api__stats()
+    #
+    #     assert result == {"error": "Parent app not configured"}
 
     def test_07_api__health(self):                                  # Test health check method
         result = self.routes_info.api__health()

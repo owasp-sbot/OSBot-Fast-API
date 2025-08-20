@@ -97,19 +97,19 @@ class test_Routes__Admin__Cookies(TestCase):                # Test Routes__Admin
         routes = self.routes_cookies
 
         # Test UUID generation
-        result = routes.api__generate_value('uuid')
+        result = routes.api__generate_value__value_type('uuid')
         assert result['type'] == 'uuid'
         assert len(result['value']) == 36  # UUID length
         assert '-' in result['value']
 
         # Test API key generation
-        result = routes.api__generate_value('api_key')
+        result = routes.api__generate_value__value_type('api_key')
         assert result['type'] == 'api_key'
         assert result['value'].startswith('sk-')
         assert len(result['value']) == 51  # sk- + 48 chars
 
         # Test default generation
-        result = routes.api__generate_value('unknown')
+        result = routes.api__generate_value__value_type('unknown')
         assert result['type'] == 'default'
         assert len(result['value']) == 36  # Falls back to UUID
 

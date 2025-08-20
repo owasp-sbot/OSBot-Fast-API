@@ -160,7 +160,7 @@ class test_Routes__Admin__Cookies__client(TestCase):            # Test Routes__A
     def test_08_generate_values(self):
         """Test GET /api/generate-value"""
         # Generate UUID
-        response = self.client.get('/admin-cookies/api/generate-value?value_type=uuid')
+        response = self.client.get('/admin-cookies/api/generate-value/uuid')
 
         assert response.status_code == 200
         data = response.json()
@@ -173,7 +173,7 @@ class test_Routes__Admin__Cookies__client(TestCase):            # Test Routes__A
         assert re.match(uuid_pattern, data['value'])
 
         # Generate API key
-        response = self.client.get('/admin-cookies/api/generate-value?value_type=api_key')
+        response = self.client.get('/admin-cookies/api/generate-value/api_key')
         data = response.json()
 
         assert data['type'] == 'api_key'

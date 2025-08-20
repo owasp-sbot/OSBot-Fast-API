@@ -224,7 +224,7 @@ class Routes__Admin__Cookies(Fast_API__Routes):         # API routes for cookie 
             "results": results
         }
 
-    def api__generate_value(self, value_type: str = "uuid") -> Dict[str, str]:
+    def api__generate_value__value_type(self, value_type: str = "uuid") -> Dict[str, str]:
         """Generate a value for cookies (UUID, random string, etc.)"""
         if value_type == "uuid":
             return {"value": random_guid(), "type": "uuid"}
@@ -256,4 +256,4 @@ class Routes__Admin__Cookies(Fast_API__Routes):         # API routes for cookie 
         self.add_route_post  (self.api__cookie_set__cookie_name   )
         self.add_route_delete(self.api__cookie_delete__cookie_name)
         self.add_route_post  (self.api__cookies_bulk_set          )
-        self.add_route_get   (self.api__generate_value            )
+        self.add_route_get   (self.api__generate_value__value_type            )

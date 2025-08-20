@@ -19,8 +19,6 @@ class Routes__Admin__Info(Fast_API__Routes):        # API routes for admin dashb
         }
 
     def api__app_info(self) -> Dict[str, Any]:              # Get FastAPI application information # todo: convert this object to Schema__Fast_API__Admin__App_Info
-        if not self.parent_app:
-            return {"error": "Parent app not configured"}
 
         return { "name"       : self.parent_app.name              ,
                  "version"    : self.parent_app.version           ,
@@ -31,8 +29,6 @@ class Routes__Admin__Info(Fast_API__Routes):        # API routes for admin dashb
                  "enable_api_key": self.parent_app.enable_api_key }
 
     def api__stats(self) -> Dict[str, Any]:                                     # Get application statistics
-        if not self.parent_app:
-            return {"error": "Parent app not configured"}
 
         routes = self.parent_app.routes(include_default=False, expand_mounts=True)
 
