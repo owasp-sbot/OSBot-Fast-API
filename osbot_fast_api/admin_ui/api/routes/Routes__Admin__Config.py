@@ -42,8 +42,7 @@ class Routes__Admin__Config(Fast_API__Routes):                      # API routes
     def api__middlewares(self) -> List[Dict[str, Any]]:                             # Get middleware information
         if not self.parent_app:
             return []
-
-        return self.parent_app.user_middlewares()
+        return self.parent_app.user_middlewares(include_params=False)
 
     def api__openapi_spec(self) -> Dict[str, Any]:                                  # Get OpenAPI specification
         if not self.parent_app:

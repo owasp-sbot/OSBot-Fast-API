@@ -10,9 +10,9 @@ class Routes__Admin__Info(Fast_API__Routes):        # API routes for admin dashb
     parent_app = None                               # Will be set by Admin_UI__Fast_API
 
     def api__server_info(self) -> Dict[str, Any]:           # Get server information # todo: convert this object to Schema__Fast_API__Admin__Server_Info
-        return { "server_id"         : str(fast_api__server_info.server_id),
-                 "server_name"       : str(fast_api__server_info.server_name) if fast_api__server_info.server_name else "unnamed",
-                 "server_instance_id": str(fast_api__server_info.server_instance_id),
+        return { "server_id"         : fast_api__server_info.server_id   or ''       ,
+                 "server_name"       : fast_api__server_info.server_name or "unnamed",
+                 "server_instance_id": fast_api__server_info.server_instance_id,
                  "server_boot_time"  : int(fast_api__server_info.server_boot_time),
                  "current_time"      : timestamp_utc_now(),
                  "uptime_ms"         : timestamp_utc_now() - int(fast_api__server_info.server_boot_time)         # double check this calculation

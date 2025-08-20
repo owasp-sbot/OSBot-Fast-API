@@ -30,8 +30,13 @@ class Cookie__Template(Type_Safe):                  # Template for common cookie
     description : str
     cookies     : List[Cookie__Config]
 
-class Cookies__Templates(Type_Safe):
-    cookies_templates : List[Cookie__Template]
+class Cookie__Bulk_Request(Type_Safe):
+    name       : str
+    value      : str
+    expires_in : Optional[int] = None
+
+class Cookies__Bulk_Request(Type_Safe):
+    cookies : List[Cookie__Bulk_Request]
 
 class Routes__Admin__Cookies(Fast_API__Routes):         # API routes for cookie management
     tag        = 'admin-cookies'
@@ -144,7 +149,7 @@ class Routes__Admin__Cookies(Fast_API__Routes):         # API routes for cookie 
     def api__cookies_templates(self) -> List[Dict[str, Any]]:           # Get available cookie templates
         return self.COOKIE_TEMPLATES                                    # todo: see note above in COOKIE_TEMPLATES
 
-    def api__cookie_get(self, cookie_name: str, request: Request) -> Dict[str, Any]:                                    # Get a specific cookie value
+    def api__cookie_get__cookie_name(self, cookie_name: str, request: Request) -> Dict[str, Any]:                                    # Get a specific cookie value
         value = request.cookies.get(cookie_name)
 
         config = None                                                                                                   # Find cookie config
@@ -193,25 +198,25 @@ class Routes__Admin__Cookies(Fast_API__Routes):         # API routes for cookie 
                  "name"     : cookie_name                   ,                                                           #       we also need to standardise the return object/class
                  "value_set": len(cookie_value.value) > 0   }
 
-    def api__cookie_delete(self, cookie_name: str, response: Response) -> Dict[str, Any]:                               # Delete a cookie
+    def api__cookie_delete__cookie_name(self, cookie_name: str, response: Response) -> Dict[str, Any]:                               # Delete a cookie
         response.delete_cookie(key=cookie_name)
 
         return { "success"  : True       ,                                                                              # todo: convert this to a Schema_* class
                  "name"     : cookie_name,
                  "deleted"  : True       }
 
-    def api__cookies_bulk_set(self, cookies_templates : Cookies__Templates, #cookies: List[Dict[str, str]],
-                                    request           : Request           ,
-                                    response          : Response
+    def api__cookies_bulk_set(self, bulk_request : Cookies__Bulk_Request, #cookies: List[Dict[str, str]],
+                                    request      : Request           ,
+                                    response     : Response
                                ) -> Dict[str, Any]:        # Set multiple cookies at once"""
         results = []
 
-        for cookie_data in cookies_templates:
-            cookie_name = cookie_data.get('name')
-            cookie_value = Cookie__Value(value=cookie_data.get('value', ''))
+        for cookie_data in bulk_request.cookies:
+            cookie_name       = cookie_data.name
+            cookie_value      = Cookie__Value(value=cookie_data.value , expires_in=cookie_data.expires_in)
 
             if cookie_name:
-                result = self.api__cookie_set(cookie_name, cookie_value, request, response)
+                result = self.api__cookie_set__cookie_name(cookie_name, cookie_value, request, response)
                 results.append(result)
 
         return {
@@ -245,10 +250,10 @@ class Routes__Admin__Cookies(Fast_API__Routes):         # API routes for cookie 
             return True
 
     def setup_routes(self):
-        self.add_route_get   (self.api__cookies_list            )
-        self.add_route_get   (self.api__cookies_templates       )
-        self.add_route_get   (self.api__cookie_get              )
-        self.add_route_post  (self.api__cookie_set__cookie_name )
-        self.add_route_delete(self.api__cookie_delete           )
-        self.add_route_post  (self.api__cookies_bulk_set        )
-        self.add_route_get   (self.api__generate_value          )
+        self.add_route_get   (self.api__cookies_list              )
+        self.add_route_get   (self.api__cookies_templates         )
+        self.add_route_get   (self.api__cookie_get__cookie_name   )
+        self.add_route_post  (self.api__cookie_set__cookie_name   )
+        self.add_route_delete(self.api__cookie_delete__cookie_name)
+        self.add_route_post  (self.api__cookies_bulk_set          )
+        self.add_route_get   (self.api__generate_value            )
