@@ -22,14 +22,23 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if not self.prefix:                                                 # if not set explicitly
-            self.prefix = Safe_Str__Fast_API__Route__Prefix(self.tag)        # create the prefix from the lower case tag and with a starting /
+        if not self.prefix:                                                     # if not set explicitly
+            self.prefix = Safe_Str__Fast_API__Route__Prefix(self.tag)           # create the prefix from the lower case tag and with a starting /
 
     def add_route(self,function, methods):
         path = self.parse_function_name(function)
         self.router.add_api_route(path=path, endpoint=function, methods=methods)
         return self
 
+    def add_route_any(self, function, path=None):                               # Add route that accepts ANY HTTP method
+        methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
+
+        if path:
+            self.router.add_api_route(path=path, endpoint=function, methods=methods)
+        else:
+            self.add_route(function, methods)
+
+        return self
     def add_route_with_body(self, function, methods):
         sig        = inspect.signature(function)                                                                # Get function signature
         type_hints = get_type_hints(function)                                                                   # Get type annotations

@@ -81,14 +81,17 @@ class test_OpenAPI__To__Python(unittest.TestCase):
 
     def test_4__check_client_on_test_fast_api(self):
         from tests.unit.fast_api__for_tests import fast_api                                             # let's use the main fast_api instance used in most tests
+        from osbot_utils.utils.Dev import pprint
+        import requests
+        fast_api_server = Fast_API_Server(app=fast_api.app())
         with fast_api as _:
-            assert _.routes_paths() == EXPECTED_ROUTES_PATHS
+            assert _.routes_paths() == sorted(EXPECTED_ROUTES_PATHS)
             namespace   = {}
             python_code = _.client().get('/config/openapi.py').text
             exec(python_code, namespace)
             Client__Fast_API         = namespace['Client__Fast_API']
-            client = Client__Fast_API(url=self.fast_api__url)
-            assert client.config.base_url == self.fast_api__url
+            client = Client__Fast_API(url=fast_api_server.url())
+            assert client.config.base_url == fast_api_server.url()
 
         api_functions = list_set(class_functions(client))
         assert 'get_config_status'     in api_functions
@@ -96,9 +99,24 @@ class test_OpenAPI__To__Python(unittest.TestCase):
         assert 'get_config_openapi_py' in api_functions
         assert 'get_config_version'    in api_functions
 
-        with client as _:
-            assert _.get_config_version() == { 'version': version__osbot_fast_api }
-            assert _.get_config_status () == {'status'  : 'ok'                    }
+
+
+        #pprint(fast_api.routes())
+        response_client = fast_api.client().get('config/version')
+        url = fast_api_server.url() + 'config/version'
+
+        with fast_api_server:
+            assert fast_api_server.is_port_open() is True
+            response = requests.get(url)
+            assert response.status_code == 200
+            assert response.json() == {'version': version__osbot_fast_api}
+            assert response.json() == response_client.json()
+
+            with client as _:
+                assert type(_) is Client__Fast_API
+                assert _.get_config_version() == { 'version': version__osbot_fast_api }
+                assert _.get_config_version() == response_client.json()
+                assert _.get_config_status () == {'status'  : 'ok'                    }
 
 
 

@@ -82,9 +82,9 @@ class test_Fast_API(TestCase):
         assert routes_methods == EXPECTED_ROUTES_METHODS
 
     def test_routes_paths(self):
-        assert self.fast_api.routes_paths(                     ) == EXPECTED_ROUTES_PATHS
-        assert self.fast_api.routes_paths(include_default=False) == EXPECTED_ROUTES_PATHS
-        assert self.fast_api.routes_paths(include_default=True ) == EXPECTED_ROUTES_PATHS + EXPECTED_DEFAULT_ROUTES
+        assert self.fast_api.routes_paths(                     ) == sorted(EXPECTED_ROUTES_PATHS)
+        assert self.fast_api.routes_paths(include_default=False) == sorted(EXPECTED_ROUTES_PATHS)
+        assert self.fast_api.routes_paths(include_default=True ) == sorted(EXPECTED_ROUTES_PATHS + EXPECTED_DEFAULT_ROUTES)
 
     def test_setup_routes(self):
         assert self.fast_api.setup_routes() == self.fast_api
