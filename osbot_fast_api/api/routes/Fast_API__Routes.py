@@ -327,7 +327,10 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
 
     def setup(self):
         self.setup_routes()
-        self.app.include_router(self.router, prefix=self.prefix, tags=[self.tag])
+        if self.prefix == '/':                                                          # handle scenario when we want to add routes directly to the root of the path
+            self.app.include_router(self.router, tags=[self.tag])
+        else:
+            self.app.include_router(self.router, prefix=self.prefix, tags=[self.tag])
         return self
 
     def setup_routes(self):     # overwrite this to add routes to self.router
