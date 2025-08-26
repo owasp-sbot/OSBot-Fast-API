@@ -24,7 +24,7 @@ class test_Fast_API__CLI(TestCase):
         with self.fast_api_cli as _:
             assert _.__attr_names__           () == ['app', 'fast_api', 'fast_api_server']
             assert _.registered_commands_names() == ['start', 'stop', 'python']
-            assert _.fast_api.routes_paths    () == EXPECTED_ROUTES_PATHS
+            assert _.fast_api.routes_paths    () == sorted(EXPECTED_ROUTES_PATHS)
             assert requests.get(_.fast_api_server.url(), allow_redirects=False).status_code == 307
 
 

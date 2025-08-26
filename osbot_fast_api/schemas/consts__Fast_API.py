@@ -1,5 +1,4 @@
 import re
-
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix import Safe_Str__Fast_API__Route__Prefix
 
 # todo: the names of these variables need a bit of refactoring and normalising
@@ -34,15 +33,19 @@ EXPECTED_ROUTES_METHODS                 = [ 'info'            ,
                                             'set_cookie_form' ,
                                             'status'          ,
                                             'version'         ]
-EXPECTED_ROUTES_PATHS                   = ['/'                     ,
-                                           '/auth/set-auth-cookie' ,
-                                           '/auth/set-cookie-form',
-                                           '/config/info'          ,
+EXPECTED_ROUTES__CONFIG                 = ['/config/info'          ,
                                            '/config/openapi.py'    ,
                                            '/config/routes/html'   ,
                                            '/config/routes/json'   ,
                                            '/config/status'        ,
                                            '/config/version'       ]
+EXPECTED_ROUTES__SET_COOKIE             = ['/auth/set-auth-cookie' ,
+                                           '/auth/set-cookie-form']
+
+EXPECTED_ROUTES_PATHS                   = (['/']                    +
+                                           EXPECTED_ROUTES__CONFIG  +
+                                           EXPECTED_ROUTES__SET_COOKIE)
+
 EXPECTED_DEFAULT_ROUTES                 = ['/docs', '/openapi.json', '/redoc', '/static-docs'      ]
 
 

@@ -1,6 +1,6 @@
 from unittest                                                   import TestCase
 from fastapi                                                    import FastAPI, APIRouter
-from osbot_fast_api.api.routes.Fast_API__Routes                        import Fast_API__Routes
+from osbot_fast_api.api.routes.Fast_API__Routes                 import Fast_API__Routes
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix   import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag      import Safe_Str__Fast_API__Route__Tag
 from osbot_fast_api.utils.Fast_API_Utils                        import Fast_API_Utils
@@ -117,3 +117,81 @@ class test_Fast_API__Routes(TestCase):
                               prefix = Safe_Str__Fast_API__Route__Prefix('/API/V2/USERS')) as _:
             assert _.tag == 'USERS'  # Tag keeps case
             assert _.prefix == '/api/v2/users'  # Prefix lowercase
+
+    def test_add_route_any(self):                               # Test with default path parsing
+        def handle_any():
+            return "any method"
+
+
+        assert self.fast_api_routes.add_route_any(handle_any) is self.fast_api_routes
+        routes = self.fast_api_routes.routes()
+
+        assert len(routes)                                    == 1
+        assert routes[0]['http_path']                         == '/handle-any'
+        assert routes[0]['method_name']                       == 'handle_any'
+        assert set(routes[0]['http_methods'])                 == {'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'}
+
+    def test_add_route_any_with_explicit_path(self):          # Test with explicit path - common for proxy routes
+        def proxy_request(path: str):
+            return f"proxied: {path}"
+
+        assert self.fast_api_routes.add_route_any(proxy_request, "/{path:path}") is self.fast_api_routes
+        routes = self.fast_api_routes.routes()
+        assert len(routes)                    == 1
+        assert routes[0]['http_path']         == '/{path:path}'
+        assert routes[0]['method_name']       == 'proxy_request'
+        assert set(routes[0]['http_methods']) == {'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'}
+
+    def test_add_route_any_with_multiple_routes(self):      # Test adding multiple ANY routes
+        def catch_all(): pass
+        def api_gateway(): pass
+        def proxy(path: str): pass
+
+        self.fast_api_routes.add_route_any(catch_all)
+        self.fast_api_routes.add_route_any(api_gateway)
+        self.fast_api_routes.add_route_any(proxy, "/api/{path:path}")
+
+        routes = self.fast_api_routes.routes()
+        assert len(routes) == 3
+
+        # Check each route
+        assert routes[0]['http_path'] == '/catch-all'
+        assert routes[1]['http_path'] == '/api-gateway'
+        assert routes[2]['http_path'] == '/api/{path:path}'
+
+        # All should have same methods
+        for route in routes:
+            assert set(route['http_methods']) == {'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'}
+
+    def test_add_route_any_with_path_parameters(self):                  # Test various path parameter patterns
+        def get_item(item_id: int): pass
+        def get_user_post(user_id: str, post_id: int): pass
+
+        self.fast_api_routes.add_route_any(get_item, "/items/{item_id}")
+        self.fast_api_routes.add_route_any(get_user_post, "/users/{user_id}/posts/{post_id}")
+
+        routes = self.fast_api_routes.routes()
+        assert routes[0]['http_path'] == '/items/{item_id}'
+        assert routes[1]['http_path'] == '/users/{user_id}/posts/{post_id}'
+
+    def test_add_route_any_edge_cases(self):                            # Test with root path
+        def root_handler(): pass
+        self.fast_api_routes.add_route_any(root_handler, "/")
+
+        # Test with trailing slash
+        def api_handler(): pass
+        self.fast_api_routes.add_route_any(api_handler, "/api/")
+
+        routes = self.fast_api_routes.routes()
+        assert routes[0]['http_path'] == '/'
+        assert routes[1]['http_path'] == '/api/'
+
+    def test__bug__any_route_loses_colon(self):
+        def root_handler(): pass
+        with Fast_API__Routes() as _:
+            _.add_route_any(root_handler, "/{path:path")
+            assert _.routes_paths() == ['/{path:path']
+        with self.fast_api_routes as _:
+            _.add_route_any(root_handler, "/{path:path")
+            assert _.routes_paths() == ['/{path:path']
+

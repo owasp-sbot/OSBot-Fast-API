@@ -27,7 +27,7 @@ class test_Fast_API__With_Shell_Server(TestCase):
         #return response
 
     def test_routes_paths(self):
-        assert self.fast_api.routes_paths() == EXPECTED_ROUTES_PATHS + ['/http-shell', '/shell-server']
+        assert self.fast_api.routes_paths() == sorted(EXPECTED_ROUTES_PATHS + ['/http-shell', '/shell-server'])
 
     def test_invoke__ping(self):
         assert self.test__invoke_method('ping') == 'pong'
