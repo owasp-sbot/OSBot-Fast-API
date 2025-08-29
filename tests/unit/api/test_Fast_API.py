@@ -121,7 +121,7 @@ class test_Fast_API(TestCase):
             assert app.version       == Safe_Str__Version        ('v0.1.0')
             assert app.description   == Safe_Str__Text('now with more available charts to talk about Fast API __ ______*()')
 
-        error_message = 'Value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$'
+        error_message = 'in Safe_Str__Version, value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$'
         with pytest.raises(ValueError, match=re.escape(error_message)):
             Fast_API(version="0.1.1")                                       # confirm validation provided by Safe_Str__Version
 
