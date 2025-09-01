@@ -39,6 +39,7 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
             self.add_route(function, methods)
 
         return self
+
     def add_route_with_body(self, function, methods):
         sig        = inspect.signature(function)                                                                # Get function signature
         type_hints = get_type_hints(function)                                                                   # Get type annotations
@@ -162,7 +163,7 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
             return self.add_route(function=function, methods=methods)                                           # No conversion needed, add directly
 
     def add_route_delete(self, function):
-        return self.add_route(function=function, methods=['DELETE'])
+        return self.add_route_with_body(function, methods=['DELETE'])
 
     def add_route_get(self, function):
         import functools
