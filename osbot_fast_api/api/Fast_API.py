@@ -1,19 +1,19 @@
-from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
-from osbot_utils.decorators.lists.index_by                              import index_by
-from osbot_utils.decorators.methods.cache_on_self                       import cache_on_self
-from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text      import Safe_Str__Text
-from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Version    import Safe_Str__Version
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
-from starlette.staticfiles                                              import StaticFiles
-from osbot_fast_api.admin_ui.api.Admin_UI__Config                       import Admin_UI__Config
-from osbot_fast_api.api.Fast_API__Offline_Docs                          import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, URL__STATIC__DOCS, NAME__STATIC__DOCS
-from osbot_fast_api.api.events.Fast_API__Http_Events                    import Fast_API__Http_Events
-from osbot_fast_api.api.routes.Routes__Config                           import Routes__Config
-from osbot_fast_api.api.routes.Routes__Set_Cookie                       import Routes__Set_Cookie
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                    import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix           import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.consts__Fast_API                            import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
-from osbot_fast_api.utils.Version                                       import version__osbot_fast_api
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.decorators.lists.index_by                                      import index_by
+from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version import Safe_Str__Version
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
+from starlette.staticfiles                                                      import StaticFiles
+from osbot_fast_api.admin_ui.api.Admin_UI__Config                               import Admin_UI__Config
+from osbot_fast_api.api.Fast_API__Offline_Docs                                  import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, URL__STATIC__DOCS, NAME__STATIC__DOCS
+from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
+from osbot_fast_api.api.routes.Routes__Config                                   import Routes__Config
+from osbot_fast_api.api.routes.Routes__Set_Cookie                               import Routes__Set_Cookie
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                            import Safe_Str__Fast_API__Name
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.consts__Fast_API                                    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
 
 
 

@@ -1,13 +1,13 @@
+import re
+import json
 import datetime
 import hashlib
-import json
-import re
-from typing                                                                     import Any, Dict, List, Optional, Tuple
-from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str                         import Safe_Str
-from osbot_utils.type_safe.primitives.safe_int.Safe_Int                         import Safe_Int
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Version            import Safe_Str__Version
+from typing                                                                       import Dict, List, Optional, Tuple
+from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Int                               import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Str                               import Safe_Str
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version   import Safe_Str__Version
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 
 
 class IR_Server(Type_Safe):
@@ -188,10 +188,10 @@ class OpenAPI__To__Python(Type_Safe):
         return """
 import requests
 import urllib.parse
-from typing                                                      import Any, Dict, Optional
-from osbot_utils.type_safe.Type_Safe                             import Type_Safe
-from osbot_utils.type_safe.primitives.safe_int                   import Safe_Int
-from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__Url import Safe_Str__Url
+from typing                                                              import Any, Dict, Optional
+from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Int                      import Safe_Int
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url import Safe_Str__Url
 
 """
 

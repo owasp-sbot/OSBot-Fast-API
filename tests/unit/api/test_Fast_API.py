@@ -2,8 +2,8 @@ import re
 import pytest
 from unittest                                                        import TestCase
 from fastapi                                                         import FastAPI
-from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Version import Safe_Str__Version
-from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text   import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version import Safe_Str__Version
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text   import Safe_Str__Text
 from starlette.testclient                                            import TestClient
 from osbot_fast_api.api.Fast_API                                     import Fast_API
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                 import Safe_Str__Fast_API__Name

@@ -1,17 +1,17 @@
-from typing                                                                      import Optional, List, Dict, Set, Any
-from unittest                                                                    import TestCase
-from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Primitive                                  import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                     import Timestamp_Now
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str                          import Safe_Str
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Name   import Safe_Str__File__Name
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path   import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.safe_str.http.Safe_Str__Http__Content_Type import Safe_Str__Http__Content_Type
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id               import Safe_Id
-from osbot_utils.utils.Objects                                                   import __
-from osbot_fast_api.api.Fast_API                                                 import Fast_API
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid           import Random_Guid
-from osbot_fast_api.api.routes.Fast_API__Routes                                  import Fast_API__Routes
+from typing                                                                         import Optional, List, Dict, Set, Any
+from unittest                                                                       import TestCase
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name           import Safe_Str__File__Name
+from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Content_Type    import Safe_Str__Http__Content_Type
+from osbot_utils.utils.Objects                                                              import __
+from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                                             import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                     import Timestamp_Now
+from osbot_utils.type_safe.primitives.core.Safe_Str                                         import Safe_Str
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path           import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                           import Safe_Id
+from osbot_fast_api.api.Fast_API                                                            import Fast_API
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                       import Random_Guid
+from osbot_fast_api.api.routes.Fast_API__Routes                                             import Fast_API__Routes
 
 
 class test__type_safe__Fast_API__Routes__support(TestCase):
