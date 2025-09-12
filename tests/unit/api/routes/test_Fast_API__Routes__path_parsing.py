@@ -1,8 +1,12 @@
-from unittest                                           import TestCase
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
-from osbot_fast_api.api.Fast_API                        import Fast_API
-from osbot_fast_api.api.routes.Fast_API__Routes                import Fast_API__Routes
-from osbot_utils.type_safe.Type_Safe                    import Type_Safe
+from unittest                                                            import TestCase
+from osbot_fast_api.api.Fast_API                                         import Fast_API
+from osbot_fast_api.api.routes.Fast_API__Routes                          import Fast_API__Routes
+from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                      import Safe_Str
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid    import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url import Safe_Str__Url
+
 
 
 class test_Fast_API__Routes__path_parsing(TestCase):
@@ -275,10 +279,6 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                                                '/fetch/{id_123_456}' ])
 
     def test_with_safe_str_primitives(self):
-        from osbot_utils.type_safe.primitives.safe_str.Safe_Str                                  import Safe_Str
-        from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                       import Safe_Id
-        from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                   import Random_Guid
-        from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__Url                         import Safe_Str__Url
 
         class Test_Routes(Fast_API__Routes):
             tag = 'safe_str'
@@ -330,9 +330,9 @@ class test_Fast_API__Routes__path_parsing(TestCase):
         assert response.json() == {'url': 'https://example.com', 'is_url': True}
 
     def test___bug__with_safe_numeric_primitives__conversion_issue(self):
-        from osbot_utils.type_safe.primitives.safe_int.Safe_Int                                  import Safe_Int
-        from osbot_utils.type_safe.primitives.safe_float.Safe_Float                              import Safe_Float
-        from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                             import Timestamp_Now
+        from osbot_utils.type_safe.primitives.core.Safe_Int                                  import Safe_Int
+        from osbot_utils.type_safe.primitives.core.Safe_Float                              import Safe_Float
+        from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                             import Timestamp_Now
 
         class Test_Routes(Fast_API__Routes):
             tag = 'numeric'
@@ -384,10 +384,10 @@ class test_Fast_API__Routes__path_parsing(TestCase):
         assert response.json() == {'timestamp': 1735689600, 'is_recent': True}
 
     def test_post_routes_with_safe_primitives(self):
-        from osbot_utils.type_safe.primitives.safe_str.Safe_Str                                  import Safe_Str
-        from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                   import Random_Guid
-        from osbot_utils.type_safe.primitives.safe_int.Safe_Int                                  import Safe_Int
-        from osbot_utils.type_safe.primitives.safe_float.Safe_Float                              import Safe_Float
+        from osbot_utils.type_safe.primitives.core.Safe_Str                                  import Safe_Str
+        from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                   import Random_Guid
+        from osbot_utils.type_safe.primitives.core.Safe_Int                                  import Safe_Int
+        from osbot_utils.type_safe.primitives.core.Safe_Float                              import Safe_Float
 
         class Product_Data(Type_Safe):
             name     : Safe_Str
@@ -468,12 +468,12 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                                    'new_quantity' : 125  }
 
     def test_mixed_safe_primitives_complex_scenario(self):
-        from osbot_utils.type_safe.primitives.safe_str.Safe_Str                                  import Safe_Str
-        from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                   import Random_Guid
-        from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                       import Safe_Id
-        from osbot_utils.type_safe.primitives.safe_int.Safe_Int                                  import Safe_Int
-        from osbot_utils.type_safe.primitives.safe_float.Safe_Float                              import Safe_Float
-        from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                             import Timestamp_Now
+        from osbot_utils.type_safe.primitives.core.Safe_Str                                  import Safe_Str
+        from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                   import Random_Guid
+        from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
+        from osbot_utils.type_safe.primitives.core.Safe_Int                                  import Safe_Int
+        from osbot_utils.type_safe.primitives.core.Safe_Float                              import Safe_Float
+        from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                             import Timestamp_Now
 
         class Order_Item(Type_Safe):
             item_id  : Random_Guid

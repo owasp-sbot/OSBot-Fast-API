@@ -1,5 +1,5 @@
 import osbot_fast_api
-from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text  import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text  import Safe_Str__Text
 from osbot_utils.utils.Files                                        import path_combine
 from osbot_fast_api.admin_ui.api.Admin_UI__Config                   import Admin_UI__Config
 from osbot_fast_api.admin_ui.api.routes.Routes__Admin__Config       import Routes__Admin__Config

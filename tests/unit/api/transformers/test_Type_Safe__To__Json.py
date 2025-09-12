@@ -2,9 +2,9 @@ import json
 from typing                                                 import List, Dict, Optional, Union
 from unittest                                               import TestCase
 from osbot_utils.type_safe.Type_Safe                        import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str     import Safe_Str
-from osbot_utils.type_safe.primitives.safe_int.Safe_Int     import Safe_Int
-from osbot_utils.type_safe.primitives.safe_float.Safe_Float import Safe_Float
+from osbot_utils.type_safe.primitives.core.Safe_Str         import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int         import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Float       import Safe_Float
 from osbot_fast_api.api.transformers.Type_Safe__To__Json    import Type_Safe__To__Json, type_safe__to__json
 
 

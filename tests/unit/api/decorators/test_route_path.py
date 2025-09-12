@@ -1,13 +1,13 @@
-from unittest                                                          import TestCase
-from osbot_fast_api.api.Fast_API                                       import Fast_API
-from osbot_fast_api.api.routes.Fast_API__Routes                        import Fast_API__Routes
-from osbot_fast_api.api.decorators.route_path                          import route_path
-from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str                import Safe_Str
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id     import Safe_Id
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
-from osbot_utils.type_safe.primitives.safe_int.Safe_Int                import Safe_Int
-from osbot_utils.type_safe.primitives.safe_float.Safe_Float            import Safe_Float
+from unittest                                                           import TestCase
+from osbot_utils.type_safe.primitives.core.Safe_Float                   import Safe_Float
+from osbot_fast_api.api.Fast_API                                        import Fast_API
+from osbot_fast_api.api.routes.Fast_API__Routes                         import Fast_API__Routes
+from osbot_fast_api.api.decorators.route_path                           import route_path
+from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                     import Safe_Str
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id       import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid
+from osbot_utils.type_safe.primitives.core.Safe_Int                     import Safe_Int
 
 
 class test_route_path(TestCase):
