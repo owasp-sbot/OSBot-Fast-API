@@ -248,26 +248,26 @@ files = [
 
 [[package]]
 name = "osbot-utils"
-version = "3.2.0"
+version = "3.3.0"
 description = "OWASP Security Bot - Utils"
 optional = false
 python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "osbot_utils-3.2.0-py3-none-any.whl", hash = "sha256:c88e948148562d8b912f7fabc4413902bcc6f75c615e370c49538eb2aabf8c05"},
-    {file = "osbot_utils-3.2.0.tar.gz", hash = "sha256:e1dd75fde0cc12077e09ecd1d351bed0f64ea2768c6178aecf43320776d17328"},
+    {file = "osbot_utils-3.3.0-py3-none-any.whl", hash = "sha256:19589de40a4741051b9854dcbec427e844f3b4d7411cf5a32a04b0f3caf954fa"},
+    {file = "osbot_utils-3.3.0.tar.gz", hash = "sha256:d7033ba32d0908d0ca519de5f7fdc3926e4700425681db80fa0b37e359a5c646"},
 ]
 
 [[package]]
 name = "pydantic"
-version = "2.11.7"
+version = "2.11.9"
 description = "Data validation using Python type hints"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "pydantic-2.11.7-py3-none-any.whl", hash = "sha256:dde5df002701f6de26248661f6835bbe296a47bf73990135c7d07ce741b9623b"},
-    {file = "pydantic-2.11.7.tar.gz", hash = "sha256:d989c3c6cb79469287b1569f7447a17848c998458d49ebe294e975b9baf0f0db"},
+    {file = "pydantic-2.11.9-py3-none-any.whl", hash = "sha256:c42dd626f5cfc1c6950ce6205ea58c93efa406da65f479dcb4029d5934857da2"},
+    {file = "pydantic-2.11.9.tar.gz", hash = "sha256:6b8ffda597a14812a7975c90b82a8a2e777d9257aba3453f973acd3c032a18e2"},
 ]
 
 [package.dependencies]
