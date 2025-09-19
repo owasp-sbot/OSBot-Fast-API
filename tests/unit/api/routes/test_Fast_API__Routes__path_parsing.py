@@ -332,7 +332,7 @@ class test_Fast_API__Routes__path_parsing(TestCase):
     def test___bug__with_safe_numeric_primitives__conversion_issue(self):
         from osbot_utils.type_safe.primitives.core.Safe_Int                                  import Safe_Int
         from osbot_utils.type_safe.primitives.core.Safe_Float                              import Safe_Float
-        from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                             import Timestamp_Now
+        from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                             import Timestamp_Now
 
         class Test_Routes(Fast_API__Routes):
             tag = 'numeric'
@@ -473,7 +473,7 @@ class test_Fast_API__Routes__path_parsing(TestCase):
         from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
         from osbot_utils.type_safe.primitives.core.Safe_Int                                  import Safe_Int
         from osbot_utils.type_safe.primitives.core.Safe_Float                              import Safe_Float
-        from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                             import Timestamp_Now
+        from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                             import Timestamp_Now
 
         class Order_Item(Type_Safe):
             item_id  : Random_Guid
