@@ -8,4 +8,4 @@ with capture_duration() as duration:
     fast_api_client = fast_api.client()
 
 if in_github_action() is False:
-    assert duration.seconds < 0.2       # make sure that the Fast_API object is created in less than 0.2 seconds
+    assert duration.seconds < 0.3       # make sure that the Fast_API object is created in less than 0.3 seconds

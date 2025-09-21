@@ -1,16 +1,31 @@
 import re
 import pytest
-from unittest                                                        import TestCase
-from fastapi                                                         import FastAPI
+from unittest.mock                                                              import MagicMock
+from unittest                                                                   import TestCase
+from fastapi                                                                    import FastAPI, HTTPException
+from fastapi.exceptions                                                         import RequestValidationError
+from osbot_utils.testing.Temp_Env_Vars import Temp_Env_Vars
+from osbot_utils.testing.__                                                     import __
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version import Safe_Str__Version
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text   import Safe_Str__Text
-from starlette.testclient                                            import TestClient
-from osbot_fast_api.api.Fast_API                                     import Fast_API
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                 import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.consts__Fast_API                         import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES
-from osbot_fast_api.utils.Fast_API_Utils                             import Fast_API_Utils
-from osbot_fast_api.utils.Version                                    import version__osbot_fast_api
-from tests.unit.fast_api__for_tests                                  import fast_api, fast_api_client
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
+from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Files import parent_folder
+from osbot_utils.utils.Objects                                                  import base_classes
+from osbot_utils.utils.Threads import invoke_async
+from starlette.requests                                                         import Request
+from starlette.responses                                                        import JSONResponse
+from starlette.testclient                                                       import TestClient
+from osbot_fast_api.admin_ui.api.Admin_UI__Config                               import Admin_UI__Config
+from osbot_fast_api.api.Fast_API                                                import Fast_API
+from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                            import Safe_Str__Fast_API__Name
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.consts__Fast_API                                    import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+from osbot_fast_api.utils.Fast_API_Utils                                        import Fast_API_Utils
+from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
+from tests.unit.fast_api__for_tests                                             import fast_api, fast_api_client
 
 
 class test_Fast_API(TestCase):
@@ -127,3 +142,546 @@ class test_Fast_API(TestCase):
 
 
 
+
+    # Core initialization and Type_Safe inheritance tests
+
+    def test__init__with_type_safety(self):                                        # Test Type_Safe inheritance and auto-initialization
+        with Fast_API() as _:
+            assert type(_)         is Fast_API
+            assert base_classes(_) == [Type_Safe, object]                          # Verify Type_Safe inheritance
+
+            # Verify all attributes are properly typed
+            assert type(_.base_path)      is Safe_Str__Fast_API__Route__Prefix
+            assert type(_.add_admin_ui)   is bool
+            assert type(_.docs_offline)   is bool
+            assert type(_.enable_cors)    is bool
+            assert type(_.enable_api_key) is bool
+            assert type(_.default_routes) is bool
+            assert type(_.admin_config)   is Admin_UI__Config
+            assert type(_.name)           is Safe_Str__Fast_API__Name
+            assert type(_.version)        is Safe_Str__Version
+            assert type(_.description)    is type(None)                           # None by default
+            assert type(_.http_events)    is Fast_API__Http_Events
+            assert type(_.server_id)      is Random_Guid
+
+            # Verify defaults
+            assert _.base_path      == '/'
+            assert _.add_admin_ui   is False
+            assert _.docs_offline   is True
+            assert _.enable_cors    is False
+            assert _.enable_api_key is False
+            assert _.default_routes is True
+            assert _.version        == version__osbot_fast_api
+            assert _.description    is None
+
+    def test__init__with_custom_name(self):                                        # Test custom name initialization
+        custom_name = "My API Service!"
+        with Fast_API(name=custom_name) as _:
+            assert _.name == "My API Service_"                                     # Sanitized by Safe_Str__Fast_API__Name
+            assert _.http_events.fast_api_name == "My API Service_"                # Propagated to http_events
+
+    def test__init__without_name(self):                                            # Test auto-name from class
+        with Fast_API() as _:
+            assert _.name == "Fast_API"                                            # Uses class name
+            assert _.http_events.fast_api_name == "Fast_API"
+
+    def test__init__with_all_parameters(self):                                     # Test comprehensive initialization
+        kwargs = dict(base_path      = '/api/v1'               ,
+                     add_admin_ui   = True                    ,
+                     docs_offline   = False                   ,
+                     enable_cors    = True                    ,
+                     enable_api_key = True                    ,
+                     default_routes = False                   ,
+                     name           = 'Test API'              ,
+                     version        = 'v1.2.3'                ,
+                     description    = 'Test description'      )
+
+        with Fast_API(**kwargs) as _:
+            # Direct attribute verification (avoiding .obj() due to deque serialization issue)
+            assert _.base_path      == '/api/v1'
+            assert _.add_admin_ui   is True
+            assert _.docs_offline   is False
+            assert _.enable_cors    is True
+            assert _.enable_api_key is True
+            assert _.default_routes is False
+            assert _.name           == 'Test API'
+            assert _.version        == 'v1.2.3'
+            assert _.description    == 'Test description'
+
+    # Exception handler tests
+
+    def test_add_global_exception_handlers(self):                                  # Test exception handler registration
+        with Fast_API() as _:
+            _.add_global_exception_handlers()
+            app = _.app()
+
+            # Verify handlers are registered
+            assert len(app.exception_handlers) >= 3                                # At least 3 handlers
+            assert Exception in app.exception_handlers
+            assert HTTPException in app.exception_handlers
+            assert RequestValidationError in app.exception_handlers
+
+
+    def test_global_exception_handler(self):                                 # Test generic exception handling
+        with Fast_API() as _:
+            _.add_global_exception_handlers()
+            app = _.app()
+
+            handler = app.exception_handlers[Exception]                         # Get the handler
+
+            error_message = "Test error!!"                                      # Create mock request and exception
+            mock_request = MagicMock(spec=Request)
+            test_exception = ValueError(error_message)
+
+            response = invoke_async(handler(mock_request, test_exception))      # Call handler
+
+            assert type(response) is JSONResponse
+            assert response.status_code           == 500
+            content = response.body.decode()
+            assert content == ('{"detail":"An unexpected error occurred.",'
+                                '"error":"'+ error_message +
+                                '","stack_trace":"NoneType: None\\n"}')
+
+
+    def test_http_exception_handler(self):                                   # Test HTTP exception handling
+        with Fast_API() as _:
+            _.add_global_exception_handlers()
+            app = _.app()
+
+            handler = app.exception_handlers[HTTPException]
+            mock_request = MagicMock(spec=Request)
+            http_exc = HTTPException(status_code=404, detail="Not found")
+
+            response = invoke_async(handler(mock_request, http_exc))
+
+            assert response.status_code == 404
+            assert b'"detail":"Not found"' in response.body
+
+    def test_validation_exception_handler(self):                             # Test validation exception handling
+        with Fast_API() as _:
+            _.add_global_exception_handlers()
+            app = _.app()
+
+            handler = app.exception_handlers[RequestValidationError]
+            mock_request = MagicMock(spec=Request)
+
+            # Create validation error
+            validation_exc = RequestValidationError([])
+            validation_exc.errors = lambda: [{"loc": ["body", "field"], "msg": "field required"}]
+
+            response = invoke_async(handler(mock_request, validation_exc))
+
+            assert response.status_code == 400
+            assert b'"detail"' in response.body
+
+    # Shell server tests
+
+    def test_add_shell_server(self):                                               # Test shell server route addition
+        with Fast_API() as _:
+            _.setup()
+            initial_routes = len(_.routes_paths())
+
+            _.add_shell_server()
+
+            # Verify route was added
+            assert len(_.routes_paths()) == initial_routes + 1
+            assert '/shell-server' in _.routes_paths()
+
+    # Route management tests
+
+    def test_add_route_get(self):                                                  # Test GET route addition
+        with Fast_API() as _:
+            def test_endpoint():
+                return {"message": "test"}
+
+            _.add_route_get(test_endpoint)
+
+            assert '/test-endpoint' in _.routes_paths()
+
+            # Test the route works
+            client = _.client()
+            response = client.get('/test-endpoint')
+            assert response.status_code == 200
+            assert response.json() == {"message": "test"}
+
+    def test_add_route_post(self):                                                 # Test POST route addition
+        with Fast_API() as _:
+            def submit_data(data: dict):
+                return {"received": data}
+
+            _.add_route_post(submit_data)
+
+            assert '/submit-data' in _.routes_paths()
+
+            # Test the route works
+            client = _.client()
+            test_data = {"key": "value"}
+            response = client.post('/submit-data', json=test_data)
+            assert response.status_code == 200
+            assert response.json() == {"received": test_data}
+
+    def test_add_route_with_custom_methods(self):                                  # Test custom HTTP methods
+        with Fast_API() as _:
+            def custom_endpoint():
+                return {"message": "custom"}
+
+            _.add_route(custom_endpoint, methods=['PUT', 'PATCH'])
+
+            client = _.client()
+
+            # Test PUT works
+            response = client.put('/custom-endpoint')
+            assert response.status_code == 200
+
+            # Test PATCH works
+            response = client.patch('/custom-endpoint')
+            assert response.status_code == 200
+
+            # Test GET doesn't work
+            response = client.get('/custom-endpoint')
+            assert response.status_code == 405                                     # Method not allowed
+
+    def test_add_routes_with_class(self):                                          # Test adding route class
+        from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
+
+        class Test_Routes(Fast_API__Routes):
+            tag = 'test'
+
+            def test_method(self):
+                return {"result": "test"}
+
+            def setup_routes(self):
+                self.add_route_get(self.test_method)
+
+        with Fast_API() as _:
+            _.add_routes(Test_Routes)
+
+            assert '/test/test-method' in _.routes_paths()
+
+    # App configuration tests
+
+    def test_app_kwargs_with_defaults(self):                                       # Test default app kwargs
+        with Fast_API() as _:
+            kwargs = _.app_kwargs()
+
+            assert kwargs['docs_url']  is None                                     # Disabled for custom docs
+            assert kwargs['redoc_url'] is None                                     # Disabled for custom docs
+            assert kwargs['title']      == 'Fast_API'
+            assert kwargs['version']    == version__osbot_fast_api
+            assert 'description' not in kwargs                                     # Not set when None
+
+    def test_app_kwargs_with_custom_values(self):                                  # Test custom app kwargs
+        with Fast_API(name="Custom", version="v2.0.0", description="Test") as _:
+            kwargs = _.app_kwargs()
+
+            assert kwargs['title']       == 'Custom'
+            assert kwargs['version']     == 'v2.0.0'
+            assert kwargs['description'] == 'Test'
+
+    def test_app_kwargs_with_default_routes_false(self):                           # Test with default routes disabled
+        with Fast_API(default_routes=False) as _:
+            kwargs = _.app_kwargs()
+
+            assert 'docs_url' not in kwargs                                        # Not overridden
+            assert 'redoc_url' not in kwargs                                       # Not overridden
+
+    def test_app_router(self):                                                     # Test router access
+        with Fast_API() as _:
+            router = _.app_router()
+            app = _.app()
+
+            assert router is app.router                                            # Same object
+
+    def test_open_api_json(self):                                                  # Test OpenAPI JSON generation
+        with Fast_API() as _:
+            _.setup()
+            openapi = _.open_api_json()
+
+            assert type(openapi) is dict
+            assert openapi['openapi'] == '3.1.0'
+            assert openapi['info']['title'] == 'Fast_API'
+            assert openapi['info']['version'] == version__osbot_fast_api
+
+    # Mounting tests
+
+    def test_mount_on_parent_app(self):                                            # Test mounting on parent app
+        parent = Fast_API(name="Parent").setup()
+        child = Fast_API(name="Child", base_path="/child").setup()
+
+        child.mount(parent.app())
+
+        parent_client = parent.client()                                             # Verify child routes accessible via parent
+        response = parent_client.get('/child/docs', follow_redirects=False)
+        assert response.status_code == 200
+
+    def test_mount_fast_api_class(self):                                            # Test mounting another Fast_API class
+        with Fast_API(name="Main") as main:
+            main.setup()
+
+            class Child_API(Fast_API):                                              # Create child class
+                def setup_routes(self):
+                    def child_route():
+                        return {"source": "child"}
+                    self.add_route_get(child_route)
+                    return self
+
+            main.mount_fast_api(Child_API, base_path="/api/child")
+
+            client   = main.client()                                                # Test child route accessible
+            response = client.get('/api/child/child-route')
+            assert response.status_code == 200
+            assert response.json() == {"source": "child"}
+
+    # Setup methods tests
+
+    def test_setup_chain(self):                                                    # Test full setup chain
+        with Fast_API() as _:
+            result = _.setup()
+
+            assert result is _                                                     # Returns self for chaining
+
+            # Verify all setup methods were called
+            assert len(_.routes_paths()) > 0                                       # Routes added
+            assert _.user_middlewares() != []                                      # Middlewares added
+
+    def test_setup_with_admin_ui(self):                                            # Test admin UI setup
+        with Fast_API(add_admin_ui=True) as _:
+            _.admin_config = Admin_UI__Config()                                    # Set config
+            _.setup()
+
+            # Admin UI should be mounted
+            assert '/admin/admin-config/api/routes' in _.routes_paths(expand_mounts=True)
+
+    def test_setup_static_routes_with_path(self):                                  # Test static route setup
+        with Fast_API() as _:
+            _.path_static_folder = lambda: parent_folder(__file__)                  # Override to provide static path
+            _.setup_static_routes()
+
+            # Check static mount exists
+            mounts = [route for route in _.app().routes if hasattr(route, 'path') and route.path == '/static']
+            assert len(mounts) == 1
+
+    def test_setup_without_default_routes(self):                                    # Test setup without default routes
+        with Fast_API(default_routes=False) as _:
+            _.setup()
+
+            assert '/'       not in _.routes_paths()                                # Should not have default routes
+            assert '/docs'   not in _.routes_paths()
+            assert '/config' not in _.routes_paths()
+
+    # Middleware tests
+
+    def test_setup_middleware_cors_enabled(self):                                   # Test CORS middleware
+        with Fast_API(enable_cors=True) as _:
+            _.setup_middleware__cors()
+
+            # Make request to verify CORS headers
+            client = _.client()
+            response = client.options('/', headers={'Origin': 'http://example.com'})
+
+            assert 'access-control-allow-origin' in response.headers
+            assert response.headers['access-control-allow-origin'] == '*'
+
+    def test_setup_middleware_api_key_enabled(self):                               # Test API key middleware
+        temp_env_vars = { ENV_VAR__FAST_API__AUTH__API_KEY__NAME  : 'X-API-Key',
+                          ENV_VAR__FAST_API__AUTH__API_KEY__VALUE : 'test-key-123'}
+        with Temp_Env_Vars(env_vars=temp_env_vars):
+            with Fast_API(enable_api_key=True).setup() as _:
+                client                 = _.client()
+                path_that_doesnt_exist = '/config'
+                path_that_exists       = '/config/info'
+                headers                = {'X-API-Key': 'test-key-123'}                          # Request with auth headers should succeed
+
+                assert client.get(path_that_doesnt_exist).status_code == 401                    # Request without key should fail
+                assert client.get(path_that_exists      ).status_code == 401                    # we get 401 on both cases
+
+
+                assert client.get(path_that_doesnt_exist, headers=headers).status_code == 404   # get 404, if path doesn't exist
+                assert client.get(path_that_exists      , headers=headers).status_code == 200   # get 200, if path exists
+
+    def test_setup_middleware_detect_disconnect(self):                             # Test disconnect detection middleware
+        with Fast_API() as _:
+            _.setup_middleware__detect_disconnect()
+
+            middlewares = _.user_middlewares()
+            middleware_types = [m['type'] for m in middlewares]
+
+            assert 'Middleware__Detect_Disconnect' in middleware_types
+
+    def test_setup_middleware_http_events(self):                                   # Test HTTP events middleware
+        with Fast_API() as _:
+            _.setup_middleware__http_events()
+
+            middlewares = _.user_middlewares()
+            http_middleware = [m for m in middlewares if m['type'] == 'Middleware__Http_Request']
+
+            assert len(http_middleware) == 1
+            assert http_middleware[0]['params']['http_events'] == _.http_events
+
+    # Route removal tests
+
+    def test_route_remove_existing(self):                                          # Test removing existing route
+        with Fast_API() as _:
+            def test_route():
+                return {}
+
+            _.add_route_get(test_route)
+            assert '/test-route' in _.routes_paths()
+
+            # Remove route
+            result = _.route_remove('/test-route')
+            assert result is True
+            assert '/test-route' not in _.routes_paths()
+
+    def test_route_remove_nonexistent(self):                                       # Test removing nonexistent route
+        with Fast_API() as _:
+            result = _.route_remove('/nonexistent')
+            assert result is False
+
+    # Utility method tests
+
+    def test_routes_methods_unique(self):                                          # Test unique route methods
+        with Fast_API() as _:
+            _.setup()
+
+            def custom_get():
+                return {}
+
+            def custom_post():
+                return {}
+
+            _.add_route_get(custom_get)
+            _.add_route_post(custom_post)
+
+            methods = _.routes_methods()
+            assert 'custom_get' in methods
+            assert 'custom_post' in methods
+            # Should be unique (no duplicates)
+            assert len(methods) == len(set(methods))
+
+    def test_routes_paths_all(self):                                               # Test all routes paths
+        with Fast_API() as _:
+            _.setup()
+
+            all_paths = _.routes_paths_all()
+
+            # Should include defaults and expanded mounts
+            assert type(all_paths) is list
+            assert len(all_paths) > 0
+
+    def test_user_middlewares_with_params(self):                                   # Test middleware listing with params
+        with Fast_API() as _:
+            _.setup()
+
+            middlewares = _.user_middlewares(include_params=True)
+
+            for middleware in middlewares:
+                assert 'type' in middleware
+                assert 'function_name' in middleware
+                assert 'params' in middleware
+
+    def test_user_middlewares_without_params(self):                                # Test middleware listing without params
+        with Fast_API() as _:
+            _.setup()
+
+            middlewares = _.user_middlewares(include_params=False)
+
+            for middleware in middlewares:
+                assert 'type'               in middleware
+                assert 'function_name'      in middleware
+                assert 'params'         not in middleware
+
+    def test_version__fast_api_server(self):                                       # Test version method
+        with Fast_API() as _:
+            version = _.version__fast_api_server()
+
+            assert type(version) is str
+            assert version == version__osbot_fast_api
+
+    # Edge cases and error scenarios
+
+    def test_invalid_version_format(self):                                         # Test invalid version validation
+        error_message = 'in Safe_Str__Version, value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$'
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            Fast_API(version="not-version")
+
+    def test_special_characters_in_name(self):                                     # Test name sanitization
+        with Fast_API(name="Test@API#2024!") as _:
+            assert _.name == "Test_API_2024_"                                      # Special chars replaced
+
+    def test_special_characters_in_description(self):                              # Test description sanitization
+        with Fast_API(description="API with @#$ special chars!") as _:
+            assert _.description == "API with ___ special chars_"                  # Sanitized
+
+    def test_base_path_sanitization(self):                                         # Test base path validation
+        with Fast_API(base_path="/api/v1/") as _:
+            assert _.base_path == "/api/v1"                                       # Preserved
+
+    def test_from_json_deserialization(self):                                      # Test Type_Safe deserialization
+        json_data = {
+            'name': 'RestoredAPI',
+            'version': 'v2.0.0',
+            'enable_cors': True,
+            'enable_api_key': True
+        }
+
+        restored = Fast_API.from_json(json_data)
+
+        assert type(restored) is Fast_API
+        assert restored.name == 'RestoredAPI'
+        assert restored.version == 'v2.0.0'
+        assert restored.enable_cors is True
+        assert restored.enable_api_key is True
+
+    # Integration tests
+
+    def test_full_lifecycle(self):                                                 # Test complete API lifecycle
+        with Fast_API(name="FullTest") as api:
+            # Setup
+            api.setup()
+
+            # Add custom route
+            def health_check():
+                return {"status": "healthy"}
+            api.add_route_get(health_check)
+
+            # Test client
+            client = api.client()
+
+            # Test default redirect
+            response = client.get('/', follow_redirects=False)
+            assert response.status_code == 307
+
+            # Test custom route
+            response = client.get('/health-check')
+            assert response.status_code == 200
+            assert response.json() == {"status": "healthy"}
+
+            # Test config endpoint
+            response = client.get('/config/info')
+            assert response.status_code == 200
+
+            # Remove route
+            assert api.route_remove('/health-check') is True
+
+            # Verify removal
+            response = client.get('/health-check')
+            assert response.status_code == 404
+
+    def test_multiple_fast_api_instances(self):                                    # Test multiple instances don't interfere
+        api1 = Fast_API(name="API1").setup()
+        api2 = Fast_API(name="API2").setup()
+
+        # Each should have its own state
+        assert api1.name != api2.name
+        assert api1.server_id != api2.server_id
+        assert api1.app() is not api2.app()
+
+        # Add route to api1 only
+        def api1_route():
+            return {"api": "1"}
+        api1.add_route_get(api1_route)
+
+        # Should only exist in api1
+        assert '/api1-route' in api1.routes_paths()
+        assert '/api1-route' not in api2.routes_paths()
