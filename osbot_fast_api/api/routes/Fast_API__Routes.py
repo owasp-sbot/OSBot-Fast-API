@@ -106,8 +106,8 @@ class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes
                     result = function(**converted_kwargs)                                                       # Call original function
                 except HTTPException:
                     raise                                                                                       # Re-raise HTTPException unchanged
-                except RequestValidationError:
-                    raise                                                                                       # also re-raise RequestValidationError
+                # except RequestValidationError:
+                #     raise                                                                                       # also re-raise RequestValidationError
                 except Exception as e:
                     raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")                     # Convert exceptions to HTTP 400
 
