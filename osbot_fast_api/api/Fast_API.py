@@ -38,6 +38,8 @@ class Fast_API(Type_Safe):
             self.name                  = self.__class__.__name__
         self.http_events.fast_api_name = self.name
 
+    # todo: improve the error handling of validation errors (namley from Type_Safe_Primitive)
+    #       see code example in https://claude.ai/chat/f443e322-fa43-487f-9dd9-2d4cfb261b1e
     def add_global_exception_handlers(self):
         import traceback
         from fastapi                import Request, HTTPException
