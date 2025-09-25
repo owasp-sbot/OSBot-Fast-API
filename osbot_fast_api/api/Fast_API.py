@@ -4,6 +4,7 @@ from osbot_utils.decorators.methods.cache_on_self                               
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version import Safe_Str__Version
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
+from osbot_utils.utils.Json                                                     import json_loads, json_dumps
 from starlette.staticfiles                                                      import StaticFiles
 from osbot_fast_api.admin_ui.api.Admin_UI__Config                               import Admin_UI__Config
 from osbot_fast_api.api.Fast_API__Offline_Docs                                  import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, URL__STATIC__DOCS, NAME__STATIC__DOCS
@@ -58,7 +59,8 @@ class Fast_API(Type_Safe):
 
         @app.exception_handler(RequestValidationError)
         async def validation_exception_handler(request: Request, exc: RequestValidationError):
-            return JSONResponse( status_code=400, content={"detail": exc.errors()} )
+            errors_dict = json_loads(json_dumps(exc.errors(), pretty=False))                        # need this round trip to handle the case when exception has non json parseable content (like bytes)
+            return JSONResponse( status_code=400, content={"detail": errors_dict })
 
 
     def add_flask_app(self, path, flask_app):
