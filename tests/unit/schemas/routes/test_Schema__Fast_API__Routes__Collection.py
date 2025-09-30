@@ -1,12 +1,12 @@
-from unittest                                                                     import TestCase
-from osbot_utils.testing.__                                                         import __, __SKIP__
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
-from osbot_utils.utils.Objects                                                      import base_classes
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Route                          import Schema__Fast_API__Route
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Routes__Collection             import Schema__Fast_API__Routes__Collection
-from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method                import Enum__Http__Method
-from osbot_fast_api.schemas.routes.enums.Enum__Route__Type                          import Enum__Route__Type
+from unittest                                                              import TestCase
+from osbot_utils.testing.__                                                import __
+from osbot_utils.type_safe.Type_Safe                                       import Type_Safe
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List      import Type_Safe__List
+from osbot_utils.utils.Objects                                             import base_classes
+from osbot_fast_api.schemas.routes.Schema__Fast_API__Route                 import Schema__Fast_API__Route
+from osbot_fast_api.schemas.routes.Schema__Fast_API__Routes__Collection    import Schema__Fast_API__Routes__Collection
+from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method       import Enum__Http__Method
+from osbot_fast_api.schemas.routes.enums.Enum__Route__Type                 import Enum__Route__Type
 
 
 class test_Schema__Fast_API__Routes__Collection(TestCase):

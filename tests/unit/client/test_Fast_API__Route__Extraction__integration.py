@@ -1,25 +1,17 @@
 import time
-from typing import List
-
-import pytest
+from typing                                                                      import List
 from unittest                                                                    import TestCase
 from fastapi                                                                     import FastAPI, APIRouter
-from osbot_utils.utils.Dev import pprint
-
-from osbot_utils.testing.__ import __
-
-from osbot_utils.type_safe.Type_Safe import Type_Safe
-
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
-
+from osbot_utils.testing.__                                                      import __
+from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id  import Safe_Str__Id
 from osbot_fast_api.api.Fast_API                                                 import Fast_API
-from osbot_fast_api.api.decorators.route_path import route_path
+from osbot_fast_api.api.decorators.route_path                                    import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                  import Fast_API__Routes
-from osbot_fast_api.client.Fast_API__Route__Extractor import Fast_API__Route__Extractor
+from osbot_fast_api.client.Fast_API__Route__Extractor                            import Fast_API__Route__Extractor
 from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method             import Enum__Http__Method
 from osbot_fast_api.schemas.routes.Schema__Fast_API__Routes__Collection          import Schema__Fast_API__Routes__Collection
 from osbot_fast_api.schemas.routes.enums.Enum__Route__Type                       import Enum__Route__Type
-
 
 
 class test_Fast_API__Route__Extraction__integration(TestCase):          # Integration tests for complete route extraction workflow
