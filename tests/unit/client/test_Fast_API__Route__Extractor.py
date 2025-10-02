@@ -1,10 +1,14 @@
+import pytest
 from unittest                                                                    import TestCase
 from fastapi                                                                     import FastAPI, APIRouter
+from fastapi.routing                                                             import APIWebSocketRoute
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id  import Safe_Str__Id
+from osbot_utils.testing.__                                                      import __
 from osbot_fast_api.client.Fast_API__Route__Extractor                            import Fast_API__Route__Extractor
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from osbot_utils.utils.Objects                                                   import base_classes
 from starlette.middleware.wsgi                                                   import WSGIMiddleware
-from starlette.routing                                                           import Mount
+from starlette.routing                                                           import Mount, Route
 from starlette.staticfiles                                                       import StaticFiles
 from osbot_fast_api.api.Fast_API                                                 import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes                                  import Fast_API__Routes
@@ -107,30 +111,49 @@ class test_Fast_API__Route__Extractor(TestCase):
 
     def test__create_api_route(self):                                               # Test API route creation
         with Fast_API__Route__Extractor(app=self.app) as _:
-            # Mock a route object
-            class MockRoute:
-                path    = "/test"
-                name    = "test_endpoint"
-                methods = {"GET", "POST"}
+            def an_endpoint():
+                pass
+            route = Route(path     = "/test"         ,
+                          name     = 'route_name'    ,
+                          endpoint = an_endpoint     ,
+                          methods  = {"GET", "POST"} )
+            route = _.create_api_route(route, Safe_Str__Fast_API__Route__Prefix('/api'))
 
-            route = _._create_api_route(MockRoute(), Safe_Str__Fast_API__Route__Prefix('/api'))
-
-            assert type(route) is Schema__Fast_API__Route
-            assert route.http_path    == '/api'
-            assert route.method_name  == 'test_endpoint'
-            assert route.route_type   == Enum__Route__Type.API_ROUTE
-            assert Enum__Http__Method.GET in route.http_methods
-            assert Enum__Http__Method.POST in route.http_methods
+            assert route.obj() == __(is_default   = False                            ,
+                                     is_mount     = False                            ,
+                                     method_name  = 'route_name'                     ,
+                                     route_type   = 'api_route'                      ,
+                                     route_class  = 'test_Fast_API__Route__Extractor',
+                                     route_tags   = None                             ,
+                                     http_path    = '/api'                           ,
+                                     http_methods = [ Enum__Http__Method.GET         ,
+                                                      Enum__Http__Method.HEAD        ,
+                                                      Enum__Http__Method.POST        ])
+            assert type(route)              is Schema__Fast_API__Route
+            assert route.http_path          == '/api'
+            assert route.method_name        == 'route_name'
+            assert route.route_type         == Enum__Route__Type.API_ROUTE
+            assert Enum__Http__Method.GET   in route.http_methods
+            assert Enum__Http__Method.POST  in route.http_methods
 
     def test__create_websocket_route(self):                                         # Test WebSocket route creation
         with Fast_API__Route__Extractor(app=self.app) as _:
-            # Mock a WebSocket route
-            class MockWSRoute:
-                path = "/ws/chat"
-                name = "chat_handler"
+            # Simulate a WebSocket route
+            def ws_endpoint():
+                pass
+            route = APIWebSocketRoute(path     = "/ws/chat"     ,
+                                      endpoint = ws_endpoint    ,
+                                      name     = "chat_handler" )
 
-            route = _._create_websocket_route(MockWSRoute(), Safe_Str__Fast_API__Route__Prefix('/ws/chat'))
-
+            route = _.create_websocket_route(route, Safe_Str__Fast_API__Route__Prefix('/ws/chat'))
+            assert route.obj() == __(is_default     = False         ,
+                                     is_mount       = False         ,
+                                     method_name    = 'chat_handler',
+                                     route_type     = 'websocket'   ,
+                                     route_class    = None          ,
+                                     route_tags     = None          ,
+                                     http_path      = '/ws/chat'    ,
+                                     http_methods   =   []          )
             assert type(route) is Schema__Fast_API__Route
             assert route.http_path    == '/ws/chat'
             assert route.method_name  == 'chat_handler'
@@ -138,12 +161,20 @@ class test_Fast_API__Route__Extractor(TestCase):
             assert route.http_methods == []                                         # WebSockets don't have HTTP methods
 
     def test__extract_mount_routes_static(self):                                    # Test static files mount extraction
-        with Fast_API__Route__Extractor(app=self.app) as _:
-            # Create a static mount
+        with Fast_API__Route__Extractor(app=self.app) as _: # Create a static mount
             static_app = StaticFiles(directory=".")
             mount = Mount("/static", app=static_app)
 
-            routes = _._extract_mount_routes(mount, Safe_Str__Fast_API__Route__Prefix('/static'))
+            routes = _.extract_mount_routes(mount, Safe_Str__Fast_API__Route__Prefix('/static'))
+            assert routes.obj() == [__( is_default   = False         ,
+                                        is_mount     = True          ,
+                                        method_name  = 'static_files',
+                                        route_type   = 'static'      ,
+                                        route_class  = None          ,
+                                        route_tags   = None          ,
+                                        http_path    ='/static'      ,
+                                        http_methods = [Enum__Http__Method.GET,
+                                                       Enum__Http__Method.HEAD])]
 
             assert len(routes) == 1
             route = routes[0]
@@ -163,7 +194,15 @@ class test_Fast_API__Route__Extractor(TestCase):
             wsgi_middleware = WSGIMiddleware(wsgi_app)
             mount = Mount("/legacy", app=wsgi_middleware)
 
-            routes = _._extract_mount_routes(mount, Safe_Str__Fast_API__Route__Prefix('/legacy'))
+            routes = _.extract_mount_routes(mount, Safe_Str__Fast_API__Route__Prefix('/legacy'))
+            assert routes.obj() == [__( is_default   = False     ,
+                                        is_mount     = True      ,
+                                        method_name  = 'wsgi_app',
+                                        route_type   = 'wsgi'    ,
+                                        route_class  = None      ,
+                                        route_tags   = None      ,
+                                        http_path    ='/legacy'  ,
+                                        http_methods = []        )]
 
             assert len(routes) == 1
             route = routes[0]
@@ -205,13 +244,13 @@ class test_Fast_API__Route__Extractor(TestCase):
     def test__is_default_route(self):                                               # Test default route detection
         with Fast_API__Route__Extractor(app=self.app) as _:
             # These should be identified as default routes
-            assert _._is_default_route('/docs')        is True
-            assert _._is_default_route('/redoc')       is True
-            assert _._is_default_route('/openapi.json') is True
+            assert _.is_default_route('/docs') is True
+            assert _.is_default_route('/redoc') is True
+            assert _.is_default_route('/openapi.json') is True
 
             # These should NOT be default routes
-            assert _._is_default_route('/api/users')   is False
-            assert _._is_default_route('/custom')      is False
+            assert _.is_default_route('/api/users') is False
+            assert _.is_default_route('/custom') is False
 
     def test__extract_route_class(self):                                            # Test Routes__* class extraction
         with Fast_API__Route__Extractor(app=self.app) as _:
@@ -260,7 +299,8 @@ class test_Fast_API__Route__Extractor(TestCase):
         with Fast_API__Route__Extractor(app=main_app, expand_mounts=True) as _:
             collection = _.extract_routes()
             paths = [str(r.http_path) for r in collection.routes]
-            # Would contain expanded routes if the mount has a router attribute
+            assert paths == ['/sub/nested']
+
 
     def test_complex_app_extraction(self):                                          # Test with Fast_API class
         with Fast_API(name="Complex API") as fast_api:
@@ -287,53 +327,58 @@ class test_Fast_API__Route__Extractor(TestCase):
                 test_routes = [r for r in collection.routes
                               if str(r.http_path).startswith('/test')]
 
-                assert len(test_routes) >= 1
+                assert len(test_routes) == 2
 
                 # Check route class extraction
-                routes_with_class = [r for r in collection.routes
+                routes_with_class = [(r.route_class, r.method_name) for r in collection.routes
                                     if r.route_class and str(r.route_class).startswith('Routes__')]
                 assert len(routes_with_class) > 0
+                assert routes_with_class == [(Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('info'           )),
+                                             (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('status'         )),
+                                             (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('version'        )),
+                                             (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('routes__json'   )),
+                                             (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('routes__html'   )),
+                                             (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('openapi_python' )),
+                                             (Safe_Str__Id('Routes__Set_Cookie'), Safe_Str__Id('set_cookie_form')),
+                                             (Safe_Str__Id('Routes__Set_Cookie'), Safe_Str__Id('set_auth_cookie')),
+                                             (Safe_Str__Id('Routes__Test'      ), Safe_Str__Id('test_method'    )),
+                                             (Safe_Str__Id('Routes__Test'      ), Safe_Str__Id('test_method'    ))]
+
 
     def test_http_method_sorting(self):                                             # Test that HTTP methods are sorted
         with Fast_API__Route__Extractor(app=self.app) as _:
-            # Mock a route with unsorted methods
-            class MockRoute:
-                path    = "/test"
-                name    = "test"
-                methods = {"POST", "GET", "DELETE", "PUT"}
+            test_route = Route(path     = "/test"                         ,         # route with unsorted methods
+                               name     = "test"                          ,
+                               endpoint = None                           ,
+                               methods  = {"POST", "GET", "DELETE", "PUT"})
 
-            route = _._create_api_route(MockRoute(), Safe_Str__Fast_API__Route__Prefix('/test'))
+            route = _.create_api_route(test_route, Safe_Str__Fast_API__Route__Prefix('/test'))
 
-            # Methods should be sorted
-            method_strings = [str(m) for m in route.http_methods]
-            assert method_strings == sorted(method_strings)
+            method_strings = [m for m in route.http_methods]                               # Methods should be sorted
+            assert method_strings == sorted(method_strings) == ["DELETE", "GET", "HEAD", "POST", "PUT"]
 
-    def test_unknown_http_methods(self):                                            # Test handling of unknown HTTP methods
+    def test_unknown_http_methods(self):                                                    # Test handling of unknown HTTP methods
         with Fast_API__Route__Extractor(app=self.app) as _:
-            # Mock a route with unknown method
-            class MockRoute:
-                path    = "/test"
-                name    = "test"
-                methods = {"GET", "UNKNOWN_METHOD", "POST"}
 
-            route = _._create_api_route(MockRoute(), Safe_Str__Fast_API__Route__Prefix('/test'))
+            test_route = Route(path     = "/test"                          ,                # route with unknown method
+                               name     = "test"                           ,
+                               endpoint = None                            ,
+                               methods  = {"GET", "UNKNOWN_METHOD", "POST"})
 
-            # Unknown methods should be skipped
-            assert Enum__Http__Method.GET in route.http_methods
-            assert Enum__Http__Method.POST in route.http_methods
-            assert len(route.http_methods) == 2                                     # UNKNOWN_METHOD excluded
+            expected_error = "'UNKNOWN_METHOD' is not a valid Enum__Http__Method"
+            with pytest.raises(Exception, match=expected_error):
+                _.create_api_route(test_route, Safe_Str__Fast_API__Route__Prefix('/test'))  # will fail here
 
     def test_route_without_name(self):                                              # Test handling routes without names
         with Fast_API__Route__Extractor(app=self.app) as _:
-            # Mock a route without name
-            class MockRoute:
-                path    = "/test"
-                name    = None
-                methods = {"GET"}
+            test_route = Route(path     = "/test"  ,                                # route without name
+                               name     = None     ,
+                               endpoint = None    ,
+                               methods  = {"POST"})
 
-            route = _._create_api_route(MockRoute(), Safe_Str__Fast_API__Route__Prefix('/test'))
+            route = _.create_api_route(test_route, Safe_Str__Fast_API__Route__Prefix('/test'))
 
-            assert route.method_name == 'unnamed'                                   # Default name applied
+            assert route.method_name == 'NoneType'                                  # this is actually the FastAPI behaviour since with both none in name and endpoint, the name value will be 'NoneType'
 
     def test_generic_mount(self):                                                   # Test generic mount (not static/WSGI)
         with Fast_API__Route__Extractor(app=self.app) as _:
@@ -343,7 +388,7 @@ class test_Fast_API__Route__Extractor(TestCase):
 
             mount = Mount("/generic", app=GenericApp())
 
-            routes = _._extract_mount_routes(mount, Safe_Str__Fast_API__Route__Prefix('/generic'))
+            routes = _.extract_mount_routes(mount, Safe_Str__Fast_API__Route__Prefix('/generic'))
 
             assert len(routes) == 1
             route = routes[0]

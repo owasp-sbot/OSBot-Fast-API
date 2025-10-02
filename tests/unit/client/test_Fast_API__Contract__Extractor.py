@@ -1,15 +1,17 @@
-from unittest                                                   import TestCase
-from fastapi                                                    import HTTPException
-
-from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method import Enum__Http__Method
-from osbot_utils.testing.__                                     import __, __SKIP__
-from osbot_utils.utils.Objects                                  import base_classes
-from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_fast_api.api.Fast_API                                import Fast_API
-from osbot_fast_api.client.Fast_API__Contract__Extractor        import Fast_API__Contract__Extractor
-from osbot_fast_api.client.schemas.Schema__Endpoint__Contract   import Schema__Endpoint__Contract
-from osbot_fast_api.client.schemas.Schema__Service__Contract    import Schema__Service__Contract
-from osbot_fast_api.client.testing.Test__Fast_API__With_Routes  import Test__Fast_API__With_Routes
+from unittest                                                                   import TestCase
+from fastapi                                                                    import HTTPException
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                      import Safe_Str__Fast_API__Route__Tag
+from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method            import Enum__Http__Method
+from osbot_fast_api.schemas.routes.Schema__Fast__API__Tag__Classes_And_Routes import Schema__Fast__API__Tag__Classes_And_Routes
+from osbot_fast_api.schemas.routes.Schema__Fast__API__Tags__Classes_And_Routes  import Schema__Fast__API__Tags__Classes_And_Routes
+from osbot_utils.testing.__                                                     import __, __SKIP__
+from osbot_utils.utils.Objects                                                  import base_classes
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_fast_api.api.Fast_API                                                import Fast_API
+from osbot_fast_api.client.Fast_API__Contract__Extractor                        import Fast_API__Contract__Extractor
+from osbot_fast_api.client.schemas.Schema__Endpoint__Contract                   import Schema__Endpoint__Contract
+from osbot_fast_api.client.schemas.Schema__Service__Contract                    import Schema__Service__Contract
+from osbot_fast_api.client.testing.Test__Fast_API__With_Routes                  import Test__Fast_API__With_Routes
 
 from osbot_utils.utils.Dev import pprint
 
@@ -33,7 +35,7 @@ class test_Fast_API__Contract__Extractor(TestCase):
     def test_extract_contract(self):                                                # Test contract extraction from Fast_API
         with self.extractor as _:
             contract = _.extract_contract()
-            contract.print()
+
             assert type(contract)             is Schema__Service__Contract
             #assert contract.obj()             == __()                               # todo: add this assert for the full schema (once we have completed it)
 
@@ -51,26 +53,25 @@ class test_Fast_API__Contract__Extractor(TestCase):
             assert type(contract_obj.modules)   is list
             assert type(contract_obj.endpoints) is list
 
+
+
+
+
     def test__organize_routes_by_module(self):                                      # Test route organization by module
         with self.extractor as _:
-            all_routes        = self.fast_api.routes(include_default=False, expand_mounts=False)
-            pprint(all_routes)
-
-            routes_by_module = _._organize_routes_by_module(all_routes)
-            pprint(routes_by_module)
-            return
-            assert type(routes_by_module) is dict
-            assert 'users' in routes_by_module                                      # Users module detected
-            assert 'products' in routes_by_module                                   # Products module detected
+            all_routes       = _.fast_api__all_routes()
+            routes_by_module = _.organize_routes__by_tag(all_routes)
+            assert type(routes_by_module) is Schema__Fast__API__Tags__Classes_And_Routes
+            assert 'users' in routes_by_module.by_tag                         # Users module detected
+            assert 'products' in routes_by_module.by_tag                      # Products module detected
 
             # Check users module structure
-            users_module = routes_by_module['users']
-            assert 'classes' in users_module
-            assert 'routes'  in users_module
-            assert 'Routes__Users' in users_module['classes']
-            pprint(users_module['routes'])
-            assert len(users_module['routes']) == 1             # BUG?
-            assert len(users_module['routes']) >= 2                                 # At least get and create
+            users_module = routes_by_module.by_tag['users']
+            assert type(users_module) is Schema__Fast__API__Tag__Classes_And_Routes
+            users_module.classes.print()
+            assert 'Routes__Users'    in users_module.classes
+
+            assert len(users_module.routes) == 2                                 # get and create
 
     def test__extract_module_name(self):                                            # Test module name extraction
         with self.extractor as _:
@@ -90,7 +91,7 @@ class test_Fast_API__Contract__Extractor(TestCase):
             for route_obj in self.fast_api.app().routes:
                 if hasattr(route_obj, 'endpoint'):
                     method_name = route_obj.endpoint.__name__
-                    route_class = _._extract_route_class(method_name)
+                    route_class = _.extract_route_class(method_name)
 
                     if 'get_user' in method_name:
                         assert route_class == 'Routes__Users'

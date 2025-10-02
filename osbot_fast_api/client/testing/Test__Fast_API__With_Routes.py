@@ -33,14 +33,12 @@ class Schema__Product(Type_Safe):
 class Routes__Users(Fast_API__Routes):                                              # Test route class - Users
     tag = 'users'
 
-    def get_user__user_id(self, user_id: int) -> Schema__User:
-        """Get user by ID"""
+    def get_user__user_id(self, user_id: int) -> Schema__User:                      # Get user by ID
         if user_id == 0:
             raise HTTPException(status_code=404, detail="User not found")
         return Schema__User(id=user_id, name="Test User", email="test@test.com")
 
-    def create_user(self, user: Schema__User) -> Schema__User:
-        """Create new user"""
+    def create_user(self, user: Schema__User) -> Schema__User:                      # Create new user
         return user
 
     def setup_routes(self):
@@ -51,16 +49,13 @@ class Routes__Users(Fast_API__Routes):                                          
 class Routes__Products(Fast_API__Routes):                                           # Test route class - Products
     tag = 'products'
 
-    def get_product__product_id(self, product_id: int) -> Schema__Product:
-        """Get product by ID"""
+    def get_product__product_id(self, product_id: int) -> Schema__Product:          # Get product by ID
         return Schema__Product(id=product_id, name="Test Product", price=99.99)
 
-    def list_products(self, limit: int = 10, offset: int = 0) -> list:
-        """List products with pagination"""
+    def list_products(self, limit: int = 10, offset: int = 0) -> list:              # List products with pagination
         return []
 
-    def update_product__product_id(self, product_id: int, product: Schema__Product) -> Schema__Product:
-        """Update product"""
+    def update_product__product_id(self, product_id: int, product: Schema__Product) -> Schema__Product: # Update product
         return product
 
     def setup_routes(self):

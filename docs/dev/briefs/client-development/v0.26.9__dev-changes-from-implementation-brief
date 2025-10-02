@@ -1,0 +1,23 @@
+Important mismatch between the FastAPI client implementation and the original schema design.
+
+## Changes Not Accounted for in Original Brief
+
+### 1. Multiple HTTP Methods per Endpoint
+- **Original assumption**: One method per endpoint
+- **Reality**: FastAPI routes can accept multiple HTTP methods
+- **Solution**: Generate separate client methods with HTTP verb prefixes (e.g., `get__list_users`, `post__list_users`)
+
+### 2. Multiple Tags per Route
+- **Original assumption**: Single tag per route (`route_tag: Safe_Str__Fast_API__Route__Tag`)
+- **Reality**: FastAPI supports multiple tags per route for organization/documentation
+- **Solution**: Change to `route_tags: List[Safe_Str__Fast_API__Route__Tag]`
+- **Impact areas**:
+  - Route extraction needs to capture all tags from FastAPI
+  - Contract extraction might need to handle tag-based organization differently
+  - Client generation may need to consider how to organize methods when routes have multiple tags
+
+### 3. Cascading Effects
+The tags change will likely affect:
+- `Fast_API__Route__Extractor._create_api_route()` - needs to extract all tags, not just first
+- Any code that assumes a single tag for grouping/organization
+- The module organization logic that might use tags for categorization

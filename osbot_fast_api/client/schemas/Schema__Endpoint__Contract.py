@@ -12,7 +12,7 @@ class Schema__Endpoint__Contract(Type_Safe):
 
     # Endpoint identity - what FastAPI tells us
     operation_id : Safe_Str__Id                                 # Unique operation identifier
-    method       : Enum__Http__Method                           # HTTP method
+    method       : Enum__Http__Method                           # Single HTTP method for this contract
     path_pattern : Safe_Str__Fast_API__Route__Prefix            # URL pattern with {params}
 
     # Route class mapping - how the service organizes code

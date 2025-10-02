@@ -1,20 +1,21 @@
+import re
 import inspect
-from typing                                                          import Dict, List, Any, Optional
-
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Route import Schema__Fast_API__Route
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-
-from osbot_fast_api.client.Fast_API__Route__Extractor import Fast_API__Route__Extractor
-from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method import Enum__Http__Method
-from osbot_utils.type_safe.Type_Safe                                 import Type_Safe
-from osbot_utils.helpers.ast                                         import Ast_Module
-from osbot_utils.helpers.ast.Ast_Visit                               import Ast_Visit
-from osbot_fast_api.api.Fast_API                                     import Fast_API
-from osbot_fast_api.client.schemas.Schema__Endpoint__Contract        import Schema__Endpoint__Contract
-from osbot_fast_api.client.schemas.Schema__Endpoint__Param           import Schema__Endpoint__Param
-from osbot_fast_api.client.schemas.Schema__Routes__Module            import Schema__Routes__Module
-from osbot_fast_api.client.schemas.Schema__Service__Contract         import Schema__Service__Contract
-from osbot_fast_api.client.schemas.enums.Enum__Param__Location       import Enum__Param__Location
+from typing                                                                     import List, Any, Optional
+from osbot_fast_api.schemas.routes.Schema__Fast_API__Route                      import Schema__Fast_API__Route
+from osbot_fast_api.schemas.routes.Schema__Fast__API__Tag__Classes_And_Routes   import Schema__Fast__API__Tag__Classes_And_Routes
+from osbot_fast_api.schemas.routes.Schema__Fast__API__Tags__Classes_And_Routes  import Schema__Fast__API__Tags__Classes_And_Routes
+from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
+from osbot_fast_api.client.Fast_API__Route__Extractor                           import Fast_API__Route__Extractor
+from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method            import Enum__Http__Method
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.helpers.ast                                                    import Ast_Module
+from osbot_utils.helpers.ast.Ast_Visit                                          import Ast_Visit
+from osbot_fast_api.api.Fast_API                                                import Fast_API
+from osbot_fast_api.client.schemas.Schema__Endpoint__Contract                   import Schema__Endpoint__Contract
+from osbot_fast_api.client.schemas.Schema__Endpoint__Param                      import Schema__Endpoint__Param
+from osbot_fast_api.client.schemas.Schema__Routes__Module                       import Schema__Routes__Module
+from osbot_fast_api.client.schemas.Schema__Service__Contract                    import Schema__Service__Contract
+from osbot_fast_api.client.schemas.enums.Enum__Param__Location                  import Enum__Param__Location
 
 
 class Fast_API__Contract__Extractor(Type_Safe):
@@ -25,138 +26,107 @@ class Fast_API__Contract__Extractor(Type_Safe):
         return Fast_API__Route__Extractor(app             = self.fast_api.app(),
                                           include_default = False              ,                    # todo: see if we need to have these values as configurable defaults
                                           expand_mounts   = False              )
-    def extract_contract(self) -> Schema__Service__Contract:                                        # Extract contract from Fast_API instance using routes + AST analysis
-                                                                                                    # Create base contract
+
+    def fast_api__all_routes(self) -> List[Schema__Fast_API__Route]:
+        return self.route_extractor().extract_routes().routes
+
+    def extract_contract(self) -> Schema__Service__Contract:
         contract = Schema__Service__Contract(service_name    = self.fast_api.name       ,
-                                             version          = self.fast_api.version   ,
-                                             base_path        = self.fast_api.base_path ,
-                                             service_version  = self.fast_api.version   )
-                                                                                               # Get all routes from FastAPI
-        #all_routes = self.fast_api.routes()
-        all_routes = self.route_extractor().extract_routes().routes
-                                                                                            # Organize routes by module/class
-        routes_by_module = self._organize_routes_by_module(all_routes)
-                                                                                            # Process each module
+                                             version         = self.fast_api.version    ,
+                                             base_path       = self.fast_api.base_path  ,
+                                             service_version = self.fast_api.version    )
+
+        all_routes       = self.fast_api__all_routes()
+        routes_by_module = self.organize_routes__by_tag(all_routes)
+
         for module_name, route_info in routes_by_module.items():
             module = Schema__Routes__Module(module_name   = module_name          ,
                                             route_classes = route_info['classes'],
                                             endpoints     = []                   )
-                                                                                        # Process each route in the module
-            for route_data in route_info['routes']:
-                endpoint = self._extract_endpoint_contract(route_data)
-                if endpoint:
-                    endpoint.route_module = module_name
-                    module.endpoints.append(endpoint)
-                    contract.endpoints.append(endpoint)
 
-            if module.endpoints:                                                   # Only add modules with endpoints
+            for route_data in route_info['routes']:                                 # Now returns a list of contracts
+                endpoint_contracts = self._extract_endpoint_contract(route_data)
+                for endpoint in endpoint_contracts:
+                    if endpoint:
+                        endpoint.route_module = module_name
+                        module.endpoints.append(endpoint)
+                        contract.endpoints.append(endpoint)
+
+            if module.endpoints:
                 contract.modules.append(module)
 
         return contract
 
-    def _organize_routes_by_module(self, routes: List[Schema__Fast_API__Route]                        # List of route dictionaries
-                                    ) -> Dict[str, Dict]:                          # Organize routes by module based on class names and paths
+    def organize_routes__by_tag(self, routes: List[Schema__Fast_API__Route]  # List of route dictionaries
+                                 ) -> Schema__Fast__API__Tags__Classes_And_Routes:      # Organize routes by tag based on class names and paths
 
-        routes_by_module = {}
-
+        routes_by_tag = Schema__Fast__API__Tags__Classes_And_Routes()
         for route in routes:
-            method_name = route.method_name
-            http_path   = route.http_path
-                                                                                    # Extract module from path or method name
-            module_name = self._extract_module_name(http_path, method_name)
-            route_class = self._extract_route_class(method_name)
+            route_tags  = route.route_tags or ['root']
+            for route_tag in route_tags:
+                route_class = route.route_class
 
-            if module_name not in routes_by_module:
-                routes_by_module[module_name] = {'classes': []    ,
-                                                'routes' : []    }
+                if route_tag in routes_by_tag.by_tag:
+                    classes_and_routes = routes_by_tag.by_tag[route_tag]
+                else:
+                    classes_and_routes = Schema__Fast__API__Tag__Classes_And_Routes()
+                    routes_by_tag.by_tag[route_tag] = classes_and_routes
 
-            if route_class and route_class not in routes_by_module[module_name]['classes']:
-                routes_by_module[module_name]['classes'].append(route_class)
+                with classes_and_routes as _:
+                    _.classes.add(route_class)
+                    _.routes.append(route)
 
-            routes_by_module[module_name]['routes'].append(route)
+        return routes_by_tag
 
-        return routes_by_module
 
-    def _extract_module_name(self, path        : str ,                             # HTTP path
-                                   method_name   : str                               # Method name
-                              ) -> str:                                               # Extract module name from path or method name
-                                                                                    # Try to extract from path first
-        if path and path != '/':
-            parts = path.strip('/').split('/')                                     # Common modules based on path
-            if parts[0] in ['admin', 'file', 'data', 'zip', 'config', 'auth']:
-                return parts[0]
-                                                                                    # Try to extract from method name if it follows Routes__Module__Operation pattern
-        if '__' in method_name:                                                    # Look for Routes__ pattern in the FastAPI app
-            for route_obj in self.fast_api.app().routes:
-                if hasattr(route_obj, 'endpoint'):
-                    if route_obj.endpoint.__name__ == method_name:
-                        qualname = route_obj.endpoint.__qualname__
-                        if 'Routes__' in qualname:                                 # Extract module from Routes__Module__Operation
-                            parts = qualname.split('.')
-                            for part in parts:
-                                if part.startswith('Routes__'):
-                                    module_parts = part.replace('Routes__', '').split('__')
-                                    if len(module_parts) > 0:
-                                        return module_parts[0].lower()
-
-        return 'root'                                                              # Default module for unclassified routes
-
-    def _extract_route_class(self, method_name: str                                # Method name to extract class from
-                           ) -> Optional[str]:                                     # Extract the Routes__* class name from method
-                                                                                    # Try to find the actual route class
-        for route_obj in self.fast_api.app().routes:
-            if hasattr(route_obj, 'endpoint'):
-                if route_obj.endpoint.__name__ == method_name:
-                    qualname = route_obj.endpoint.__qualname__
-                    if '.' in qualname:
-                        class_name = qualname.split('.')[0]
-                        if class_name.startswith('Routes__'):
-                            return class_name
-
-        return None
-
-    def _extract_endpoint_contract(self, route_data: Schema__Fast_API__Route                          # Route data dictionary
-                                 ) -> Optional[Schema__Endpoint__Contract]:       # Extract endpoint contract from route data
-
+    def _extract_endpoint_contract(self, route_data: Schema__Fast_API__Route
+                                    ) -> List[Schema__Endpoint__Contract]:          # Now returns a List
         method_name  = route_data.method_name
         http_path    = route_data.http_path
         http_methods = route_data.http_methods
 
         if not method_name or not http_path:
-            return None
-                                                                                    # Create base endpoint contract
-        endpoint = Schema__Endpoint__Contract(operation_id = method_name                                                                    ,
-                                              path_pattern = http_path                                                                     ,
-                                              method       = Enum__Http__Method(http_methods[0]) if http_methods else Enum__Http__Method.GET,
-                                              route_method = method_name)
-                                                                                    # Find the actual endpoint function
-        endpoint_func = None
-        for route_obj in self.fast_api.app().routes:
-            if hasattr(route_obj, 'endpoint'):
-                if route_obj.endpoint.__name__ == method_name:
-                    endpoint_func = route_obj.endpoint
-                                                                                    # Extract route class
-                    qualname = route_obj.endpoint.__qualname__
-                    if '.' in qualname:
-                        endpoint.route_class = qualname.split('.')[0]
-                                                                                    # Extract path parameters from route
-                    if hasattr(route_obj, 'path_regex'):                           # Extract {param} patterns
-                        import re
-                        param_pattern = r'\{(\w+)\}'
-                        path_params   = re.findall(param_pattern, http_path)
-                        for param_name in path_params:
-                            endpoint.path_params.append(Schema__Endpoint__Param(
-                                name       = param_name                        ,
-                                location   = Enum__Param__Location.PATH        ,
-                                param_type = 'str'                               # Default to str, will be enhanced
-                            ))
-                    break
-                                                                                    # Enhance with function signature analysis
-        if endpoint_func:
-            self._enhance_with_signature(endpoint, endpoint_func)                  # Try AST analysis for error codes
-            self._enhance_with_ast_analysis(endpoint, endpoint_func)
+            return []
 
-        return endpoint
+        contracts = []
+
+        for http_method in (http_methods or [Enum__Http__Method.GET]):                      # Create one contract per HTTP method
+            operation_id = f"{http_method.value.lower()}__{method_name}"                    # Create operation_id with HTTP method prefix
+
+            endpoint = Schema__Endpoint__Contract(operation_id = operation_id   ,
+                                                  path_pattern = http_path      ,
+                                                  method       = http_method    ,
+                                                  route_method = method_name    )
+
+            endpoint_func = None                                                            # Find the actual endpoint function (same for all methods)
+            for route_obj in self.fast_api.app().routes:
+                if hasattr(route_obj, 'endpoint'):
+                    if route_obj.endpoint.__name__ == method_name:
+                        endpoint_func = route_obj.endpoint
+
+                        qualname = route_obj.endpoint.__qualname__                          # Extract route class
+                        if '.' in qualname:
+                            endpoint.route_class = qualname.split('.')[0]
+
+                        if hasattr(route_obj, 'path_regex'):                                # Extract path parameters
+                            param_pattern = r'\{(\w+)\}'
+                            path_params   = re.findall(param_pattern, http_path)
+                            for param_name in path_params:
+                                endpoint.path_params.append(Schema__Endpoint__Param(
+                                    name       = param_name,
+                                    location   = Enum__Param__Location.PATH,
+                                    param_type = 'str'
+                                ))
+                        break
+
+            # Enhance with function signature analysis (same for all methods)
+            if endpoint_func:
+                self._enhance_with_signature(endpoint, endpoint_func)
+                self._enhance_with_ast_analysis(endpoint, endpoint_func)
+
+            contracts.append(endpoint)
+
+        return contracts
 
     def _enhance_with_signature(self, endpoint : Schema__Endpoint__Contract ,      # Endpoint to enhance
                                      func      : callable                           # Function to analyze
