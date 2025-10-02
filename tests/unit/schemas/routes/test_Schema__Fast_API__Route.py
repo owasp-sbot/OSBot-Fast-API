@@ -1,3 +1,4 @@
+from types                                                                          import NoneType
 from unittest                                                                       import TestCase
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
 from osbot_utils.testing.__                                                         import __
@@ -20,23 +21,23 @@ class test_Schema__Fast_API__Route(TestCase):
 
             # Verify all fields are initialized with correct types
             assert type(_.http_path)     is Safe_Str__Fast_API__Route__Prefix
-            assert type(_.method_name)   is Safe_Str__Id
+            assert type(_.method_name)   is NoneType
             assert type(_.http_methods)  is Type_Safe__List                        # Will be Type_Safe__List internally
             assert type(_.route_type)    is Enum__Route__Type
             assert type(_.route_class)   is type(None)                             # Nullable field
-            assert type(_.route_tag)     is type(None)                             # Nullable field
+            assert type(_.route_tags)    is NoneType
             assert type(_.is_default)    is bool
             assert type(_.is_mount)      is bool
 
             # Verify default values
-            assert _.obj() == __(http_path     = '/'         ,                     # Default Safe_Str__Fast_API__Route__Prefix (which makes sure it always starts with a '/')
-                                 method_name   = ''          ,                     # Empty Safe_Str__Id
-                                 http_methods  = []          ,                     # Empty list
+            assert _.obj() == __(is_default    = False       ,                     # Boolean default
+                                 is_mount      = False       ,
+                                 method_name   = None        ,
                                  route_type    = "api_route" ,                     # Default enum value
                                  route_class   = None        ,                     # Nullable, defaults to None
                                  route_tag     = None        ,                     # Nullable, defaults to None
-                                 is_default    = False       ,                     # Boolean default
-                                 is_mount      = False       )                     # Boolean default
+                                 http_path     = '/'         ,                     # Default Safe_Str__Fast_API__Route__Prefix (which makes sure it always starts with a '/')
+                                 http_methods  = []          )                     # Empty list
 
     def test__init__with_values(self):                                             # Test initialization with provided values
         http_path     = Safe_Str__Fast_API__Route__Prefix('/api/v1/users')
@@ -51,19 +52,19 @@ class test_Schema__Fast_API__Route(TestCase):
                                      http_methods  = http_methods ,
                                      route_type    = route_type   ,
                                      route_class   = route_class  ,
-                                     route_tag     = route_tag    ,
+                                     route_tags    = [route_tag]  ,
                                      is_default    = False        ,
                                      is_mount      = False        ) as _:
 
-            assert _.obj() == __(http_path     = '/api/v1/users',
-                                 method_name   = 'get_users',
-                                 http_methods  = [Enum__Http__Method.GET,
-                                                  Enum__Http__Method.HEAD],
+            assert _.obj() == __(http_path     = '/api/v1/users'            ,
+                                 method_name   = 'get_users'                ,
+                                 http_methods  = [Enum__Http__Method.GET    ,
+                                                  Enum__Http__Method.HEAD   ],
                                  route_type    = Enum__Route__Type.API_ROUTE,
-                                 route_class   = 'Routes__Users',
-                                 route_tag     = 'users',
-                                 is_default    = False,
-                                 is_mount      = False)
+                                 route_class   = 'Routes__Users'            ,
+                                 route_tags    = ['users']                  ,
+                                 is_default    = False                      ,
+                                 is_mount      = False                      )
 
 
 

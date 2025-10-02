@@ -1,4 +1,11 @@
 from typing                                                                     import List, Union
+
+from pydantic_core import PydanticUndefinedType, PydanticUndefined
+
+from osbot_utils.utils.Dev import pprint
+
+from osbot_fast_api.client.schemas.Schema__Endpoint__Param import Schema__Endpoint__Param
+from osbot_fast_api.client.schemas.enums.Enum__Param__Location import Enum__Param__Location
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
 from osbot_fast_api.schemas.consts__Fast_API                                    import FAST_API_DEFAULT_ROUTES_PATHS
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
@@ -61,16 +68,18 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
         http_methods = []                                                       # Convert methods to enum
         for method in sorted(route.methods):
             http_methods.append(Enum__Http__Method(method))
-        method_name = Safe_Str__Id(route.name)
-        route_class = self.extract_route_class(route)                           # Determine route class if from Routes__* pattern
+        method_name  = Safe_Str__Id(route.name)
+        route_class  = self.extract__route_class(route)                           # Determine route class if from Routes__* pattern
+        path_params = self.extract__path_params(route=route)
         if type(route_class) is APIRoute:                                       # only the APIRoute class has the
             route_tags = route.tags                                             #    .tags method
         else:
-            route_tags = None
+            route_tags  = None
         return Schema__Fast_API__Route(http_path    = path                            ,
                                        method_name  = method_name                     ,
                                        http_methods = http_methods                    ,
                                        route_type   = Enum__Route__Type.API_ROUTE     ,
+                                       path_params  = path_params                     ,
                                        route_tags   = route_tags                      ,
                                        route_class  = route_class                     ,
                                        is_default   = self.is_default_route(str(path)))
@@ -113,6 +122,16 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
         return routes
 
     @type_safe
+    def extract__path_params(self, route: APIRoute):
+        path_params = []
+        for param in route.dependant.path_params:
+            path_params.append(Schema__Endpoint__Param(name       = param.name                 ,
+                                                       location   = Enum__Param__Location.PATH ,
+                                                       param_type = param.type_                ,
+                                                       required   = param.required             ))
+        return path_params
+
+    @type_safe
     def create_websocket_route(self, route : APIWebSocketRoute                            ,          # WebSocket route
                                      path  : Safe_Str__Fast_API__Route__Prefix
                                 ) -> Schema__Fast_API__Route:                               # Returns route schema
@@ -138,7 +157,7 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
     def is_default_route(self, path: str) -> bool:                                              # Check if default route
         return path in FAST_API_DEFAULT_ROUTES_PATHS
 
-    def extract_route_class(self, route) -> Safe_Str__Id:                                       # Extract class name (in most cases it will be something like Routes__* )
+    def extract__route_class(self, route) -> Safe_Str__Id:                                       # Extract class name (in most cases it will be something like Routes__* )
         route_class = None
         if hasattr(route, 'endpoint'):
             if hasattr(route.endpoint, '__self__'):                                         # first try to get the class name (if inside a class)

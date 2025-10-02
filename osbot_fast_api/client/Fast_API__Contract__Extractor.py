@@ -39,13 +39,13 @@ class Fast_API__Contract__Extractor(Type_Safe):
         all_routes       = self.fast_api__all_routes()
         routes_by_module = self.organize_routes__by_tag(all_routes)
 
-        for module_name, route_info in routes_by_module.items():
-            module = Schema__Routes__Module(module_name   = module_name          ,
-                                            route_classes = route_info['classes'],
-                                            endpoints     = []                   )
+        for module_name, route_info in routes_by_module.by_tag.items():
+            module = Schema__Routes__Module(module_name   = module_name       ,
+                                            route_classes = route_info.classes,
+                                            endpoints     = []                )
 
-            for route_data in route_info['routes']:                                 # Now returns a list of contracts
-                endpoint_contracts = self._extract_endpoint_contract(route_data)
+            for route_data in route_info.routes:                                 # Now returns a list of contracts
+                endpoint_contracts = self.extract_endpoint_contract(route_data)
                 for endpoint in endpoint_contracts:
                     if endpoint:
                         endpoint.route_module = module_name
@@ -79,8 +79,8 @@ class Fast_API__Contract__Extractor(Type_Safe):
         return routes_by_tag
 
 
-    def _extract_endpoint_contract(self, route_data: Schema__Fast_API__Route
-                                    ) -> List[Schema__Endpoint__Contract]:          # Now returns a List
+    def extract_endpoint_contract(self, route_data: Schema__Fast_API__Route
+                                   ) -> List[Schema__Endpoint__Contract]:          # Now returns a List
         method_name  = route_data.method_name
         http_path    = route_data.http_path
         http_methods = route_data.http_methods
@@ -112,11 +112,9 @@ class Fast_API__Contract__Extractor(Type_Safe):
                             param_pattern = r'\{(\w+)\}'
                             path_params   = re.findall(param_pattern, http_path)
                             for param_name in path_params:
-                                endpoint.path_params.append(Schema__Endpoint__Param(
-                                    name       = param_name,
-                                    location   = Enum__Param__Location.PATH,
-                                    param_type = 'str'
-                                ))
+                                endpoint.path_params.append(Schema__Endpoint__Param(name       = param_name,
+                                                                                    location   = Enum__Param__Location.PATH,
+                                                                                    param_type = 'str'                     ))
                         break
 
             # Enhance with function signature analysis (same for all methods)

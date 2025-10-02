@@ -105,7 +105,7 @@ class test_Fast_API__Contract__Extractor(TestCase):
                           'http_path'   : '/users/{user_id}'   ,
                           'http_methods': ['GET']               }
 
-            endpoint = _._extract_endpoint_contract(route_data)
+            endpoint = _.extract_endpoint_contract(route_data)
 
             assert type(endpoint)          is Schema__Endpoint__Contract
             assert endpoint.operation_id   == 'get_user__user_id'

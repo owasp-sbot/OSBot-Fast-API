@@ -1,12 +1,12 @@
 import pytest
 from unittest                                                                    import TestCase
-from fastapi                                                                     import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Path
 from fastapi.routing                                                             import APIWebSocketRoute
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id  import Safe_Str__Id
 from osbot_utils.testing.__                                                      import __
 from osbot_fast_api.client.Fast_API__Route__Extractor                            import Fast_API__Route__Extractor
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
-from osbot_utils.utils.Objects                                                   import base_classes
+from osbot_utils.utils.Objects import base_classes, full_type_name
 from starlette.middleware.wsgi                                                   import WSGIMiddleware
 from starlette.routing                                                           import Mount, Route
 from starlette.staticfiles                                                       import StaticFiles
@@ -74,7 +74,6 @@ class test_Fast_API__Route__Extractor(TestCase):
     def test_extract_routes(self):                                                  # Test main extraction method
         with Fast_API__Route__Extractor(app=self.app) as _:
             collection = _.extract_routes()
-
             assert type(collection) is Schema__Fast_API__Routes__Collection
             assert collection.total_routes > 0
             assert collection.has_websockets is True                                # We added a WebSocket
@@ -82,12 +81,94 @@ class test_Fast_API__Route__Extractor(TestCase):
 
             # Check that routes were extracted
             paths = [str(r.http_path) for r in collection.routes]
-            assert '/users' in paths
-            assert '/users/{user_id}' in paths
-            assert '/ws' in paths
-            assert '/api/v1/items' in paths
-            assert '/api/v1/items/{item_id}' in paths
-            assert '/static' in paths
+
+            assert paths == ['/users'                   ,
+                             '/users'                   ,
+                             '/users/{user_id}'         ,
+                             '/ws'                      ,
+                             '/api/v1/items'            ,
+                             '/api/v1/items/{item_id}'  ,
+                             '/static'                  ]
+            assert collection.obj() == __( total_routes    = 7                                   ,
+                                           has_mounts      = True                                ,
+                                           has_websockets  = True                                ,
+                                           routes          = [__(is_default   = False                                  ,
+                                                                 is_mount     = False                                  ,
+                                                                 method_name  = 'get_users'                            ,
+                                                                 route_type   = 'api_route'                            ,
+                                                                 route_class  = 'test_Fast_API__Route__Extractor'      ,
+                                                                 route_tags   = None                                   ,
+                                                                 path_params  = []                                     ,
+                                                                 http_path    = '/users'                               ,
+                                                                 http_methods = [Enum__Http__Method.GET               ]),
+
+                                                                __(is_default   = False                                ,
+                                                                  is_mount     = False                                 ,
+                                                                  method_name  = 'create_user'                         ,
+                                                                  route_type   = 'api_route'                           ,
+                                                                  route_class  = 'test_Fast_API__Route__Extractor'     ,
+                                                                  route_tags   = None                                  ,
+                                                                  path_params  = []                                    ,
+                                                                  http_path    = '/users'                              ,
+                                                                  http_methods = [Enum__Http__Method.POST             ]),
+
+                                                                __(is_default   = False                                ,
+                                                                  is_mount     = False                                 ,
+                                                                  method_name  = 'get_user'                            ,
+                                                                  route_type   = 'api_route'                           ,
+                                                                  route_class  = 'test_Fast_API__Route__Extractor'     ,
+                                                                  route_tags   = None                                  ,
+                                                                  path_params  = [__( required    = True               ,
+                                                                                      name        = 'user_id'          ,
+                                                                                      location    = 'path'             ,
+                                                                                      param_type  = 'builtins.int'     )],
+                                                                  http_path    = '/users/{user_id}'                    ,
+                                                                  http_methods = [Enum__Http__Method.GET               ]),
+
+                                                                __(is_default   = False                                ,
+                                                                  is_mount     = False                                 ,
+                                                                  method_name  = 'websocket_endpoint'                  ,
+                                                                  route_type   = 'websocket'                           ,
+                                                                  route_class  = None                                  ,
+                                                                  route_tags   = None                                  ,
+                                                                  path_params  = None                                  ,
+                                                                  http_path    = '/ws'                                 ,
+                                                                  http_methods = []                                    ),
+
+                                                                __(is_default   = False                                ,
+                                                                  is_mount     = False                                 ,
+                                                                  method_name  = 'get_items'                           ,
+                                                                  route_type   = 'api_route'                           ,
+                                                                  route_class  = 'test_Fast_API__Route__Extractor'     ,
+                                                                  route_tags   = None                                  ,
+                                                                  path_params  = []                                    ,
+                                                                  http_path    = '/api/v1/items'                       ,
+                                                                  http_methods = [Enum__Http__Method.GET               ]),
+
+                                                                __(is_default   = False                                ,
+                                                                  is_mount     = False                                 ,
+                                                                  method_name  = 'update_item'                         ,
+                                                                  route_type   = 'api_route'                           ,
+                                                                  route_class  = 'test_Fast_API__Route__Extractor'     ,
+                                                                  route_tags   = None                                  ,
+                                                                  path_params  = [__(required    = True                ,
+                                                                                      name        = 'item_id'          ,
+                                                                                      location    = 'path'             ,
+                                                                                      param_type  = 'builtins.int'     )],
+                                                                  http_path    = '/api/v1/items/{item_id}'             ,
+                                                                  http_methods = [Enum__Http__Method.PUT               ]),
+
+                                                                __(is_default   = False                                ,
+                                                                  is_mount     = True                                  ,
+                                                                  method_name  = 'static_files'                        ,
+                                                                  route_type   = 'static'                              ,
+                                                                  route_class  = None                                  ,
+                                                                  route_tags   = None                                  ,
+                                                                  path_params  = None                                  ,
+                                                                  http_path    = '/static'                             ,
+                                                                  http_methods = [Enum__Http__Method.GET               ,
+                                                                                  Enum__Http__Method.HEAD            ] )])
+
 
     def test_extract_routes_with_default(self):                                     # Test including default FastAPI routes
         with Fast_API__Route__Extractor(app=self.app, include_default=True) as _:
@@ -259,7 +340,7 @@ class test_Fast_API__Route__Extractor(TestCase):
                 class endpoint:
                     __qualname__ = "Routes__Users.get_users"
 
-            route_class = _.extract_route_class(MockRoute())
+            route_class = _.extract__route_class(MockRoute())
             assert route_class == 'Routes__Users'
 
             # Route without Routes__ prefix
@@ -267,14 +348,14 @@ class test_Fast_API__Route__Extractor(TestCase):
                 class endpoint:
                     __qualname__ = "SomeClass.method"
 
-            route_class = _.extract_route_class(MockRoute2())
+            route_class = _.extract__route_class(MockRoute2())
             assert route_class == 'SomeClass'
 
             # Route without endpoint
             class MockRoute3:
                 pass
 
-            route_class = _.extract_route_class(MockRoute3())
+            route_class = _.extract__route_class(MockRoute3())
             assert route_class == ''
 
     def test_expand_mounts(self):                                                   # Test mount expansion feature

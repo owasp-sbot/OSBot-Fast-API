@@ -106,22 +106,21 @@ class test_Schema__Fast_API__Routes__Collection(TestCase):
             assert type(_.routes) is Type_Safe__List
 
     def test_serialization_round_trip(self):                                       # Test JSON serialization with nested schemas
-        routes = [
-            Schema__Fast_API__Route(http_path    = '/api/v1/health',
+        routes = [Schema__Fast_API__Route(http_path    = '/api/v1/health',
                                     method_name  = 'health_check',
                                     http_methods = [Enum__Http__Method.GET],
                                     route_class  = 'Routes__Health'),
 
-            Schema__Fast_API__Route(http_path    = '/ws/notifications'           ,
-                                   method_name  = 'notification_ws'              ,
-                                   route_type   = Enum__Route__Type.WEBSOCKET    )
-        ]
+                 Schema__Fast_API__Route(http_path    = '/ws/notifications'           ,
+                                        method_name  = 'notification_ws'              ,
+                                        route_type   = Enum__Route__Type.WEBSOCKET    )]
 
         with Schema__Fast_API__Routes__Collection(routes         = routes        ,
                                                   total_routes   = 2             ,
                                                   has_websockets = True          ) as original:
             # Serialize to JSON
             json_data = original.json()
+
 
             # Verify JSON structure
             assert 'routes'         in json_data
