@@ -1,0 +1,21 @@
+# from code
+
+    def setup_admin_ui(self):                                                                # Set up and mount the Admin UI to this FastAPI instance.
+        if self.add_admin_ui:                                                                # Create admin UI instance
+            from osbot_fast_api.admin_ui.api.Admin_UI__Fast_API import Admin_UI__Fast_API    # import here due to circular dependencies
+            kwargs = dict(admin_config=self.admin_config, parent_app=self)
+            self.mount_fast_api(Admin_UI__Fast_API, **kwargs)
+        return self
+
+    def setup(self):
+        self.setup_admin_ui               ()
+
+# from tests
+
+    def test_setup_with_admin_ui(self):                                            # Test admin UI setup
+        with Fast_API(add_admin_ui=True) as _:
+            _.admin_config = Admin_UI__Config()                                    # Set config
+            _.setup()
+
+            # Admin UI should be mounted
+            assert '/admin/admin-config/api/routes' in _.routes_paths(expand_mounts=True)

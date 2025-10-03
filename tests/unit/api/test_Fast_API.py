@@ -17,7 +17,6 @@ from osbot_utils.utils.Threads import invoke_async
 from starlette.requests                                                         import Request
 from starlette.responses                                                        import JSONResponse
 from starlette.testclient                                                       import TestClient
-from osbot_fast_api.admin_ui.api.Admin_UI__Config                               import Admin_UI__Config
 from osbot_fast_api.api.Fast_API                                                import Fast_API
 from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                            import Safe_Str__Fast_API__Name
@@ -157,7 +156,6 @@ class test_Fast_API(TestCase):
             assert type(_.enable_cors)    is bool
             assert type(_.enable_api_key) is bool
             assert type(_.default_routes) is bool
-            assert type(_.admin_config)   is Admin_UI__Config
             assert type(_.name)           is Safe_Str__Fast_API__Name
             assert type(_.version)        is Safe_Str__Version
             assert type(_.description)    is type(None)                           # None by default
@@ -443,14 +441,6 @@ class test_Fast_API(TestCase):
             # Verify all setup methods were called
             assert len(_.routes_paths()) > 0                                       # Routes added
             assert _.user_middlewares() != []                                      # Middlewares added
-
-    def test_setup_with_admin_ui(self):                                            # Test admin UI setup
-        with Fast_API(add_admin_ui=True) as _:
-            _.admin_config = Admin_UI__Config()                                    # Set config
-            _.setup()
-
-            # Admin UI should be mounted
-            assert '/admin/admin-config/api/routes' in _.routes_paths(expand_mounts=True)
 
     def test_setup_static_routes_with_path(self):                                  # Test static route setup
         with Fast_API() as _:
