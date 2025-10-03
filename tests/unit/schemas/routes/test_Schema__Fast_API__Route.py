@@ -37,7 +37,12 @@ class test_Schema__Fast_API__Route(TestCase):
                                  route_class   = None        ,                     # Nullable, defaults to None
                                  route_tag     = None        ,                     # Nullable, defaults to None
                                  http_path     = '/'         ,                     # Default Safe_Str__Fast_API__Route__Prefix (which makes sure it always starts with a '/')
-                                 http_methods  = []          )                     # Empty list
+                                 http_methods  = []          ,
+                                 body_params  = None         ,
+                                 path_params  = None         ,
+                                 query_params = None         ,
+                                 return_type  = None         ,
+                                 description  = ''           )
 
     def test__init__with_values(self):                                             # Test initialization with provided values
         http_path     = Safe_Str__Fast_API__Route__Prefix('/api/v1/users')
@@ -64,7 +69,12 @@ class test_Schema__Fast_API__Route(TestCase):
                                  route_class   = 'Routes__Users'            ,
                                  route_tags    = ['users']                  ,
                                  is_default    = False                      ,
-                                 is_mount      = False                      )
+                                 is_mount      = False                      ,
+                                 body_params   = None                       ,
+                                 path_params   = None                       ,
+                                 query_params  = None                       ,
+                                 return_type   = None                       ,
+                                 description   = ''                         )
 
 
 
@@ -100,7 +110,12 @@ class test_Schema__Fast_API__Route(TestCase):
                                  route_class   = None                              ,
                                  route_tag     = None                              ,
                                  is_default    = False                             ,
-                                 is_mount      = False                             )
+                                 is_mount      = False                             ,
+                                 body_params  = None                               ,
+                                 path_params  = None                               ,
+                                 query_params = None                               ,
+                                 return_type  = None                               ,
+                                 description  = ''                                 )
 
     def test_mount_route(self):                                                    # Test mount point route configuration
         with Schema__Fast_API__Route() as _:

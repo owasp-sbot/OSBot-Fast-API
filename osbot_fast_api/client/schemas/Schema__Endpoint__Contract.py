@@ -1,10 +1,9 @@
-from typing                                                                         import List
+from typing import List, Type
 from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method                import Enum__Http__Method
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_fast_api.client.schemas.Schema__Endpoint__Param                          import Schema__Endpoint__Param
-from osbot_fast_api.client.schemas.safe_str.Safe_Str__Python_Type                   import Safe_Str__Python__Type
 from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                       import Safe_Str__Fast_API__Route__Prefix
 
 
@@ -26,8 +25,8 @@ class Schema__Endpoint__Contract(Type_Safe):
     header_params: List[Schema__Endpoint__Param]
 
     # Request/Response schemas - Type names as strings for serialization
-    request_schema : Safe_Str__Python__Type    = None           # Request body Type_Safe class name
-    response_schema: Safe_Str__Python__Type    = None           # Response Type_Safe class name
+    request_schema : Type       = None           # Request body Type_Safe class name
+    response_schema: Type       = None           # Response Type_Safe class name
 
     # Error handling - from AST analysis
     error_codes: List[Safe_UInt]                    # Status codes raised (excluding 400/422) # todo: we should be using Safe_UInt__Http__Error_Codes here
