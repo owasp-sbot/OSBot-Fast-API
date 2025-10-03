@@ -69,12 +69,6 @@ class Fast_API(Type_Safe):
         self.app().mount(path, WSGIMiddleware(flask_app))
         return self
 
-    def add_shell_server(self):
-        from osbot_fast_api.utils.http_shell.Http_Shell__Server import Model__Shell_Command, Http_Shell__Server
-        def shell_server(shell_command: Model__Shell_Command):
-            return Http_Shell__Server().invoke(shell_command)
-        self.add_route_post(shell_server)
-
     def add_route(self,function, methods):
         path = '/' + function.__name__.replace('_', '-')
         self.app().add_api_route(path=path, endpoint=function, methods=methods)

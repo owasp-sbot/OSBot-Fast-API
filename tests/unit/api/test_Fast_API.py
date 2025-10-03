@@ -272,19 +272,6 @@ class test_Fast_API(TestCase):
             assert response.status_code == 400
             assert b'"detail"' in response.body
 
-    # Shell server tests
-
-    def test_add_shell_server(self):                                               # Test shell server route addition
-        with Fast_API() as _:
-            _.setup()
-            initial_routes = len(_.routes_paths())
-
-            _.add_shell_server()
-
-            # Verify route was added
-            assert len(_.routes_paths()) == initial_routes + 1
-            assert '/shell-server' in _.routes_paths()
-
     # Route management tests
 
     def test_add_route_get(self):                                                  # Test GET route addition
