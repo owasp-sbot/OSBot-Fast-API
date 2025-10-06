@@ -1,4 +1,6 @@
 from unittest                                                           import TestCase
+
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.type_safe.primitives.core.Safe_Float                   import Safe_Float
 from osbot_fast_api.api.Fast_API                                        import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes                         import Fast_API__Routes
@@ -202,11 +204,10 @@ class test_route_path(TestCase):
                                    self.normal__auto__route      )
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
-
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
         client   = fast_api.client()
 
         # Test routes are correctly generated
@@ -261,15 +262,16 @@ class test_route_path(TestCase):
 
             def setup_routes(self):
                 self.add_routes_post(self.create_order_json    ,
-                                    self.legacy_create_order   ,
-                                    self.update_order_item     )
+                                     self.legacy_create_order   ,
+                                     self.update_order_item     )
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
+            
             def setup_routes(self):
                 self.add_routes(Test_Routes)
 
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
         client   = fast_api.client()
 
         # Test routes

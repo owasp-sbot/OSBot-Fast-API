@@ -6,7 +6,7 @@ from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Name                   
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 
 
-class Fast_API__Config(Type_Safe):
+class Schema__Fast_API__Config(Type_Safe):
     base_path      : Safe_Str__Fast_API__Route__Prefix = '/'
     add_admin_ui   : bool                              = False
     docs_offline   : bool                              = True

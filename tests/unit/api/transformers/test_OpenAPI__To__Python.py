@@ -1,4 +1,6 @@
 import unittest
+
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.utils.Misc                                 import list_set
 from osbot_utils.utils.Objects                              import class_functions
 from osbot_fast_api.api.Fast_API                            import Fast_API
@@ -35,11 +37,11 @@ class test_OpenAPI__To__Python(unittest.TestCase):
                 self.add_routes_get(self.now)
 
         class Fast_API__Ping(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Routes__Ping)
 
-        fast_api = Fast_API__Ping().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Fast_API__Ping(config=config).setup()
         return fast_api
 
     def util__create_client_instance__from__client_code(self, client_python_code):

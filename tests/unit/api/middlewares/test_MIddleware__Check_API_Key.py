@@ -7,10 +7,12 @@ from osbot_utils.utils.Status                                   import status_er
 
 
 class With_API_Key(Fast_API):
-    enable_api_key : bool = True
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.config.enable_api_key = True
 
 
-class test_MIddleware__Check_API_Key(TestCase):
+class test_Middleware__Check_API_Key(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.env_name__api_key_name  = 'admin-key-name'

@@ -5,6 +5,7 @@ from unittest                                                                   
 from fastapi                                                                     import FastAPI, APIRouter, Path
 from fastapi.routing                                                             import APIWebSocketRoute
 from osbot_fast_api.api.decorators.route_path                                    import route_path
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id  import Safe_Str__Id
 from osbot_utils.testing.__                                                      import __
 from osbot_fast_api.client.Fast_API__Route__Extractor                            import Fast_API__Route__Extractor
@@ -439,7 +440,8 @@ class test_Fast_API__Route__Extractor(TestCase):
 
 
     def test_complex_app_extraction(self):                                          # Test with Fast_API class
-        with Fast_API(name="Complex API") as fast_api:
+        config = Schema__Fast_API__Config(name="Complex API")
+        with Fast_API(config=config) as fast_api:
             fast_api.setup()
 
             # Add custom routes

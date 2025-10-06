@@ -1,5 +1,7 @@
 from typing                                                                         import Optional, List, Dict, Set, Any
 from unittest                                                                       import TestCase
+
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name           import Safe_Str__File__Name
 from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Content_Type    import Safe_Str__Http__Content_Type
 from osbot_utils.utils.Objects                                                              import __
@@ -36,11 +38,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_get(self.without_primitive)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(GET_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/get/with-primitive', '/get/without-primitive']
 
         test_value = "aBBccDD"
@@ -80,11 +82,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_get(self.validate_port)
 
         class API_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(API_Routes)
 
-        api = API_Fast_API().setup()
+        config = Schema__Fast_API__Config(default_routes=False)
+        api    = API_Fast_API(config=config).setup()
 
         # Test valid email
         response = api.client().get('/api/validate-email?email=User@Example.COM')
@@ -121,11 +123,10 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_get(self.validate_guid)
 
         class GUID_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(GUID_Routes)
-
-        api = GUID_Fast_API().setup()
+        config = Schema__Fast_API__Config(default_routes=False)
+        api    = GUID_Fast_API(config=config).setup()
 
         # Test with valid GUID
         test_guid = "123e4567-e89b-12d3-a456-426614174000"
@@ -162,11 +163,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_post(self.with_type_safe)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(POST_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/post/with-type-safe']
 
         post_data  = The_Request(an_str='hello').json()
@@ -220,12 +221,13 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_post(self.create_user)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(POST_Routes)
 
         # Test the implementation
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
+
         assert an_fast_api.routes_paths() == ['/users/create-user']
 
         # Test POST with Type_Safe
@@ -278,11 +280,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_put(self.update_item)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(PUT_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/updates/update-item']
 
         # Test with full data
@@ -362,11 +364,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_post(self.create_person)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(POST_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
 
         # Test with nested data
         person_data = { 'name': 'John Doe',
@@ -418,11 +420,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_post(self.process)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(POST_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
 
         # Test with minimal required data only
         minimal_data = {'required_field': 'test',
@@ -483,11 +485,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_post(self.validate_data)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(POST_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
 
         # Test with invalid types (FastAPI should catch these)
         invalid_type_data = {
@@ -534,7 +536,6 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_post(self.with_type_safe)    # QUESTION: Is this a realistic scenario?
 
         class An_Fast_API(Fast_API):
-            default_routes = False
 
             def setup_routes(self):
                 self.add_routes(POST_Routes)
@@ -550,7 +551,8 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
         # with pytest.raises(PydanticSchemaGenerationError, match=re.escape(error_message)):
         #     An_Fast_API().setup()                     # FIXED: BUG should be able to handle it
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/post/with-type-safe']
 
         an_class = An_Class(to_lower='AbC')
@@ -586,12 +588,12 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_post(self.with_type_safe)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
 
             def setup_routes(self):
                 self.add_routes(POST_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/post/with-type-safe']
 
         an_class = An_Class(an_guid                     = '1b4b086d-0ad3-4de7-928a-7f66ccabafa3',
@@ -642,11 +644,11 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_put(self.update_resource__id)            # This will create route: /resource/update-resource/id (because there is no id field in the method definition)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(PUT_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/resource/update-resource/id']
 
         # Test PUT with path parameter and body

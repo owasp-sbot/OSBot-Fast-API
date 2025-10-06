@@ -15,7 +15,7 @@ class test_Fast_API__Offline_Docs(TestCase):
 
     def test_setup_offline_docs(self):  # Test offline documentation setup using Html__Query for structured HTML validation"""
         with self.fast_api as _:
-            assert _.docs_offline is True
+            assert _.config.docs_offline is True
 
             # Get the HTML response
             response = _.client().get('/docs')
@@ -84,7 +84,7 @@ class test_Fast_API__Offline_Docs(TestCase):
         #       this is downloaded from inside the f"/redoc/redoc.standalone.js"
         #       todo: see if we should patch that file on download to remove that include
         with self.fast_api as _:
-            assert _.docs_offline is True
+            assert _.config.docs_offline is True
 
             # Get the ReDoc HTML response
             response = _.client().get('/redoc')

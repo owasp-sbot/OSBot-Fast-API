@@ -1,6 +1,7 @@
 from unittest                                                            import TestCase
 from osbot_fast_api.api.Fast_API                                         import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes                          import Fast_API__Routes
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_Str                      import Safe_Str
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid    import Random_Guid
@@ -150,11 +151,10 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                                     self.api__v1__resource_id       )
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
-
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
         client   = fast_api.client()
 
         # Test the routes are correctly generated
@@ -192,11 +192,11 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                                      self.patch__user_profile__setting )
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
 
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
         client   = fast_api.client()
 
         # Test routes are correctly generated
@@ -239,11 +239,11 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                 self.add_route_delete(self.item__id_delete)
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
 
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
         client   = fast_api.client()
 
         # All methods create different routes due to different function names
@@ -302,11 +302,11 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                                    self.fetch_by_url      )
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
 
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
         client   = fast_api.client()
 
         # Test routes generation
@@ -357,11 +357,11 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                                     self.events_after       )
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
 
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
         client   = fast_api.client()
 
         # Test routes generation
@@ -424,11 +424,11 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                                      self.adjust__store_id__adjustment )
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
 
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
         client   = fast_api.client()
 
         # Test routes generation
@@ -522,11 +522,11 @@ class test_Fast_API__Routes__path_parsing(TestCase):
                 self.add_route_post(self.create__store_id__order)
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
 
-        fast_api = Test_Fast_API().setup()
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
 
         client   = fast_api.client()
 
@@ -839,13 +839,13 @@ class test_Fast_API__Routes__path_parsing(TestCase):
 
 
         class Test_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Test_Routes)
 
         #error_message = "Invalid args for response field! Hint: check that <class 'osbot_utils.type_safe.primitives.safe_str.Safe_Str.Safe_Str'> is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/"
         #with pytest.raises(FastAPIError, match=re.escape(error_message)):
         #    Test_Fast_API().setup()                                         # BUG : should had not raised exception
-
-        assert Test_Fast_API().setup().routes_paths() == ['/products/create/{product_id}',      # FIXED
-                                                          '/products/update/{product_id}']      # FIXED
+        config   = Schema__Fast_API__Config(default_routes=False)
+        fast_api = Test_Fast_API(config=config).setup()
+        assert fast_api.routes_paths() == ['/products/create/{product_id}',      # FIXED
+                                           '/products/update/{product_id}']      # FIXED

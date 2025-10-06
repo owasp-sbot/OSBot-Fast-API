@@ -1,5 +1,7 @@
 from unittest                                                 import TestCase
 from fastapi                                                  import Request
+
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.type_safe.Type_Safe                          import Type_Safe
 from osbot_fast_api.api.Fast_API                              import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes               import Fast_API__Routes
@@ -10,7 +12,8 @@ class test_Fast_API__Routes__client(TestCase):
 
     def setUp(self):
         # Create a Fast_API instance and a custom routes class
-        self.fast_api = Fast_API(default_routes=False)  # Disable default routes for cleaner testing
+        self.config   = Schema__Fast_API__Config(default_routes=False)      # Disable default routes for cleaner testing
+        self.fast_api = Fast_API        (config=self.config)
         self.app      = self.fast_api.app()
         self.client   = self.fast_api.client()
 

@@ -1,8 +1,7 @@
+from osbot_fast_api.schemas.Schema__Fast_API__Config                            import Schema__Fast_API__Config
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.decorators.lists.index_by                                      import index_by
 from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    import Safe_Str__Text
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version import Safe_Str__Version
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
 from osbot_utils.utils.Json                                                     import json_loads, json_dumps
 from starlette.staticfiles                                                      import StaticFiles
@@ -10,33 +9,31 @@ from osbot_fast_api.api.Fast_API__Offline_Docs                                  
 from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
 from osbot_fast_api.api.routes.Routes__Config                                   import Routes__Config
 from osbot_fast_api.api.routes.Routes__Set_Cookie                               import Routes__Set_Cookie
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Name                   import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.consts.consts__Fast_API                             import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
-from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
 
 
 
 class Fast_API(Type_Safe):
-    base_path      : Safe_Str__Fast_API__Route__Prefix = '/'
-    add_admin_ui   : bool                     = False
-    docs_offline   : bool                     = True
-    enable_cors    : bool                     = False
-    enable_api_key : bool                     = False
-    default_routes : bool                     = True
-    name           : Safe_Str__Fast_API__Name = None
-    version        : Safe_Str__Version        = version__osbot_fast_api
-    description    : Safe_Str__Text           = None
+    # base_path      : Safe_Str__Fast_API__Route__Prefix = '/'
+    # add_admin_ui   : bool                     = False
+    # docs_offline   : bool                     = True
+    # enable_cors    : bool                     = False
+    # enable_api_key : bool                     = False
+    # default_routes : bool                     = True
+    # name           : Safe_Str__Fast_API__Name = None
+    # version        : Safe_Str__Version        = version__osbot_fast_api
+    # description    : Safe_Str__Text           = None
+    config         : Schema__Fast_API__Config
     http_events    : Fast_API__Http_Events
     server_id      : Random_Guid
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if not self.name:
-            self.name                  = self.__class__.__name__
-        self.http_events.fast_api_name = self.name
+        if not self.config.name:
+            self.config.name           = self.__class__.__name__
+        self.http_events.fast_api_name = self.config.name
 
-    # todo: improve the error handling of validation errors (namley from Type_Safe_Primitive)
+    # todo: improve the error handling of validation errors (namely from Type_Safe_Primitive)
     #       see code example in https://claude.ai/chat/f443e322-fa43-487f-9dd9-2d4cfb261b1e
     def add_global_exception_handlers(self):
         import traceback
@@ -91,12 +88,12 @@ class Fast_API(Type_Safe):
         return FastAPI(**app__kwargs)
 
     def app_kwargs(self, **kwargs):
-        if self.default_routes:
-            kwargs['docs_url' ] = None                                       # disable built-in /docs        # these routes will be added by self.setup_offline_docs()
-            kwargs['redoc_url'] = None                                       # disable built-in /redoc
-        if self.name        :       kwargs['title'      ] = self.name
-        if self.version     :       kwargs['version'    ] = self.version
-        if self.description :       kwargs['description'] = self.description
+        if self.config.default_routes:
+            kwargs['docs_url' ] = None                                                              # disable built-in /docs        # these routes will be added by self.setup_offline_docs()
+            kwargs['redoc_url'] = None                                                              # disable built-in /redoc
+        if self.config.name        :       kwargs['title'      ] = self.config.name
+        if self.config.version     :       kwargs['version'    ] = self.config.version
+        if self.config.description :       kwargs['description'] = self.config.description
         return kwargs
 
     def app_router(self):
@@ -105,6 +102,10 @@ class Fast_API(Type_Safe):
     def client(self):
         from starlette.testclient import TestClient             # moved here for performance reasons
         return TestClient(self.app())
+
+    def enable_api_key(self):
+        self.config.enable_api_key = True
+        return self
 
     def fast_api_utils(self):
         from osbot_fast_api.utils.Fast_API_Utils import Fast_API_Utils
@@ -118,11 +119,12 @@ class Fast_API(Type_Safe):
         return None
 
     def mount(self, parent_app):                            # use this from the child Fast_Api instance
-        parent_app.mount(self.base_path, self.app())
+        parent_app.mount(self.config.base_path, self.app())
         return self
 
     def mount_fast_api(self, class_fast_api, **kwargs):               # use this from the parent Fast_Api instance
-        class_fast_api(**kwargs).setup().mount(self.app())
+        config = Schema__Fast_API__Config(**kwargs)
+        class_fast_api(config=config).setup().mount(self.app())
         return self
 
     def setup(self):
@@ -174,7 +176,7 @@ class Fast_API(Type_Safe):
 
     def setup_default_routes(self):
 
-        if self.default_routes:
+        if self.config.default_routes:
             self.setup_add_root_route        ()
             self.setup_offline_docs          ()
             self.add_routes(Routes__Config    )
@@ -188,7 +190,7 @@ class Fast_API(Type_Safe):
         self.app_router().get("/")(redirect_to_docs)
 
     def setup_offline_docs(self):
-        if self.docs_offline:
+        if self.config.docs_offline:
             Fast_API__Offline_Docs(app=self.app()).setup()
         return self
 
@@ -200,7 +202,7 @@ class Fast_API(Type_Safe):
             self.app().mount(path_static, StaticFiles(directory=path_static_folder), name=path_name)
 
     def setup_static_routes_docs(self):
-        if self.docs_offline:
+        if self.config.docs_offline:
             path_static        = URL__STATIC__DOCS
             path_static_folder = FILE_PATH__STATIC__DOCS
             path_name          = NAME__STATIC__DOCS
@@ -208,14 +210,14 @@ class Fast_API(Type_Safe):
 
     def setup_middleware__api_key_check(self, env_var__api_key_name:str=ENV_VAR__FAST_API__AUTH__API_KEY__NAME, env_var__api_key_value:str=ENV_VAR__FAST_API__AUTH__API_KEY__VALUE):
         from osbot_fast_api.api.middlewares.Middleware__Check_API_Key import Middleware__Check_API_Key
-        if self.enable_api_key:
+        if self.config.enable_api_key:
             self.app().add_middleware(Middleware__Check_API_Key, env_var__api_key__name=env_var__api_key_name, env_var__api_key__value=env_var__api_key_value)
         return self
 
     def setup_middleware__cors(self):               # todo: double check that this is working see bug test
         from starlette.middleware.cors import CORSMiddleware
 
-        if self.enable_cors:
+        if self.config.enable_cors:
             self.app().add_middleware(CORSMiddleware,
                                       allow_origins     = ["*"]                         ,
                                       allow_credentials = True                          ,

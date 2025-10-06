@@ -1,4 +1,6 @@
 from unittest                                   import TestCase
+
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.type_safe.Type_Safe            import Type_Safe
 from osbot_fast_api.api.Fast_API                import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes        import Fast_API__Routes
@@ -33,7 +35,6 @@ class test__bugs__type_safe__Fast_API__Routes__support(TestCase):
                 self.add_route_get(self.with_type_safe )
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(GET_Routes)
 
@@ -47,7 +48,8 @@ class test__bugs__type_safe__Fast_API__Routes__support(TestCase):
         # with pytest.raises(FastAPIError, match= re.escape(error_message)):
         #     An_Fast_API().setup()             # FIXED: BUG: this should not raise exception
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/get/with-primitive', '/get/with-type-safe']
 
         test_value = "aBBccDD"

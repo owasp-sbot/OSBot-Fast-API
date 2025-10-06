@@ -1,6 +1,8 @@
 from unittest                                                                   import TestCase
 from dataclasses                                                                import dataclass
 from typing                                                                     import Optional, List
+
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
 from osbot_utils.utils.Objects                                                  import __
@@ -23,11 +25,10 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
                 self.add_route_get(self.ping)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(GET_Routes)
-
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths()                   == ['/get/ping']
         assert an_fast_api.client().get('/get/ping').json() == 'pong'
 
@@ -43,11 +44,11 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
                 self.add_route_post(self.post_data)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(POST_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths()                   == ['/post/post-data']
 
 
@@ -104,12 +105,12 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
                 self.add_route_get(self.get_user)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(User_Routes)
 
         # Test the implementation
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/users/create-user', '/users/get-user']
 
         # Test POST with dataclass
@@ -179,12 +180,12 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
                 self.add_route_get(self.get_user)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(User_Routes)
 
         # Test the implementation
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/users/create-user', '/users/get-user']
 
         # Test POST with dataclass
@@ -249,12 +250,12 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
                 self.add_route_get (self.get_user)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(User_Routes)
 
         # Test the implementation
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
         assert an_fast_api.routes_paths() == ['/users/create-user', '/users/get-user']
 
         # Test POST
@@ -308,11 +309,11 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
                 self.add_route_get (self.return_object)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(Obj_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
 
         assert an_fast_api.routes_paths() == ['/obj/create-object',  '/obj/return-object', '/obj/update-object']
 
@@ -343,11 +344,11 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
                 self.add_route_post(self.create__user_id)
 
         class An_Fast_API(Fast_API):
-            default_routes = False
             def setup_routes(self):
                 self.add_routes(POST_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
 
         assert an_fast_api.routes_paths() == ['/v1/post/create/{user_id}']
 
