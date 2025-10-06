@@ -284,15 +284,15 @@ class test_Fast_API__Offline_Docs(TestCase):
                          'fast-api-request-id',
                          'last-modified'      ]
         assert response.status_code == 200
-        if not_in_github_action():                                                              # weirdly, this only fails locally
-            assert list_set(response.headers) == headers_list
-            assert 'cache-control' not in response.headers                                      # BUG: todo: see if we should be setting these
+        #if not_in_github_action():                                                              # weirdly, this only fails locally
+        assert list_set(response.headers) == headers_list
+        assert 'cache-control' not in response.headers                                      # BUG: todo: see if we should be setting these
             #assert 'max-age='         in response.headers['cache-control']                    # BUG: todo: see if we should be setting these
-        else:
-            headers_list.append('cache-control')                                                # todo: figure out why this work in GitHub Actions and not locally
-            headers_list.remove('last-modified')
-            assert list_set(response.headers)  == sorted(headers_list)
-            assert 'max-age='                  in response.headers['cache-control']
+        # else:
+        #     headers_list.append('cache-control')                                                # todo: figure out why this work in GitHub Actions and not locally
+        #
+        #     assert list_set(response.headers)  == sorted(headers_list)
+        #     assert 'max-age='                  in response.headers['cache-control']
 
     def test_openapi_json_structure(self):                                                  # Test OpenAPI spec structure
         response = self.client.get('/openapi.json')
