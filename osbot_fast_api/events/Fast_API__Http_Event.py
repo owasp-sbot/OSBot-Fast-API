@@ -1,16 +1,16 @@
 import logging
 import time
-from decimal                                                            import Decimal
-from fastapi                                                            import Response, Request
-from osbot_fast_api.api.events.Fast_API__Http_Event__Info               import Fast_API__Http_Event__Info
-from osbot_fast_api.api.events.Fast_API__Http_Event__Request            import Fast_API__Http_Event__Request
-from osbot_fast_api.api.events.Fast_API__Http_Event__Response           import Fast_API__Http_Event__Response
-from osbot_fast_api.api.events.Fast_API__Http_Event__Traces             import Fast_API__Http_Event__Traces
-from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid
-from osbot_utils.helpers.trace.Trace_Call                               import Trace_Call
-from osbot_utils.utils.Misc                                             import timestamp_utc_now, current_thread_id, str_to_bytes
-from osbot_utils.utils.Objects                                          import pickle_to_bytes
+from decimal                                                                import Decimal
+from fastapi                                                                import Response, Request
+from osbot_fast_api.events.schemas.Schema__Fast_API__Http_Event__Info       import Schema__Fast_API__Http_Event__Info
+from osbot_fast_api.events.schemas.Schema__Fast_API__Http_Event__Request    import Schema__Fast_API__Http_Event__Request
+from osbot_fast_api.events.schemas.Schema__Fast_API__Http_Event__Response   import Schema__Fast_API__Http_Event__Response
+from osbot_fast_api.events.schemas.Schema__Fast_API__Http_Event__Traces     import Schema__Fast_API__Http_Event__Traces
+from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
+from osbot_utils.helpers.trace.Trace_Call                                   import Trace_Call
+from osbot_utils.utils.Misc                                                 import timestamp_utc_now, current_thread_id, str_to_bytes
+from osbot_utils.utils.Objects                                              import pickle_to_bytes
 
 HEADER_NAME__FAST_API_REQUEST_ID   = 'fast-api-request-id'
 HEADER_NAME__CACHE_CONTROL         = "cache-control"
@@ -22,10 +22,10 @@ HTTP_RESPONSE__CACHE_CONTENT_TYPES = ['text/css; charset=utf-8'         ,
 
 
 class Fast_API__Http_Event(Type_Safe):
-    http_event_info         : Fast_API__Http_Event__Info
-    http_event_request      : Fast_API__Http_Event__Request
-    http_event_response     : Fast_API__Http_Event__Response
-    http_event_traces       : Fast_API__Http_Event__Traces
+    http_event_info         : Schema__Fast_API__Http_Event__Info
+    http_event_request      : Schema__Fast_API__Http_Event__Request
+    http_event_response     : Schema__Fast_API__Http_Event__Response
+    http_event_traces       : Schema__Fast_API__Http_Event__Traces
     event_id                : Random_Guid                                  # todo: rename to http_event_id
 
     def __init__(self, **kwargs):

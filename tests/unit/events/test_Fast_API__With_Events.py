@@ -2,7 +2,7 @@ from unittest                                                         import Tes
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.utils.Objects                                        import base_classes
 from osbot_fast_api.api.Fast_API                                      import Fast_API
-from osbot_fast_api.api.events.Fast_API__Http_Events                  import Fast_API__Http_Events
+from osbot_fast_api.events.Fast_API__Http_Events                      import Fast_API__Http_Events
 from osbot_fast_api.events.Fast_API__With_Events                      import Fast_API__With_Events
 from osbot_fast_api.schemas.Schema__Fast_API__Config                  import Schema__Fast_API__Config
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid import Random_Guid

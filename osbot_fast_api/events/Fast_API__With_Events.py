@@ -1,5 +1,5 @@
-from osbot_fast_api.api.Fast_API                        import Fast_API
-from osbot_fast_api.api.events.Fast_API__Http_Events    import Fast_API__Http_Events
+from osbot_fast_api.api.Fast_API                 import Fast_API
+from osbot_fast_api.events.Fast_API__Http_Events import Fast_API__Http_Events
 
 
 class Fast_API__With_Events(Fast_API):
@@ -16,7 +16,7 @@ class Fast_API__With_Events(Fast_API):
         return self
 
     def setup_middleware__http_events(self):                                  # Moved from base class
-        from osbot_fast_api.api.middlewares.Middleware__Http_Request import Middleware__Http_Request
+        from osbot_fast_api.events.middlewares.Middleware__Http_Request import Middleware__Http_Request
 
         self.app().add_middleware(Middleware__Http_Request, http_events=self.http_events)
         return self

@@ -1,5 +1,5 @@
-from starlette.middleware.base                       import BaseHTTPMiddleware
-from osbot_fast_api.api.events.Fast_API__Http_Events import Fast_API__Http_Events
+from starlette.middleware.base                   import BaseHTTPMiddleware
+from osbot_fast_api.events.Fast_API__Http_Events import Fast_API__Http_Events
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
