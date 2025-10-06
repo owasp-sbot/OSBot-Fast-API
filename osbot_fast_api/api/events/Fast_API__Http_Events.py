@@ -6,7 +6,8 @@ from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
 
 HTTP_EVENTS__MAX_REQUESTS_LOGGED = 50
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
+
 if TYPE_CHECKING:
     from fastapi                                    import Request
     from starlette.responses                        import Response
@@ -16,8 +17,8 @@ class Fast_API__Http_Events(Type_Safe):
     #log_requests          : bool = False                           # todo: change this to save on S3 and disk
     background_tasks      : list
     clean_data            : bool             = True
-    callback_on_request   : types.MethodType
-    callback_on_response  : types.MethodType
+    callback_on_request   : Union[types.MethodType, types.FunctionType]
+    callback_on_response  : Union[types.MethodType, types.FunctionType]
     trace_calls           : bool             = False
     trace_call_config     : Trace_Call__Config
     requests_data         : dict

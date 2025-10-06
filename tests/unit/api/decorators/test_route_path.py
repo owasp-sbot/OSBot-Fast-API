@@ -1,6 +1,5 @@
 from unittest                                                           import TestCase
-
-from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
+from osbot_fast_api.schemas.Schema__Fast_API__Config                    import Schema__Fast_API__Config
 from osbot_utils.type_safe.primitives.core.Safe_Float                   import Safe_Float
 from osbot_fast_api.api.Fast_API                                        import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes                         import Fast_API__Routes
@@ -330,3 +329,48 @@ class test_route_path(TestCase):
 
             assert _.routes_paths() == sorted(['/search'           ,
                                                '/api/v1/data.csv'  ])
+
+    def test_route_path_with_type_safe_primitive_conversion(self):                   # Test primitive auto-conversion
+
+        fast_api = Fast_API()
+        @route_path("/convert/{value}")
+        def convert_safe_int(value: Safe_Int):
+            return {'original': value, 'doubled': int(value) * 2}
+
+        with self.fast_api_routes as _:
+            _.add_route_get(convert_safe_int)
+            _.app = fast_api.app()
+            _.setup()
+
+        with fast_api.client() as _:
+
+            # Test string to Safe_Int conversion
+            response = _.get('/convert/42')
+            assert response.json() == {'original': 42, 'doubled': 84}
+
+            # Test invalid conversion
+            response = _.get('/convert/not-a-number')
+            assert response.status_code == 422                                       # Validation error
+
+    def test_route_path_priority_over_auto_generation(self):                         # Test decorator always wins
+        @route_path("/custom/path")
+        def should__auto__generate__to__should__auto__generate__to(self): pass       # Would be complex auto path
+
+        with self.fast_api_routes as _:
+            _.add_route_get(should__auto__generate__to__should__auto__generate__to)
+
+            assert _.routes_paths() == ['/custom/path']
+            assert '/should/auto/generate/to/should/auto/generate/to' not in _.routes_paths()
+
+    def test_route_path_with_unicode(self):                                          # Test unicode in paths
+        @route_path("/api/文档/用户")
+        def unicode_route(): pass
+
+        @route_path("/api/café/menú")
+        def accented_route(): pass
+
+        with self.fast_api_routes as _:
+            _.add_routes_get(unicode_route, accented_route)
+
+            assert '/api/文档/用户'  in _.routes_paths()
+            assert '/api/café/menú' in _.routes_paths()

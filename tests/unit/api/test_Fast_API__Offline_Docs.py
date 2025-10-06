@@ -1,4 +1,10 @@
 from unittest                                   import TestCase
+
+from osbot_utils.utils.Misc import list_set
+
+from osbot_fast_api.api.Fast_API import Fast_API
+from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
+from osbot_fast_api.utils.Version import version__osbot_fast_api
 from osbot_utils.helpers.html.utils.Html__Query import Html__Query
 from osbot_fast_api.api.Fast_API__Offline_Docs  import Fast_API__Offline_Docs, URL__SWAGGER__JS, URL__STATIC__DOCS, URL__REDOC__JS, URL__REDOC__FAVICON, URL__SWAGGER__CSS, URL__SWAGGER__FAVICON
 from tests.unit.fast_api__for_tests             import fast_api, fast_api_client
@@ -239,3 +245,56 @@ class test_Fast_API__Offline_Docs(TestCase):
     def test_save_resources_to_static_folder(self):
         with self.fast_api_offline_docs as _:
             _.save_resources_to_static_folder()
+
+    def test_bug__offline_docs_disabled(self):                                            # Test with offline docs disabled
+        config = Schema__Fast_API__Config(docs_offline=False)
+        with Fast_API(config=config).setup() as _:
+            client = _.client()
+            response = client.get('/docs')
+
+            # Should still work but with CDN resources
+            #assert response.status_code == 200                                          # BUG
+            assert response.status_code == 404                                           # BUG
+
+            # with Html__Query(html=response.text) as query:
+            #     # Should use CDN URLs, not local
+            #     for script_src in query.script_sources:
+            #         assert not script_src.startswith('/static-docs')
+
+    def test_static_docs_mount_exists(self):                                         # Test static mount configuration
+        with self.fast_api as _:
+            # Find static-docs mount
+            static_docs_mounts = [r for r in _.app().routes
+                                 if hasattr(r, 'path') and r.path == '/static-docs']
+
+            assert len(static_docs_mounts) == 1
+            mount = static_docs_mounts[0]
+
+            # Verify it's a StaticFiles mount
+            from starlette.staticfiles import StaticFiles
+            assert isinstance(mount.app, StaticFiles)
+
+    def test__bug__cache_headers_for_static_resources(self):                                # Test caching headers
+        response = self.client.get(f'{URL__STATIC__DOCS}{URL__SWAGGER__JS}')
+
+        assert response.status_code == 200
+        assert list_set(response.headers) == [ 'accept-ranges',
+                                               'content-length',
+                                               'content-type',
+                                               'etag',
+                                               'fast-api-request-id',
+                                               'last-modified']
+        assert 'cache-control' not in response.headers                                      # BUG: todo: see if we should be setting these
+        #assert 'max-age='       not in response.headers['cache-control']                     # BUG: todo: see if we should be setting these
+
+    def test_openapi_json_structure(self):                                                  # Test OpenAPI spec structure
+        response = self.client.get('/openapi.json')
+
+        assert response.status_code == 200
+        openapi_spec = response.json()
+
+        assert 'openapi' in openapi_spec
+        assert 'info' in openapi_spec
+        assert 'paths' in openapi_spec
+        assert openapi_spec['info']['title'] == 'Fast_API'
+        assert openapi_spec['info']['version'] == version__osbot_fast_api

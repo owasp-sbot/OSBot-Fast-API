@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from collections                                      import deque
 from decimal                                          import Decimal
@@ -242,3 +244,58 @@ class test_Fast_API__Http_Events(TestCase):
             assert len(view_model_3) == 11
             assert trace_call_3.stats() == {'calls': 253, 'calls_skipped': 249, 'exceptions': 0, 'lines': 1608, 'returns': 250, 'unknowns': 0}
 
+    def test_max_requests_logged_limit(self):                                         # Test request limit enforcement
+        with Fast_API__Http_Events() as _:
+            _.max_requests_logged = 5                                                 # Set low limit
+
+            # Create more requests than limit
+            for i in range(10):
+                scope = dict(type='http', client=Address('test', i),
+                            path=f'/path-{i}', method='GET', headers=[], query_string=b'')
+                request = Request(scope)
+                _.on_http_request(request)
+
+            # Should only keep last 5
+            assert len(_.requests_data) == 5
+            assert len(_.requests_order) == 5
+
+    def test_callback_on_request_execution(self):                                     # Test request callback
+        callback_executed = {'called': False, 'data': None}
+
+        def test_callback(request_data):
+            callback_executed['called'] = True
+            callback_executed['data'] = request_data
+
+        with Fast_API__Http_Events() as _:
+            _.callback_on_request = test_callback
+            _.on_http_request(self.request)
+
+            assert callback_executed['called'] is True
+            assert callback_executed['data'] == self.request_data
+
+    def test_callback_on_response_execution(self):                                    # Test response callback
+        callback_executed = {'called': False}
+
+        def test_callback(response, request_data):
+            callback_executed['called'] = True
+
+        with Fast_API__Http_Events() as _:
+            _.callback_on_response = test_callback
+            _.on_http_request(self.request)
+            _.on_http_response(self.request, self.response)
+
+            assert callback_executed['called'] is True
+
+    def test__bug__add_log_message(self):                                                   # Test log message functionality
+        with Fast_API__Http_Events() as _:
+            _.on_http_request(self.request)
+
+            # Add log messages
+            _.request_data(self.request).add_log_message("Test message"  , logging.INFO)
+            _.request_data(self.request).add_log_message("Error occurred", logging.ERROR)
+
+            messages = _.request_messages(self.request)
+
+            assert messages == []                                                           # BUG (todo: check the setup of this test, since that could be where the problem is)
+            assert "Test message"   not in messages                                         # BUG
+            assert "Error occurred" not in messages                                         # BUG
