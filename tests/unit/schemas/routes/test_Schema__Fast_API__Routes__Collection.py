@@ -3,10 +3,10 @@ from osbot_utils.testing.__                                                impor
 from osbot_utils.type_safe.Type_Safe                                       import Type_Safe
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List      import Type_Safe__List
 from osbot_utils.utils.Objects                                             import base_classes
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Route                 import Schema__Fast_API__Route
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Routes__Collection    import Schema__Fast_API__Routes__Collection
-from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method       import Enum__Http__Method
-from osbot_fast_api.schemas.routes.enums.Enum__Route__Type                 import Enum__Route__Type
+from osbot_fast_api.schemas.Schema__Fast_API__Route                 import Schema__Fast_API__Route
+from osbot_fast_api.schemas.Schema__Fast_API__Routes__Collection    import Schema__Fast_API__Routes__Collection
+from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method       import Enum__Http__Method
+from osbot_fast_api.schemas.enums.Enum__Fast_API__Route__Type                 import Enum__Fast_API__Route__Type
 
 
 class test_Schema__Fast_API__Routes__Collection(TestCase):
@@ -46,22 +46,22 @@ class test_Schema__Fast_API__Routes__Collection(TestCase):
             Schema__Fast_API__Route(http_path    = '/api/users',
                                     method_name  = 'get_users',
                                     http_methods = [Enum__Http__Method.GET],
-                                    route_type   = Enum__Route__Type.API_ROUTE),
+                                    route_type   = Enum__Fast_API__Route__Type.API_ROUTE),
 
             Schema__Fast_API__Route(http_path    = '/api/users',
                                     method_name  = 'create_user',
                                     http_methods = [Enum__Http__Method.POST],
-                                    route_type   = Enum__Route__Type.API_ROUTE),
+                                    route_type   = Enum__Fast_API__Route__Type.API_ROUTE),
 
             Schema__Fast_API__Route(http_path    = '/ws/chat'                      ,
                                     method_name  = 'websocket_handler'             ,
                                     http_methods = []                              ,
-                                    route_type   = Enum__Route__Type.WEBSOCKET     ),
+                                    route_type   = Enum__Fast_API__Route__Type.WEBSOCKET     ),
 
             Schema__Fast_API__Route(http_path    = '/static',
                                     method_name  = 'static_files',
                                     http_methods = [Enum__Http__Method.GET],
-                                    route_type   = Enum__Route__Type.STATIC,
+                                    route_type   = Enum__Fast_API__Route__Type.STATIC,
                                     is_mount     = True)
         ]
 
@@ -75,21 +75,21 @@ class test_Schema__Fast_API__Routes__Collection(TestCase):
             assert _.has_websockets is True
 
             # Verify route types are preserved
-            assert _.routes[0].route_type == Enum__Route__Type.API_ROUTE
-            assert _.routes[2].route_type == Enum__Route__Type.WEBSOCKET
-            assert _.routes[3].route_type == Enum__Route__Type.STATIC
+            assert _.routes[0].route_type == Enum__Fast_API__Route__Type.API_ROUTE
+            assert _.routes[2].route_type == Enum__Fast_API__Route__Type.WEBSOCKET
+            assert _.routes[3].route_type == Enum__Fast_API__Route__Type.STATIC
             assert _.routes[3].is_mount   is True
 
     def test_automatic_flag_detection(self):                                       # Test that flags can be auto-computed
         routes = [
-            Schema__Fast_API__Route(route_type = Enum__Route__Type.API_ROUTE     ),
-            Schema__Fast_API__Route(route_type = Enum__Route__Type.WEBSOCKET     ),
-            Schema__Fast_API__Route(route_type = Enum__Route__Type.MOUNT         ,
+            Schema__Fast_API__Route(route_type = Enum__Fast_API__Route__Type.API_ROUTE     ),
+            Schema__Fast_API__Route(route_type = Enum__Fast_API__Route__Type.WEBSOCKET     ),
+            Schema__Fast_API__Route(route_type = Enum__Fast_API__Route__Type.MOUNT         ,
                                    is_mount    = True                             )
         ]
 
         with Schema__Fast_API__Routes__Collection(routes = routes) as _:                                # Even if not set, collection should be able to compute these
-            websocket_exists = any(r.route_type == Enum__Route__Type.WEBSOCKET for r in _.routes)       # (though in practice, Fast_API__Route__Extractor sets them)
+            websocket_exists = any(r.route_type == Enum__Fast_API__Route__Type.WEBSOCKET for r in _.routes)       # (though in practice, Fast_API__Route__Extractor sets them)
             mount_exists     = any(r.is_mount for r in _.routes)
 
             assert websocket_exists is True
@@ -113,7 +113,7 @@ class test_Schema__Fast_API__Routes__Collection(TestCase):
 
                  Schema__Fast_API__Route(http_path    = '/ws/notifications'           ,
                                         method_name  = 'notification_ws'              ,
-                                        route_type   = Enum__Route__Type.WEBSOCKET    )]
+                                        route_type   = Enum__Fast_API__Route__Type.WEBSOCKET    )]
 
         with Schema__Fast_API__Routes__Collection(routes         = routes        ,
                                                   total_routes   = 2             ,
@@ -137,7 +137,7 @@ class test_Schema__Fast_API__Routes__Collection(TestCase):
                 assert len(restored.routes) == 2
                 assert restored.routes[0].http_path   == '/api/v1/health'
                 assert restored.routes[0].route_class == 'Routes__Health'
-                assert restored.routes[1].route_type  == Enum__Route__Type.WEBSOCKET
+                assert restored.routes[1].route_type  == Enum__Fast_API__Route__Type.WEBSOCKET
 
                 # Verify type preservation
                 assert type(restored.routes) is Type_Safe__List
@@ -157,12 +157,12 @@ class test_Schema__Fast_API__Routes__Collection(TestCase):
         # Add some special routes
         routes.append(Schema__Fast_API__Route(
             http_path    = '/ws/stream'                                          ,
-            route_type   = Enum__Route__Type.WEBSOCKET
+            route_type   = Enum__Fast_API__Route__Type.WEBSOCKET
         ))
 
         routes.append(Schema__Fast_API__Route(
             http_path    = '/static'                                             ,
-            route_type   = Enum__Route__Type.STATIC                              ,
+            route_type   = Enum__Fast_API__Route__Type.STATIC                              ,
             is_mount     = True
         ))
 
@@ -220,7 +220,7 @@ class test_Schema__Fast_API__Routes__Collection(TestCase):
             # Add routes one by one
             route1 = Schema__Fast_API__Route(http_path = '/api/v1')
             route2 = Schema__Fast_API__Route(http_path = '/api/v2',
-                                             route_type = Enum__Route__Type.WEBSOCKET)
+                                             route_type = Enum__Fast_API__Route__Type.WEBSOCKET)
 
             _.routes.append(route1)
             _.routes.append(route2)
@@ -232,4 +232,4 @@ class test_Schema__Fast_API__Routes__Collection(TestCase):
             assert _.total_routes   == 2
             assert _.has_websockets is True
             assert _.routes[0].http_path == '/api/v1'
-            assert _.routes[1].route_type == Enum__Route__Type.WEBSOCKET
+            assert _.routes[1].route_type == Enum__Fast_API__Route__Type.WEBSOCKET

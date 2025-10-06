@@ -1,7 +1,4 @@
 import code
-import os
-import signal
-import subprocess
 import typer
 import readline
 

@@ -10,9 +10,9 @@ from osbot_fast_api.api.Fast_API__Offline_Docs                                  
 from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
 from osbot_fast_api.api.routes.Routes__Config                                   import Routes__Config
 from osbot_fast_api.api.routes.Routes__Set_Cookie                               import Routes__Set_Cookie
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                            import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.consts__Fast_API                                    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Name                   import Safe_Str__Fast_API__Name
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.consts.consts__Fast_API                             import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
 
 

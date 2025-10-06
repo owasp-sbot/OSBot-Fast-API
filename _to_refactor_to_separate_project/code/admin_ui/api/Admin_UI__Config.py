@@ -1,5 +1,5 @@
 from osbot_utils.type_safe.Type_Safe                          import Type_Safe
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix import Safe_Str__Fast_API__Route__Prefix
 
 class Admin_UI__Config(Type_Safe):                                   # Configuration for Admin UI
     enabled          : bool = True

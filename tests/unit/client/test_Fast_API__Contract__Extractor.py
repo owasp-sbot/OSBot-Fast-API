@@ -1,9 +1,9 @@
 # from unittest                                                                   import TestCase
 # from fastapi                                                                    import HTTPException
-# from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                      import Safe_Str__Fast_API__Route__Tag
-# from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method            import Enum__Http__Method
-# from osbot_fast_api.schemas.routes.Schema__Fast__API__Tag__Classes_And_Routes import Schema__Fast__API__Tag__Classes_And_Routes
-# from osbot_fast_api.schemas.routes.Schema__Fast__API__Tags__Classes_And_Routes  import Schema__Fast__API__Tags__Classes_And_Routes
+# from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                      import Safe_Str__Fast_API__Route__Tag
+# from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method            import Enum__Http__Method
+# from osbot_fast_api.schemas.routes.Schema__Fast_API__Tag__Classes_And_Routes import Schema__Fast_API__Tag__Classes_And_Routes
+# from osbot_fast_api.schemas.routes.Schema__Fast__API_Tags__Classes_And_Routes  import Schema__Fast__API_Tags__Classes_And_Routes
 # from osbot_utils.testing.__                                                     import __, __SKIP__
 # from osbot_utils.utils.Objects                                                  import base_classes
 # from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
@@ -61,13 +61,13 @@
 #         with self.extractor as _:
 #             all_routes       = _.fast_api__all_routes()
 #             routes_by_module = _.organize_routes__by_tag(all_routes)
-#             assert type(routes_by_module) is Schema__Fast__API__Tags__Classes_And_Routes
+#             assert type(routes_by_module) is Schema__Fast__API_Tags__Classes_And_Routes
 #             assert 'users' in routes_by_module.by_tag                         # Users module detected
 #             assert 'products' in routes_by_module.by_tag                      # Products module detected
 #
 #             # Check users module structure
 #             users_module = routes_by_module.by_tag['users']
-#             assert type(users_module) is Schema__Fast__API__Tag__Classes_And_Routes
+#             assert type(users_module) is Schema__Fast_API__Tag__Classes_And_Routes
 #             users_module.classes.print()
 #             assert 'Routes__Users'    in users_module.classes
 #

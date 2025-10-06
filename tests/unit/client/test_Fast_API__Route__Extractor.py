@@ -15,11 +15,11 @@ from starlette.routing                                                          
 from starlette.staticfiles                                                       import StaticFiles
 from osbot_fast_api.api.Fast_API                                                 import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes                                  import Fast_API__Routes
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                    import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method             import Enum__Http__Method
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Route                       import Schema__Fast_API__Route
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Routes__Collection          import Schema__Fast_API__Routes__Collection
-from osbot_fast_api.schemas.routes.enums.Enum__Route__Type                       import Enum__Route__Type
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                    import Safe_Str__Fast_API__Route__Prefix
+from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method             import Enum__Http__Method
+from osbot_fast_api.schemas.Schema__Fast_API__Route                       import Schema__Fast_API__Route
+from osbot_fast_api.schemas.Schema__Fast_API__Routes__Collection          import Schema__Fast_API__Routes__Collection
+from osbot_fast_api.schemas.enums.Enum__Fast_API__Route__Type                       import Enum__Fast_API__Route__Type
 
 
 class test_Fast_API__Route__Extractor(TestCase):
@@ -253,7 +253,7 @@ class test_Fast_API__Route__Extractor(TestCase):
             assert type(route)              is Schema__Fast_API__Route
             assert route.http_path          == '/api'
             assert route.method_name        == 'route_name'
-            assert route.route_type         == Enum__Route__Type.ROUTE
+            assert route.route_type         == Enum__Fast_API__Route__Type.ROUTE
             assert Enum__Http__Method.GET   in route.http_methods
             assert Enum__Http__Method.POST  in route.http_methods
 
@@ -283,7 +283,7 @@ class test_Fast_API__Route__Extractor(TestCase):
             assert type(route) is Schema__Fast_API__Route
             assert route.http_path    == '/ws/chat'
             assert route.method_name  == 'chat_handler'
-            assert route.route_type   == Enum__Route__Type.WEBSOCKET
+            assert route.route_type   == Enum__Fast_API__Route__Type.WEBSOCKET
             assert route.http_methods == []                                         # WebSockets don't have HTTP methods
 
     def test__extract_mount_routes_static(self):                                    # Test static files mount extraction
@@ -311,7 +311,7 @@ class test_Fast_API__Route__Extractor(TestCase):
             route = routes[0]
             assert route.http_path    == '/static'
             assert route.method_name  == 'static_files'
-            assert route.route_type   == Enum__Route__Type.STATIC
+            assert route.route_type   == Enum__Fast_API__Route__Type.STATIC
             assert route.is_mount     is True
             assert Enum__Http__Method.GET in route.http_methods
             assert Enum__Http__Method.HEAD in route.http_methods
@@ -344,7 +344,7 @@ class test_Fast_API__Route__Extractor(TestCase):
             route = routes[0]
             assert route.http_path    == '/legacy'
             assert route.method_name  == 'wsgi_app'
-            assert route.route_type   == Enum__Route__Type.WSGI
+            assert route.route_type   == Enum__Fast_API__Route__Type.WSGI
             assert route.is_mount     is True
             assert route.http_methods == []                                         # Unknown methods for WSGI
 
@@ -530,7 +530,7 @@ class test_Fast_API__Route__Extractor(TestCase):
             route = routes[0]
             assert route.http_path    == '/generic'
             assert route.method_name  == 'mount'
-            assert route.route_type   == Enum__Route__Type.MOUNT
+            assert route.route_type   == Enum__Fast_API__Route__Type.MOUNT
             assert route.is_mount     is True
 
 

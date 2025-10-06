@@ -2,8 +2,8 @@
 # import inspect
 # from typing                                                                     import List, Any, Optional
 # from osbot_fast_api.schemas.routes.Schema__Fast_API__Route                      import Schema__Fast_API__Route
-# from osbot_fast_api.schemas.routes.Schema__Fast__API__Tag__Classes_And_Routes   import Schema__Fast__API__Tag__Classes_And_Routes
-# from osbot_fast_api.schemas.routes.Schema__Fast__API__Tags__Classes_And_Routes  import Schema__Fast__API__Tags__Classes_And_Routes
+# from osbot_fast_api.schemas.routes.Schema__Fast_API__Tag__Classes_And_Routes   import Schema__Fast_API__Tag__Classes_And_Routes
+# from osbot_fast_api.schemas.routes.Schema__Fast__API_Tags__Classes_And_Routes  import Schema__Fast__API_Tags__Classes_And_Routes
 # from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
 # from osbot_fast_api.client.Fast_API__Route__Extractor                           import Fast_API__Route__Extractor
 # from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method            import Enum__Http__Method
@@ -58,9 +58,9 @@
 #         return contract
 #
 #     def organize_routes__by_tag(self, routes: List[Schema__Fast_API__Route]  # List of route dictionaries
-#                                  ) -> Schema__Fast__API__Tags__Classes_And_Routes:      # Organize routes by tag based on class names and paths
+#                                  ) -> Schema__Fast__API_Tags__Classes_And_Routes:      # Organize routes by tag based on class names and paths
 #
-#         routes_by_tag = Schema__Fast__API__Tags__Classes_And_Routes()
+#         routes_by_tag = Schema__Fast__API_Tags__Classes_And_Routes()
 #         for route in routes:
 #             route_tags  = route.route_tags or ['root']
 #             for route_tag in route_tags:
@@ -69,7 +69,7 @@
 #                 if route_tag in routes_by_tag.by_tag:
 #                     classes_and_routes = routes_by_tag.by_tag[route_tag]
 #                 else:
-#                     classes_and_routes = Schema__Fast__API__Tag__Classes_And_Routes()
+#                     classes_and_routes = Schema__Fast_API__Tag__Classes_And_Routes()
 #                     routes_by_tag.by_tag[route_tag] = classes_and_routes
 #
 #                 with classes_and_routes as _:

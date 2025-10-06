@@ -1,15 +1,13 @@
 from typing                                                                     import List, Union
-
-from pydantic_core import PydanticUndefined
-
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag import Safe_Str__Fast_API__Route__Tag
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
-
-from osbot_utils.utils.Http import url_join_safe
-
+from pydantic_core                                                              import PydanticUndefined
+from osbot_fast_api.schemas.Schema__Fast_API__Route                             import Schema__Fast_API__Route
+from osbot_fast_api.schemas.Schema__Fast_API__Routes__Collection                import Schema__Fast_API__Routes__Collection
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag             import Safe_Str__Fast_API__Route__Tag
+from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method     import Enum__Http__Method
+from osbot_utils.utils.Http                                                     import url_join_safe
 from osbot_fast_api.client.schemas.Schema__Endpoint__Param                      import Schema__Endpoint__Param
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
-from osbot_fast_api.schemas.consts__Fast_API                                    import FAST_API_DEFAULT_ROUTES_PATHS
+from osbot_fast_api.schemas.consts.consts__Fast_API                             import FAST_API_DEFAULT_ROUTES_PATHS
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from fastapi                                                                    import FastAPI
 from fastapi.routing                                                            import APIWebSocketRoute, APIRoute, APIRouter
@@ -18,11 +16,8 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 from starlette.middleware.wsgi                                                  import WSGIMiddleware
 from starlette.routing                                                          import Mount, Route
 from starlette.staticfiles                                                      import StaticFiles
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method            import Enum__Http__Method
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Route                      import Schema__Fast_API__Route
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Routes__Collection         import Schema__Fast_API__Routes__Collection
-from osbot_fast_api.schemas.routes.enums.Enum__Route__Type                      import Enum__Route__Type
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.enums.Enum__Fast_API__Route__Type                   import Enum__Fast_API__Route__Type
 
 class Fast_API__Route__Extractor(Type_Safe):                              # Dedicated class for route extraction
     app               : FastAPI
@@ -53,9 +48,9 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
             body_params  = self.extract__body_params(route)
             return_type  = self.extract__return_type(route)
             route_tags   = route.tags
-            route_type   = Enum__Route__Type.API_ROUTE
+            route_type   = Enum__Fast_API__Route__Type.API_ROUTE
         else:
-            route_type   = Enum__Route__Type.ROUTE
+            route_type   = Enum__Fast_API__Route__Type.ROUTE
 
         return Schema__Fast_API__Route(body_params  = body_params ,
                                        description  = description ,
@@ -92,7 +87,7 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
         return Schema__Fast_API__Routes__Collection(routes         = routes,
                                                     total_routes   = len(routes),
                                                     has_mounts     = any(r.is_mount for r in routes),
-                                                    has_websockets = any(r.route_type == Enum__Route__Type.WEBSOCKET for r in routes))
+                                                    has_websockets = any(r.route_type == Enum__Fast_API__Route__Type.WEBSOCKET for r in routes))
 
     @type_safe
     def extract_routes_from_router(self, router : APIRouter                                   ,              # FastAPI to extract routes from
@@ -129,7 +124,7 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
             route = Schema__Fast_API__Route(http_path    = path                    ,
                                             method_name  = Safe_Str__Id("wsgi_app"),
                                             http_methods = []                      ,  # Unknown methods for WSGI
-                                            route_type   = Enum__Route__Type.WSGI  ,
+                                            route_type   = Enum__Fast_API__Route__Type.WSGI  ,
                                             is_mount     = True                    )
             routes.append(route)
 
@@ -137,7 +132,7 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
             route = Schema__Fast_API__Route(http_path    = path                                             ,
                                             method_name  = Safe_Str__Id("static_files")                     ,
                                             http_methods = [Enum__Http__Method.GET, Enum__Http__Method.HEAD],
-                                            route_type   = Enum__Route__Type.STATIC                         ,
+                                            route_type   = Enum__Fast_API__Route__Type.STATIC                         ,
                                             is_mount     = True                                             )
             routes.append(route)
 
@@ -149,7 +144,7 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
             route = Schema__Fast_API__Route(http_path    = path                     ,
                                             method_name  = Safe_Str__Id("mount")    ,
                                             http_methods = []                       ,
-                                            route_type   = Enum__Route__Type.MOUNT  ,
+                                            route_type   = Enum__Fast_API__Route__Type.MOUNT  ,
                                             is_mount     = True                     )
             routes.append(route)
 
@@ -206,7 +201,7 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
         return Schema__Fast_API__Route(http_path    = path                       ,
                                        method_name  = Safe_Str__Id(route.name)   ,          # if route.name else Safe_Str__Id("websocket"),
                                        http_methods = []                         ,          # WebSockets don't use HTTP methods
-                                       route_type   = Enum__Route__Type.WEBSOCKET)
+                                       route_type   = Enum__Fast_API__Route__Type.WEBSOCKET)
 
 
     def extract__route_class(self, route) -> Safe_Str__Id:                                          # Extract class name (in most cases it will be something like Routes__* )

@@ -9,8 +9,8 @@ from fastapi.exceptions                                             import Reque
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache   import type_safe_cache
 from osbot_fast_api.api.routes.Fast_API__Route__Parser              import Fast_API__Route__Parser
 from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel       import type_safe__to__basemodel
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix       import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag          import Safe_Str__Fast_API__Route__Tag
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix       import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag          import Safe_Str__Fast_API__Route__Tag
 
 
 class Fast_API__Routes(Type_Safe):       # refactor to Fast_API__Routes

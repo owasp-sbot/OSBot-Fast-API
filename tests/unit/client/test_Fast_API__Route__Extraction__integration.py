@@ -14,9 +14,9 @@ from osbot_fast_api.api.Fast_API                                                
 from osbot_fast_api.api.decorators.route_path                                    import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes                                  import Fast_API__Routes
 from osbot_fast_api.client.Fast_API__Route__Extractor                            import Fast_API__Route__Extractor
-from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method             import Enum__Http__Method
-from osbot_fast_api.schemas.routes.Schema__Fast_API__Routes__Collection          import Schema__Fast_API__Routes__Collection
-from osbot_fast_api.schemas.routes.enums.Enum__Route__Type                       import Enum__Route__Type
+from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method             import Enum__Http__Method
+from osbot_fast_api.schemas.Schema__Fast_API__Routes__Collection          import Schema__Fast_API__Routes__Collection
+from osbot_fast_api.schemas.enums.Enum__Fast_API__Route__Type                       import Enum__Fast_API__Route__Type
 
 
 class test_Fast_API__Route__Extraction__integration(TestCase):          # Integration tests for complete route extraction workflow
@@ -182,7 +182,7 @@ class test_Fast_API__Route__Extraction__integration(TestCase):          # Integr
         collection = self.extractor.extract_routes()
 
         ws_routes = [r for r in collection.routes
-                    if r.route_type == Enum__Route__Type.WEBSOCKET]
+                    if r.route_type == Enum__Fast_API__Route__Type.WEBSOCKET]
 
         assert len(ws_routes) >= 1
 
@@ -249,8 +249,8 @@ class test_Fast_API__Route__Extraction__integration(TestCase):          # Integr
         #
         # # Check enum preservation
         # for orig, rest in zip(collection.routes, restored.routes):
-        #     if orig.route_type == Enum__Route__Type.WEBSOCKET:
-        #         assert rest.route_type == Enum__Route__Type.WEBSOCKET
+        #     if orig.route_type == Enum__Fast_API__Route__Type.WEBSOCKET:
+        #         assert rest.route_type == Enum__Fast_API__Route__Type.WEBSOCKET
 
     def test_filtering_default_routes(self):                                        # Test include_default flag behavior
         # Without defaults
@@ -344,7 +344,7 @@ class test_Fast_API__Route__Extraction__integration(TestCase):          # Integr
     #
     #     # Find WSGI mount
     #     wsgi_route = next((r for r in collection.routes
-    #                       if r.route_type == Enum__Route__Type.WSGI), None)
+    #                       if r.route_type == Enum__Fast_API__Route__Type.WSGI), None)
     #
     #     assert wsgi_route is not None
     #     assert wsgi_route.http_path == '/legacy'

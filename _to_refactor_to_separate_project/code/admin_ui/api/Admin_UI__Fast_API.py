@@ -8,8 +8,8 @@ from osbot_fast_api.admin_ui.api.routes.Routes__Admin__Docs         import Route
 from osbot_fast_api.admin_ui.api.routes.Routes__Admin__Info         import Routes__Admin__Info
 from osbot_fast_api.admin_ui.api.routes.Routes__Admin__Static       import Routes__Admin__Static
 from osbot_fast_api.api.Fast_API                                    import Fast_API
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix       import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Name                import Safe_Str__Fast_API__Name
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix       import Safe_Str__Fast_API__Route__Prefix
 
 
 class Admin_UI__Fast_API(Fast_API):                                 # Admin UI for FastAPI applications.

@@ -4,24 +4,24 @@ from unittest.mock                                                              
 from unittest                                                                   import TestCase
 from fastapi                                                                    import FastAPI, HTTPException
 from fastapi.exceptions                                                         import RequestValidationError
-from osbot_utils.testing.Temp_Env_Vars import Temp_Env_Vars
-from osbot_utils.testing.__                                                     import __
+from osbot_utils.testing.Temp_Folder import Temp_Folder
+
+from osbot_utils.testing.Temp_Env_Vars                                          import Temp_Env_Vars
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version import Safe_Str__Version
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import parent_folder
+from osbot_utils.utils.Files                                                    import parent_folder
 from osbot_utils.utils.Objects                                                  import base_classes
-from osbot_utils.utils.Threads import invoke_async
+from osbot_utils.utils.Threads                                                  import invoke_async
 from starlette.requests                                                         import Request
 from starlette.responses                                                        import JSONResponse
 from starlette.testclient                                                       import TestClient
 from osbot_fast_api.api.Fast_API                                                import Fast_API
 from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                            import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.consts__Fast_API                                    import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Name                   import Safe_Str__Fast_API__Name
+from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.schemas.consts.consts__Fast_API                             import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.utils.Fast_API_Utils                                        import Fast_API_Utils
 from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
 from tests.unit.fast_api__for_tests                                             import fast_api, fast_api_client
@@ -662,3 +662,60 @@ class test_Fast_API(TestCase):
         # Should only exist in api1
         assert '/api1-route' in api1.routes_paths()
         assert '/api1-route' not in api2.routes_paths()
+
+    def test__bug__serialization_round_trip__doesnt_work_due_to_deque_use(self):
+        with Fast_API(name="TestAPI", version="v1.0.0", enable_cors=True) as original:
+            error_message = "Type <class 'collections.deque'> not serializable"
+            with pytest.raises(TypeError, match=re.escape(error_message)):
+                original.json()
+            # # Serialize to JSON
+            # json_data = original.json()
+            #
+            # # Deserialize back
+            # with Fast_API.from_json(json_data) as restored:
+            #     # Must be perfect round-trip
+            #     assert restored.name         == original.name
+            #     assert restored.version      == original.version
+            #     assert restored.enable_cors  == original.enable_cors
+            #
+            #     # Verify type preservation
+            #     assert type(restored.name)      is Safe_Str__Fast_API__Name
+            #     assert type(restored.version)   is Safe_Str__Version
+            #     assert type(restored.server_id) is Random_Guid
+
+    def test_background_tasks_registration(self):                                      # Test background task functionality
+        with Fast_API() as _:
+            _.setup()
+
+            def background_task(request, response):                                     # Add background task
+                pass
+
+            _.http_events.background_tasks.append(background_task)
+
+            # todo: Verify task gets added to response
+            #       This needs integration testing with actual request/response
+            #       note: background_tasks doesn't work in Lambdas (which is why this is not usually used in services created from this Fast_API class
+
+    def test_server_id_persistence(self):                                             # Test server_id uniqueness
+        api1 = Fast_API()
+        api2 = Fast_API()
+
+        assert api1.server_id != api2.server_id                                       # Each instance unique
+        assert type(api1.server_id) is Random_Guid
+        assert type(api2.server_id) is Random_Guid
+
+    def test_path_static_folder_override(self):                                       # Test static folder configuration
+        with Temp_Folder() as temp_folder:
+
+            class Custom_Fast_API(Fast_API):
+                def path_static_folder(self):
+                    return temp_folder.full_path
+
+
+            with Custom_Fast_API() as _:
+                _.setup()
+                assert _.path_static_folder() == temp_folder.full_path
+
+                # Verify static mount created
+                static_mounts = [r for r in _.app().routes if hasattr(r, 'path') and r.path == '/static']
+                assert len(static_mounts) == 1
