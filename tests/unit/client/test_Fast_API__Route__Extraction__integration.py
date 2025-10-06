@@ -4,8 +4,7 @@ import pytest
 from typing                                                                      import List
 from unittest                                                                    import TestCase
 from fastapi                                                                     import FastAPI, APIRouter
-
-from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
+from osbot_fast_api.schemas.Schema__Fast_API__Config                             import Schema__Fast_API__Config
 from osbot_utils.testing.__                                                      import __
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id  import Safe_Str__Id

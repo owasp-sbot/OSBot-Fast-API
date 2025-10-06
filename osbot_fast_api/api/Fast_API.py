@@ -1,3 +1,5 @@
+from osbot_fast_api.api.middlewares.Middleware__Http_Request import Middleware__Http_Request
+from osbot_fast_api.api.middlewares.Middleware__Request_ID import Middleware__Request_ID
 from osbot_fast_api.schemas.Schema__Fast_API__Config                            import Schema__Fast_API__Config
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.decorators.lists.index_by                                      import index_by
@@ -6,7 +8,6 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           
 from osbot_utils.utils.Json                                                     import json_loads, json_dumps
 from starlette.staticfiles                                                      import StaticFiles
 from osbot_fast_api.api.Fast_API__Offline_Docs                                  import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, URL__STATIC__DOCS, NAME__STATIC__DOCS
-from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
 from osbot_fast_api.api.routes.Routes__Config                                   import Routes__Config
 from osbot_fast_api.api.routes.Routes__Set_Cookie                               import Routes__Set_Cookie
 from osbot_fast_api.schemas.consts.consts__Fast_API                             import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
@@ -14,24 +15,13 @@ from osbot_fast_api.schemas.consts.consts__Fast_API                             
 
 
 class Fast_API(Type_Safe):
-    # base_path      : Safe_Str__Fast_API__Route__Prefix = '/'
-    # add_admin_ui   : bool                     = False
-    # docs_offline   : bool                     = True
-    # enable_cors    : bool                     = False
-    # enable_api_key : bool                     = False
-    # default_routes : bool                     = True
-    # name           : Safe_Str__Fast_API__Name = None
-    # version        : Safe_Str__Version        = version__osbot_fast_api
-    # description    : Safe_Str__Text           = None
     config         : Schema__Fast_API__Config
-    http_events    : Fast_API__Http_Events
     server_id      : Random_Guid
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if not self.config.name:
-            self.config.name           = self.__class__.__name__
-        self.http_events.fast_api_name = self.config.name
+            self.config.name           = self.__class__.__name__                # this makes the api name more user friendly
 
     # todo: improve the error handling of validation errors (namely from Type_Safe_Primitive)
     #       see code example in https://claude.ai/chat/f443e322-fa43-487f-9dd9-2d4cfb261b1e
@@ -166,8 +156,8 @@ class Fast_API(Type_Safe):
 
 
     def setup_middlewares(self):                 # overwrite to add more middlewares
+        self.setup_middleware__request_id       ()                                      # sets the 'fast-api-request-id' headers
         self.setup_middleware__detect_disconnect()
-        self.setup_middleware__http_events      ()
         self.setup_middleware__cors             ()
         self.setup_middleware__api_key_check    ()
         return self
@@ -230,12 +220,8 @@ class Fast_API(Type_Safe):
 
         self.app().add_middleware(Middleware__Detect_Disconnect)
 
-    def setup_middleware__http_events(self):
-        from osbot_fast_api.api.middlewares.Middleware__Http_Request import Middleware__Http_Request
-
-        self.app().add_middleware(Middleware__Http_Request , http_events=self.http_events)
-        return self
-
+    def setup_middleware__request_id(self):
+        self.app().add_middleware(Middleware__Request_ID)
 
     def user_middlewares(self, include_params=True):
         import types

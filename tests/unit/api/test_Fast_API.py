@@ -18,7 +18,6 @@ from starlette.requests                                                         
 from starlette.responses                                                        import JSONResponse
 from starlette.testclient                                                       import TestClient
 from osbot_fast_api.api.Fast_API                                                import Fast_API
-from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
 from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Name                   import Safe_Str__Fast_API__Name
 from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.schemas.consts.consts__Fast_API                             import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
@@ -104,10 +103,8 @@ class test_Fast_API(TestCase):
         assert self.fast_api.setup_routes() == self.fast_api
 
     def test_user_middleware(self):
-        http_events = self.fast_api.http_events
-        params = {'http_events' : http_events}
-        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': params, 'type': 'Middleware__Http_Request'     },
-                                                    {'function_name': None, 'params': {}     ,'type': 'Middleware__Detect_Disconnect'}]
+        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': {}, 'type': 'Middleware__Detect_Disconnect'},
+                                                    {'function_name': None, 'params': {}, 'type': 'Middleware__Request_ID'       }]
 
     def test__verify__title_description_version(self):
         app = self.fast_api.app()
@@ -161,7 +158,6 @@ class test_Fast_API(TestCase):
             assert type(_.config.version)        is Safe_Str__Version
             assert type(_.config.description)    is type(None)                           # None by default
 
-            assert type(_.http_events)           is Fast_API__Http_Events
             assert type(_.server_id)             is Random_Guid
 
             # Verify defaults
@@ -178,12 +174,10 @@ class test_Fast_API(TestCase):
         config = Schema__Fast_API__Config(name = "My API Service!")
         with Fast_API(config=config) as _:
             assert _.config.name               == "My API Service_"                # Sanitized by Safe_Str__Fast_API__Name
-            assert _.http_events.fast_api_name == "My API Service_"                # Propagated to http_events
 
     def test__init__without_name(self):                                            # Test auto-name from class
         with Fast_API() as _:
             assert _.config.name               == "Fast_API"                       # Uses class name
-            assert _.http_events.fast_api_name == "Fast_API"
 
     def test__init__with_all_parameters(self):                                     # Test comprehensive initialization
         kwargs = dict(base_path      = '/api/v1'               ,
@@ -495,15 +489,6 @@ class test_Fast_API(TestCase):
 
             assert 'Middleware__Detect_Disconnect' in middleware_types
 
-    def test_setup_middleware_http_events(self):                                   # Test HTTP events middleware
-        with Fast_API() as _:
-            _.setup_middleware__http_events()
-
-            middlewares = _.user_middlewares()
-            http_middleware = [m for m in middlewares if m['type'] == 'Middleware__Http_Request']
-
-            assert len(http_middleware) == 1
-            assert http_middleware[0]['params']['http_events'] == _.http_events
 
     # Route removal tests
 
@@ -677,39 +662,6 @@ class test_Fast_API(TestCase):
         assert '/api1-route' in api1.routes_paths()
         assert '/api1-route' not in api2.routes_paths()
 
-    def test__bug__serialization_round_trip__doesnt_work_due_to_deque_use(self):
-        config = Schema__Fast_API__Config(name="TestAPI", version="v1.0.0", enable_cors=True)
-        with Fast_API(config=config) as original:
-            error_message = "Type <class 'collections.deque'> not serializable"
-            with pytest.raises(TypeError, match=re.escape(error_message)):
-                original.json()
-            # # Serialize to JSON
-            # json_data = original.json()
-            #
-            # # Deserialize back
-            # with Fast_API.from_json(json_data) as restored:
-            #     # Must be perfect round-trip
-            #     assert restored.name         == original.name
-            #     assert restored.version      == original.version
-            #     assert restored.enable_cors  == original.enable_cors
-            #
-            #     # Verify type preservation
-            #     assert type(restored.name)      is Safe_Str__Fast_API__Name
-            #     assert type(restored.version)   is Safe_Str__Version
-            #     assert type(restored.server_id) is Random_Guid
-
-    def test_background_tasks_registration(self):                                      # Test background task functionality
-        with Fast_API() as _:
-            _.setup()
-
-            def background_task(request, response):                                     # Add background task
-                pass
-
-            _.http_events.background_tasks.append(background_task)
-
-            # todo: Verify task gets added to response
-            #       This needs integration testing with actual request/response
-            #       note: background_tasks doesn't work in Lambdas (which is why this is not usually used in services created from this Fast_API class
 
     def test_server_id_persistence(self):                                             # Test server_id uniqueness
         api1 = Fast_API()
@@ -734,3 +686,25 @@ class test_Fast_API(TestCase):
                 # Verify static mount created
                 static_mounts = [r for r in _.app().routes if hasattr(r, 'path') and r.path == '/static']
                 assert len(static_mounts) == 1
+
+    def test__regression__serialization_round_trip__doesnt_work_due_to_deque_use(self):
+        config = Schema__Fast_API__Config(name="TestAPI", version="v1.0.0", enable_cors=True)
+        with Fast_API(config=config) as original:
+            # error_message = "Type <class 'collections.deque'> not serializable"
+            # with pytest.raises(TypeError, match=re.escape(error_message)):
+            #     original.json()                                                           # BUG: should had not raised exception
+
+            # Serialize to JSON
+            json_data = original.json()
+
+            # Deserialize back
+            with Fast_API.from_json(json_data) as restored:
+                # Must be perfect round-trip
+                assert restored.config.name         == original.config.name
+                assert restored.config.version      == original.config.version
+                assert restored.config.enable_cors  == original.config.enable_cors
+
+                # Verify type preservation
+                assert type(restored.config.name     ) is Safe_Str__Fast_API__Name
+                assert type(restored.config.version  ) is Safe_Str__Version
+                assert type(restored.server_id       ) is Random_Guid

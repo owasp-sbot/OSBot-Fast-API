@@ -1,7 +1,7 @@
 from unittest                                                   import TestCase
 from osbot_fast_api.api.Fast_API                                import Fast_API, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.api.middlewares.Middleware__Check_API_Key   import ERROR_MESSAGE__NO_KEY_NAME_SETUP, ERROR_MESSAGE__NO_KEY_VALUE_SETUP, ERROR_MESSAGE__API_KEY_MISSING
-from osbot_fast_api.schemas.consts.consts__Fast_API import AUTH__EXCLUDED_PATHS
+from osbot_fast_api.schemas.consts.consts__Fast_API             import AUTH__EXCLUDED_PATHS
 from osbot_fast_api.utils.Fast_API__Server_Info                 import fast_api__server_info
 from osbot_utils.testing.Temp_Env_Vars                          import Temp_Env_Vars
 from osbot_utils.utils.Status                                   import status_error

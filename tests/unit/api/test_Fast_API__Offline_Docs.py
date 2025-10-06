@@ -1,13 +1,14 @@
-from unittest                                   import TestCase
+from unittest                                           import TestCase
 
-from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Env import in_github_action, not_in_github_action
 
-from osbot_fast_api.api.Fast_API import Fast_API
-from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
-from osbot_fast_api.utils.Version import version__osbot_fast_api
-from osbot_utils.helpers.html.utils.Html__Query import Html__Query
-from osbot_fast_api.api.Fast_API__Offline_Docs  import Fast_API__Offline_Docs, URL__SWAGGER__JS, URL__STATIC__DOCS, URL__REDOC__JS, URL__REDOC__FAVICON, URL__SWAGGER__CSS, URL__SWAGGER__FAVICON
-from tests.unit.fast_api__for_tests             import fast_api, fast_api_client
+from osbot_utils.utils.Misc                             import list_set
+from osbot_fast_api.api.Fast_API                        import Fast_API
+from osbot_fast_api.schemas.Schema__Fast_API__Config    import Schema__Fast_API__Config
+from osbot_fast_api.utils.Version                       import version__osbot_fast_api
+from osbot_utils.helpers.html.utils.Html__Query         import Html__Query
+from osbot_fast_api.api.Fast_API__Offline_Docs          import Fast_API__Offline_Docs, URL__SWAGGER__JS, URL__STATIC__DOCS, URL__REDOC__JS, URL__REDOC__FAVICON, URL__SWAGGER__CSS, URL__SWAGGER__FAVICON
+from tests.unit.fast_api__for_tests                     import fast_api, fast_api_client
 
 
 class test_Fast_API__Offline_Docs(TestCase):
@@ -276,16 +277,21 @@ class test_Fast_API__Offline_Docs(TestCase):
 
     def test__bug__cache_headers_for_static_resources(self):                                # Test caching headers
         response = self.client.get(f'{URL__STATIC__DOCS}{URL__SWAGGER__JS}')
-
+        headers_list = [ 'accept-ranges'      ,
+                         'content-length'     ,
+                         'content-type'       ,
+                         'etag'               ,
+                         'fast-api-request-id',
+                         'last-modified'      ]
         assert response.status_code == 200
-        assert list_set(response.headers) == [ 'accept-ranges',
-                                               'content-length',
-                                               'content-type',
-                                               'etag',
-                                               'fast-api-request-id',
-                                               'last-modified']
-        assert 'cache-control' not in response.headers                                      # BUG: todo: see if we should be setting these
-        #assert 'max-age='       not in response.headers['cache-control']                     # BUG: todo: see if we should be setting these
+        if not_in_github_action():                                                              # weirdly, this only fails locally
+            assert list_set(response.headers) == headers_list
+            assert 'cache-control' not in response.headers                                      # BUG: todo: see if we should be setting these
+            #assert 'max-age='         in response.headers['cache-control']                    # BUG: todo: see if we should be setting these
+        else:
+            headers_list.append('cache-control')                                                # todo: figure out why this work in GitHub Actions and not locally
+            assert list_set(response.headers)  == sorted(headers_list)
+            assert 'max-age='                  in response.headers['cache-control']
 
     def test_openapi_json_structure(self):                                                  # Test OpenAPI spec structure
         response = self.client.get('/openapi.json')

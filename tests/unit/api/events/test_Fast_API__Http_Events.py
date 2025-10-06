@@ -1,5 +1,4 @@
 import logging
-
 import pytest
 from collections                                      import deque
 from decimal                                          import Decimal
