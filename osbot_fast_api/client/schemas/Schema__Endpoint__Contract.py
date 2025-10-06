@@ -1,10 +1,10 @@
 from typing import List, Type
-from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method                import Enum__Http__Method
+from osbot_fast_api.api.schemas.for_osbot_utils.enums.Enum__Http__Method                import Enum__Http__Method
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_fast_api.client.schemas.Schema__Endpoint__Param                          import Schema__Endpoint__Param
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                       import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                       import Safe_Str__Fast_API__Route__Prefix
 
 
 class Schema__Endpoint__Contract(Type_Safe):

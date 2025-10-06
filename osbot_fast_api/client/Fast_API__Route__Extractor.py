@@ -1,13 +1,13 @@
 from typing                                                                     import List, Union
 from pydantic_core                                                              import PydanticUndefined
-from osbot_fast_api.schemas.Schema__Fast_API__Route                             import Schema__Fast_API__Route
-from osbot_fast_api.schemas.Schema__Fast_API__Routes__Collection                import Schema__Fast_API__Routes__Collection
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag             import Safe_Str__Fast_API__Route__Tag
+from osbot_fast_api.api.schemas.Schema__Fast_API__Route                             import Schema__Fast_API__Route
+from osbot_fast_api.api.schemas.Schema__Fast_API__Routes__Collection                import Schema__Fast_API__Routes__Collection
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag             import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method     import Enum__Http__Method
 from osbot_utils.utils.Http                                                     import url_join_safe
 from osbot_fast_api.client.schemas.Schema__Endpoint__Param                      import Schema__Endpoint__Param
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
-from osbot_fast_api.schemas.consts.consts__Fast_API                             import FAST_API_DEFAULT_ROUTES_PATHS
+from osbot_fast_api.api.schemas.consts.consts__Fast_API                             import FAST_API_DEFAULT_ROUTES_PATHS
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from fastapi                                                                    import FastAPI
 from fastapi.routing                                                            import APIWebSocketRoute, APIRoute, APIRouter
@@ -16,8 +16,8 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 from starlette.middleware.wsgi                                                  import WSGIMiddleware
 from starlette.routing                                                          import Mount, Route
 from starlette.staticfiles                                                      import StaticFiles
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.enums.Enum__Fast_API__Route__Type                   import Enum__Fast_API__Route__Type
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.enums.Enum__Fast_API__Route__Type                   import Enum__Fast_API__Route__Type
 
 class Fast_API__Route__Extractor(Type_Safe):                              # Dedicated class for route extraction
     app               : FastAPI

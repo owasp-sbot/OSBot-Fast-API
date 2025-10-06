@@ -4,8 +4,8 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version     import Safe_Str__Version
 from osbot_fast_api.client.schemas.Schema__Endpoint__Contract                       import Schema__Endpoint__Contract
 from osbot_fast_api.client.schemas.Schema__Routes__Module                           import Schema__Routes__Module
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Name                                import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                       import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Name                                import Safe_Str__Fast_API__Name
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                       import Safe_Str__Fast_API__Route__Prefix
 
 
 class Schema__Service__Contract(Type_Safe):

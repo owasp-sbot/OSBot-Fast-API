@@ -1,5 +1,5 @@
 import re
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix import Safe_Str__Fast_API__Route__Prefix
 
 # todo: the names of these variables need a bit of refactoring and normalising
 

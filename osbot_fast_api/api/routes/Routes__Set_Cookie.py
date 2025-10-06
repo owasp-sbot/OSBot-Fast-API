@@ -1,6 +1,6 @@
 from fastapi                                        import Request, Response
 from fastapi.responses                              import HTMLResponse
-from osbot_fast_api.schemas.consts.consts__Fast_API import ENV_VAR__FAST_API__AUTH__API_KEY__NAME
+from osbot_fast_api.api.schemas.consts.consts__Fast_API import ENV_VAR__FAST_API__AUTH__API_KEY__NAME
 from osbot_utils.type_safe.Type_Safe                import Type_Safe
 from osbot_utils.utils.Env                          import get_env, load_dotenv
 from osbot_fast_api.api.routes.Fast_API__Routes     import Fast_API__Routes

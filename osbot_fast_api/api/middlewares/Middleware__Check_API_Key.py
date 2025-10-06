@@ -4,7 +4,7 @@ from starlette.responses                            import Response
 from osbot_utils.utils.Env                          import get_env
 from osbot_utils.utils.Json                         import to_json_str
 from osbot_utils.utils.Status                       import status_error
-from osbot_fast_api.schemas.consts.consts__Fast_API import AUTH__EXCLUDED_PATHS
+from osbot_fast_api.api.schemas.consts.consts__Fast_API import AUTH__EXCLUDED_PATHS
 
 ERROR_MESSAGE__NO_KEY_NAME_SETUP   = f"Server does not have API key name setup"
 ERROR_MESSAGE__NO_KEY_VALUE_SETUP  = f"Server does not have API key value setup"

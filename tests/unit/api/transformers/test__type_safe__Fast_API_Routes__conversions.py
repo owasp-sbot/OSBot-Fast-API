@@ -1,7 +1,7 @@
 from unittest                                                import TestCase
 from pydantic                                                import Field
 
-from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.utils.Misc                                  import random_text
 from pydantic                                                import BaseModel
 from dataclasses                                             import dataclass, field, is_dataclass

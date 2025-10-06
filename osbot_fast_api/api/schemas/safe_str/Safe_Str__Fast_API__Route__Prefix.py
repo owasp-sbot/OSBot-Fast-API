@@ -1,4 +1,4 @@
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag import Safe_Str__Fast_API__Route__Tag
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag import Safe_Str__Fast_API__Route__Tag
 
 
 class Safe_Str__Fast_API__Route__Prefix(Safe_Str__Fast_API__Route__Tag):

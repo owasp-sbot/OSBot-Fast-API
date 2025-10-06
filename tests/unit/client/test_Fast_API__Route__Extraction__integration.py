@@ -4,7 +4,7 @@ import pytest
 from typing                                                                      import List
 from unittest                                                                    import TestCase
 from fastapi                                                                     import FastAPI, APIRouter
-from osbot_fast_api.schemas.Schema__Fast_API__Config                             import Schema__Fast_API__Config
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config                             import Schema__Fast_API__Config
 from osbot_utils.testing.__                                                      import __
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id  import Safe_Str__Id
@@ -13,8 +13,8 @@ from osbot_fast_api.api.decorators.route_path                                   
 from osbot_fast_api.api.routes.Fast_API__Routes                                  import Fast_API__Routes
 from osbot_fast_api.client.Fast_API__Route__Extractor                            import Fast_API__Route__Extractor
 from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method      import Enum__Http__Method
-from osbot_fast_api.schemas.Schema__Fast_API__Routes__Collection                 import Schema__Fast_API__Routes__Collection
-from osbot_fast_api.schemas.enums.Enum__Fast_API__Route__Type                    import Enum__Fast_API__Route__Type
+from osbot_fast_api.api.schemas.Schema__Fast_API__Routes__Collection                 import Schema__Fast_API__Routes__Collection
+from osbot_fast_api.api.schemas.enums.Enum__Fast_API__Route__Type                    import Enum__Fast_API__Route__Type
 
 
 class test_Fast_API__Route__Extraction__integration(TestCase):          # Integration tests for complete route extraction workflow

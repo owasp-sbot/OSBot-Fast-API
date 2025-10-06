@@ -1,5 +1,5 @@
-from osbot_fast_api.api.middlewares.Middleware__Request_ID import Middleware__Request_ID
-from osbot_fast_api.schemas.Schema__Fast_API__Config                            import Schema__Fast_API__Config
+from osbot_fast_api.api.middlewares.Middleware__Request_ID                      import Middleware__Request_ID
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config                        import Schema__Fast_API__Config
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.decorators.lists.index_by                                      import index_by
 from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
@@ -9,7 +9,7 @@ from starlette.staticfiles                                                      
 from osbot_fast_api.api.Fast_API__Offline_Docs                                  import Fast_API__Offline_Docs, FILE_PATH__STATIC__DOCS, URL__STATIC__DOCS, NAME__STATIC__DOCS
 from osbot_fast_api.api.routes.Routes__Config                                   import Routes__Config
 from osbot_fast_api.api.routes.Routes__Set_Cookie                               import Routes__Set_Cookie
-from osbot_fast_api.schemas.consts.consts__Fast_API                             import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+from osbot_fast_api.api.schemas.consts.consts__Fast_API                         import ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 
 
 

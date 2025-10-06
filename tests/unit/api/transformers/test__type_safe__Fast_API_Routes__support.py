@@ -1,7 +1,7 @@
 from typing                                                                         import Optional, List, Dict, Set, Any
 from unittest                                                                       import TestCase
 
-from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name           import Safe_Str__File__Name
 from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Content_Type    import Safe_Str__Http__Content_Type
 from osbot_utils.utils.Objects                                                              import __

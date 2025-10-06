@@ -1,13 +1,13 @@
 import unittest
 
-from osbot_fast_api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.utils.Misc                                 import list_set
 from osbot_utils.utils.Objects                              import class_functions
 from osbot_fast_api.api.Fast_API                            import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes             import Fast_API__Routes
 from osbot_fast_api.api.routes.Routes__Config               import Routes__Config
 from osbot_fast_api.api.transformers.OpenAPI__To__Python    import OpenAPI__To__Python
-from osbot_fast_api.schemas.consts.consts__Fast_API         import EXPECTED_ROUTES_PATHS
+from osbot_fast_api.api.schemas.consts.consts__Fast_API         import EXPECTED_ROUTES_PATHS
 from osbot_fast_api.utils.Fast_API_Server                   import Fast_API_Server
 from osbot_fast_api.utils.Version                           import version__osbot_fast_api
 

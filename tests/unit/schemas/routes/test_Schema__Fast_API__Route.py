@@ -5,11 +5,11 @@ from osbot_utils.testing.__                                                     
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_utils.utils.Objects                                                      import base_classes
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                       import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                          import Safe_Str__Fast_API__Route__Tag
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                       import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag                          import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method                import Enum__Http__Method
-from osbot_fast_api.schemas.enums.Enum__Fast_API__Route__Type                          import Enum__Fast_API__Route__Type
-from osbot_fast_api.schemas.Schema__Fast_API__Route                          import Schema__Fast_API__Route
+from osbot_fast_api.api.schemas.enums.Enum__Fast_API__Route__Type                          import Enum__Fast_API__Route__Type
+from osbot_fast_api.api.schemas.Schema__Fast_API__Route                          import Schema__Fast_API__Route
 
 
 class test_Schema__Fast_API__Route(TestCase):

@@ -4,7 +4,7 @@ from unittest.mock                                                              
 from unittest                                                                   import TestCase
 from fastapi                                                                    import FastAPI, HTTPException
 from fastapi.exceptions                                                         import RequestValidationError
-from osbot_fast_api.schemas.Schema__Fast_API__Config                            import Schema__Fast_API__Config
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config                            import Schema__Fast_API__Config
 from osbot_utils.testing.Temp_Folder                                            import Temp_Folder
 from osbot_utils.testing.Temp_Env_Vars                                          import Temp_Env_Vars
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
@@ -18,9 +18,9 @@ from starlette.requests                                                         
 from starlette.responses                                                        import JSONResponse
 from starlette.testclient                                                       import TestClient
 from osbot_fast_api.api.Fast_API                                                import Fast_API
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Name                   import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.consts.consts__Fast_API                             import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Name                   import Safe_Str__Fast_API__Name
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.consts.consts__Fast_API                             import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.utils.Fast_API_Utils                                        import Fast_API_Utils
 from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
 from tests.unit.fast_api__for_tests                                             import fast_api, fast_api_client

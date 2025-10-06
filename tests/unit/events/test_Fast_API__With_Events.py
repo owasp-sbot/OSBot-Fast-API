@@ -4,7 +4,7 @@ from osbot_utils.utils.Objects                                        import bas
 from osbot_fast_api.api.Fast_API                                      import Fast_API
 from osbot_fast_api.events.Fast_API__Http_Events                      import Fast_API__Http_Events
 from osbot_fast_api.events.Fast_API__With_Events                      import Fast_API__With_Events
-from osbot_fast_api.schemas.Schema__Fast_API__Config                  import Schema__Fast_API__Config
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config                  import Schema__Fast_API__Config
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid import Random_Guid
 from fastapi                                                          import Request
 from osbot_utils.utils.Misc                                           import is_guid, list_set

@@ -1,12 +1,12 @@
 # import re
 # import inspect
 # from typing                                                                     import List, Any, Optional
-# from osbot_fast_api.schemas.routes.Schema__Fast_API__Route                      import Schema__Fast_API__Route
-# from osbot_fast_api.schemas.routes.Schema__Fast_API__Tag__Classes_And_Routes   import Schema__Fast_API__Tag__Classes_And_Routes
-# from osbot_fast_api.schemas.routes.Schema__Fast__API_Tags__Classes_And_Routes  import Schema__Fast__API_Tags__Classes_And_Routes
+# from osbot_fast_api.api.schemas.routes.Schema__Fast_API__Route                      import Schema__Fast_API__Route
+# from osbot_fast_api.api.schemas.routes.Schema__Fast_API__Tag__Classes_And_Routes   import Schema__Fast_API__Tag__Classes_And_Routes
+# from osbot_fast_api.api.schemas.routes.Schema__Fast__API_Tags__Classes_And_Routes  import Schema__Fast__API_Tags__Classes_And_Routes
 # from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
 # from osbot_fast_api.client.Fast_API__Route__Extractor                           import Fast_API__Route__Extractor
-# from osbot_fast_api.schemas.for_osbot_utils.enums.Enum__Http__Method            import Enum__Http__Method
+# from osbot_fast_api.api.schemas.for_osbot_utils.enums.Enum__Http__Method            import Enum__Http__Method
 # from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 # from osbot_utils.helpers.ast                                                    import Ast_Module
 # from osbot_utils.helpers.ast.Ast_Visit                                          import Ast_Visit
