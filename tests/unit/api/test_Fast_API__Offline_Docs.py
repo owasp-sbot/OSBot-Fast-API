@@ -290,6 +290,7 @@ class test_Fast_API__Offline_Docs(TestCase):
             #assert 'max-age='         in response.headers['cache-control']                    # BUG: todo: see if we should be setting these
         else:
             headers_list.append('cache-control')                                                # todo: figure out why this work in GitHub Actions and not locally
+            headers_list.remove('last-modified')
             assert list_set(response.headers)  == sorted(headers_list)
             assert 'max-age='                  in response.headers['cache-control']
 
