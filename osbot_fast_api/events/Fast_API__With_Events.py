@@ -9,9 +9,10 @@ class Fast_API__With_Events(Fast_API):
         super().__init__(**kwargs)
         self.http_events.fast_api_name = self.config.name                     # Wire up the name
 
-    def setup_middlewares(self):                                              # Add event middleware
+    def setup_middlewares(self):                                              # Add event middleware    (NOTE: the middleware execution is the reverse of the order they are added)
+        self.setup_middleware__http_events()                                  # This will make this middleware to be the last one executed
         super().setup_middlewares()                                           # Call parent middlewares first
-        self.setup_middleware__http_events()                                  # Then add events
+
         return self
 
     def setup_middleware__http_events(self):                                  # Moved from base class

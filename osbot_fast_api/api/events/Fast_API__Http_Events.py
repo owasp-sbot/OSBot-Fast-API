@@ -1,17 +1,18 @@
 import types
 from collections                                    import deque
-from osbot_utils.type_safe.Type_Safe                import Type_Safe
-from osbot_utils.helpers.trace.Trace_Call__Config   import Trace_Call__Config
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid import Random_Guid
+from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from osbot_utils.helpers.trace.Trace_Call__Config                     import Trace_Call__Config
 
 
 HTTP_EVENTS__MAX_REQUESTS_LOGGED = 50
 
 from typing import TYPE_CHECKING, Union
 
-if TYPE_CHECKING:
-    from fastapi                                    import Request
-    from starlette.responses                        import Response
-    from osbot_fast_api.api.events.Fast_API__Http_Event    import Fast_API__Http_Event
+# if TYPE_CHECKING:
+#     from fastapi                                    import Request
+#     from starlette.responses                        import Response
+from osbot_fast_api.api.events.Fast_API__Http_Event    import Fast_API__Http_Event
 
 class Fast_API__Http_Events(Type_Safe):
     #log_requests          : bool = False                           # todo: change this to save on S3 and disk
@@ -25,7 +26,6 @@ class Fast_API__Http_Events(Type_Safe):
     requests_order        : deque
     max_requests_logged   : int = HTTP_EVENTS__MAX_REQUESTS_LOGGED
     fast_api_name         : str
-    #add_header_request_id : bool = True
 
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
@@ -75,9 +75,14 @@ class Fast_API__Http_Events(Type_Safe):
         from osbot_fast_api.api.events.Fast_API__Http_Event       import Fast_API__Http_Event
         from osbot_fast_api.api.events.Fast_API__Http_Event__Info import Fast_API__Http_Event__Info
 
+        if hasattr(request.state, 'request_id'):                            # Use existing request_id if available (from Middleware__Request_ID)
+            event_id = request.state.request_id
+        else:
+            event_id = Random_Guid()                                        # Fallback if middleware not present
+
         kwargs                         = dict(fast_api_name = self.fast_api_name)
         http_event_info                = Fast_API__Http_Event__Info(**kwargs)
-        http_event                     = Fast_API__Http_Event(http_event_info=http_event_info)
+        http_event                     = Fast_API__Http_Event(http_event_info=http_event_info, event_id=event_id)
         event_id                       = http_event.event_id                # get the random request_id/guid that was created in the ctor of Fast_API__Request_Data
         request.state.http_events      = self                               # store a copy of this object in the request (so that it is available durant the request handling)
         request.state.request_id       = event_id                           # store request_id in request.state
@@ -103,8 +108,13 @@ class Fast_API__Http_Events(Type_Safe):
         return self.request_data(request).event_id
 
     def request_messages(self, request):
-        event_id = self.event_id(request)
-        return self.requests_data.get(event_id, {}).get('messages', [])
+        event_id   = self.event_id(request)
+        http_event = self.requests_data.get(event_id)#.get('messages', [])
+        if type(http_event) is Fast_API__Http_Event:
+            return http_event.messages()
+        if type(http_event) is dict:
+            return http_event.get('messages', [])
+        return []
 
     def request_trace_start(self, request):
         from osbot_utils.helpers.trace.Trace_Call import Trace_Call

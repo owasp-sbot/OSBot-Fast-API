@@ -155,11 +155,11 @@ class Fast_API(Type_Safe):
         return self.routes_paths(include_default=True, expand_mounts=True)
 
 
-    def setup_middlewares(self):                 # overwrite to add more middlewares
-        self.setup_middleware__request_id       ()                                      # sets the 'fast-api-request-id' headers
+    def setup_middlewares(self):                 # overwrite to add more middlewares    (NOTE: the middleware execution is the reverse of the order they are added)
         self.setup_middleware__detect_disconnect()
         self.setup_middleware__cors             ()
         self.setup_middleware__api_key_check    ()
+        self.setup_middleware__request_id       ()                                      # sets the 'fast-api-request-id' headers
         return self
 
     def setup_routes     (self): return self     # overwrite to add rules

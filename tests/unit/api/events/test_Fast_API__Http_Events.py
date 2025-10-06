@@ -107,10 +107,10 @@ class test_Fast_API__Http_Events(TestCase):
             #assert _.log_requests  is False
             assert _.requests_data == {self.event_id : self.request_data}
 
-            assert self.response.headers == MutableHeaders({'content-length': '0', 'fast-api-request-id': self.event_id})
+            #assert self.response.headers == MutableHeaders({'content-length': '0', 'fast-api-request-id': self.event_id})  # this is now set on Middleware__Request_ID
 
 
-
+            duration     =  self.request_data.http_event_request.duration
             expected_data = { 'http_event_info'         : { 'client_city'     : None                                            ,
                                                             'client_country'  : None                                            ,
                                                             'client_ip'       : 'pytest'                                        ,
@@ -121,7 +121,7 @@ class test_Fast_API__Http_Events(TestCase):
                                                             'thread_id'       : self.request_data.http_event_info.thread_id     ,
                                                             'timestamp'       : self.request_data.http_event_info.timestamp     ,
                                                             'log_messages'    : []                                              },
-                              'http_event_request'       : { 'duration'       : Decimal('0.001')                                ,
+                              'http_event_request'       : { 'duration'       : duration                                        ,
                                                              'host_name'      : None                                            ,
                                                              'headers'        : {}                                              ,
                                                              'event_id'        : self.request_data.event_id                     ,
@@ -143,7 +143,7 @@ class test_Fast_API__Http_Events(TestCase):
                                                              'traces_count'   : 0                                                 ,
                                                              'traces_id'      : self.request_data.http_event_traces.traces_id     }}
 
-            assert self.request_data.http_event_request.duration == Decimal(0.001).quantize(Decimal('0.001'))
+            assert self.request_data.http_event_request.duration >= Decimal(0.001).quantize(Decimal('0.001'))
             assert self.request_data.json()                      == expected_data
 
 

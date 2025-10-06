@@ -103,8 +103,8 @@ class test_Fast_API(TestCase):
         assert self.fast_api.setup_routes() == self.fast_api
 
     def test_user_middleware(self):
-        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': {}, 'type': 'Middleware__Detect_Disconnect'},
-                                                    {'function_name': None, 'params': {}, 'type': 'Middleware__Request_ID'       }]
+        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': {}, 'type': 'Middleware__Request_ID'       },
+                                                    {'function_name': None, 'params': {}, 'type': 'Middleware__Detect_Disconnect'}]
 
     def test__verify__title_description_version(self):
         app = self.fast_api.app()

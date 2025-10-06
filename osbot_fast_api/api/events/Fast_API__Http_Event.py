@@ -26,7 +26,7 @@ class Fast_API__Http_Event(Type_Safe):
     http_event_request      : Fast_API__Http_Event__Request
     http_event_response     : Fast_API__Http_Event__Response
     http_event_traces       : Fast_API__Http_Event__Traces
-    event_id                : Random_Guid                           # todo: rename to http_event_id
+    event_id                : Random_Guid                                  # todo: rename to http_event_id
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -60,7 +60,6 @@ class Fast_API__Http_Event(Type_Safe):
         return messages
 
     def on_request(self, request: Request):
-
         # http_event_request
         self.http_event_request.headers      = dict(request.headers)
         self.http_event_request.host_name    = request.url.hostname
@@ -77,8 +76,6 @@ class Fast_API__Http_Event(Type_Safe):
         self.http_event_info.timestamp       = timestamp_utc_now()
         self.http_event_info.thread_id       = current_thread_id()
 
-        self.set_request_headers(request)
-
     def on_response(self, response: Response):
         # http_event_response
         self.http_event_response.end_time   = Decimal(time.time())
@@ -88,19 +85,12 @@ class Fast_API__Http_Event(Type_Safe):
         self.http_event_request.duration    = self.http_event_request.duration   .quantize(Decimal('0.001'))            #       (maybe a custom Decimal class)
 
         if response:
+            self.set_response_header_for_static_files_cache(response)
             self.http_event_response.content_type   = response.headers.get('content-type')
             self.http_event_response.content_length = response.headers.get('content-length')
             self.http_event_response.status_code    = response.status_code
-            self.set_response_headers(response)
             self.http_event_response.headers        = dict(response.headers)
 
-    def set_request_headers(self, request: Request):
-        request.headers._list.append((b'fast-api-request-id', str_to_bytes(self.event_id)))
-
-    def set_response_headers(self, response:Response):
-        response.headers[HEADER_NAME__FAST_API_REQUEST_ID] = self.event_id
-        self.set_response_header_for_static_files_cache(response)
-        return self
 
     def set_response_header_for_static_files_cache(self, response:Response):
         if self.http_event_response.content_type in HTTP_RESPONSE__CACHE_CONTENT_TYPES:
