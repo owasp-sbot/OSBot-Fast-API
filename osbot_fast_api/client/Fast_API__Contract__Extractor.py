@@ -1,21 +1,21 @@
 import re
 import inspect
-from typing                                                                     import List, Any, Optional
-from osbot_fast_api.api.schemas.Schema__Fast_API__Tag__Classes_And_Routes       import Schema__Fast_API__Tag__Classes_And_Routes
-from osbot_fast_api.api.schemas.Schema__Fast_API__Tags__Classes_And_Routes      import Schema__Fast__API_Tags__Classes_And_Routes
-from osbot_fast_api.api.schemas.routes.Schema__Fast_API__Route                  import Schema__Fast_API__Route
-from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
-from osbot_fast_api.client.Fast_API__Route__Extractor                           import Fast_API__Route__Extractor
-from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_utils.helpers.ast                                                    import Ast_Module
-from osbot_utils.helpers.ast.Ast_Visit                                          import Ast_Visit
-from osbot_fast_api.api.Fast_API                                                import Fast_API
-from osbot_fast_api.client.schemas.Schema__Endpoint__Contract                   import Schema__Endpoint__Contract
-from osbot_fast_api.client.schemas.Schema__Endpoint__Param                      import Schema__Endpoint__Param
-from osbot_fast_api.client.schemas.Schema__Routes__Module                       import Schema__Routes__Module
-from osbot_fast_api.client.schemas.Schema__Service__Contract                    import Schema__Service__Contract
-from osbot_fast_api.client.schemas.enums.Enum__Param__Location                  import Enum__Param__Location
-from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method     import Enum__Http__Method
+from typing                                                                                 import List, Any, Optional
+from osbot_fast_api.api.schemas.Schema__Fast_API__Tag__Classes_And_Routes                   import Schema__Fast_API__Tag__Classes_And_Routes
+from osbot_fast_api.api.schemas.Schema__Fast_API__Tags__Classes_And_Routes                  import Schema__Fast__API_Tags__Classes_And_Routes
+from osbot_fast_api.api.schemas.routes.Schema__Fast_API__Route                              import Schema__Fast_API__Route
+from osbot_utils.decorators.methods.cache_on_self                                           import cache_on_self
+from osbot_fast_api.client.Fast_API__Route__Extractor                                       import Fast_API__Route__Extractor
+from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
+from osbot_utils.helpers.ast                                                                import Ast_Module
+from osbot_utils.helpers.ast.Ast_Visit                                                      import Ast_Visit
+from osbot_fast_api.api.Fast_API                                                            import Fast_API
+from osbot_fast_api.client.schemas.Schema__Endpoint__Contract                               import Schema__Endpoint__Contract
+from osbot_fast_api.client.schemas.Schema__Endpoint__Param                                  import Schema__Endpoint__Param
+from osbot_fast_api.client.schemas.Schema__Routes__Module                                   import Schema__Routes__Module
+from osbot_fast_api.client.schemas.Schema__Service__Contract                                import Schema__Service__Contract
+from osbot_fast_api.client.schemas.enums.Enum__Param__Location                              import Enum__Param__Location
+from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method                 import Enum__Http__Method
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Python__Module import Safe_Str__Python__Module
 
 
