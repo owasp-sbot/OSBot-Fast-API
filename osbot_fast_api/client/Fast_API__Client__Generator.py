@@ -21,7 +21,7 @@ class Fast_API__Client__Generator(Type_Safe):
         contract = self.extract_contract()
                                                                                    # Generate client code
         generator = Client__Generator__AST(contract    = contract    ,
-                                          client_name = client_name  )
+                                           client_name = client_name  )
 
         return generator.generate_client_files()
 
@@ -51,7 +51,7 @@ class Fast_API__Client__Generator(Type_Safe):
 
         contract = self.extract_contract()
 
-        print(f"Service: {contract.service_name} v{contract.version}")
+        print(f"Service: {contract.service_name} {contract.version}")
         print(f"Modules: {len(contract.modules)}")
         print(f"Total Endpoints: {len(contract.endpoints)}")
         print()

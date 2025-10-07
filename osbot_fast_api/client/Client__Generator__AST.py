@@ -481,7 +481,7 @@ class {class_name}(Type_Safe):
         else:
             return '''
                                                                                     # Return response data
-            return result.json if result.json else result.text'''
+        return result.json if result.json else result.text'''
 
     def _generate_module_aggregator(self, module        : Schema__Routes__Module,  # Module to generate aggregator for
                                          route_classes  : List[str]                # Route classes to aggregate

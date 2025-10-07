@@ -3,22 +3,26 @@ from pathlib                                                 import Path
 from unittest                                                import TestCase
 
 import pytest
+from osbot_utils.testing.__ import __, __SKIP__
+
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
+from osbot_utils.testing.Stdout import Stdout
+from osbot_utils.utils.Misc import list_set
 
 from osbot_fast_api.client.Fast_API__Client__Generator       import Fast_API__Client__Generator
 from osbot_fast_api.client.Fast_API__Contract__Extractor     import Fast_API__Contract__Extractor
 from osbot_fast_api.client.schemas.Schema__Service__Contract import Schema__Service__Contract
+from osbot_fast_api.utils.Version import version__osbot_fast_api
 from osbot_utils.utils.Objects                               import base_classes
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_fast_api.api.Fast_API                             import Fast_API
 from osbot_fast_api.api.routes.Fast_API__Routes              import Fast_API__Routes
 
 
-
 class test_Fast_API__Client__Generator(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # ONE-TIME expensive setup
-        pytest.skip("wire tests and code")
         cls.fast_api  = Test__Service__Fast_API().setup()
         cls.generator = Fast_API__Client__Generator(fast_api=cls.fast_api)
 
@@ -37,8 +41,8 @@ class test_Fast_API__Client__Generator(TestCase):
             contract = _.extract_contract()
 
             assert type(contract)            is Schema__Service__Contract
-            assert contract.service_name     == 'TestService'
-            assert contract.version          == 'v1.2.3'
+            assert contract.service_name     == 'Test__Service__Fast_API'
+            assert contract.version          == version__osbot_fast_api
             assert len(contract.modules)     >= 1                                   # At least one module
             assert len(contract.endpoints)   >= 3                                   # At least 3 endpoints
 
@@ -54,10 +58,19 @@ class test_Fast_API__Client__Generator(TestCase):
             assert type(files) is dict
             assert len(files)  >= 3                                                # At least main, requests, config
 
+            assert list_set(files) == [ 'Test__Service__Fast_API__Client.py'                 ,
+                                        'Test__Service__Fast_API__Client__Config.py'         ,
+                                        'Test__Service__Fast_API__Client__Requests.py'       ,
+                                        'auth/Test__Service__Fast_API__Client__Set_Cookie.py',
+                                        'config/Test__Service__Fast_API__Client__Config.py'  ,
+                                        'items/Test__Service__Fast_API__Client__Items.py'    ,
+                                        'root/Fast_API.py']
+
             # Check default client name from service
-            assert "TestService__Client.py"           in files
-            assert "TestService__Client__Requests.py" in files
-            assert "TestService__Client__Config.py"   in files
+            assert "Test__Service__Fast_API__Client.py"           in files
+            assert "Test__Service__Fast_API__Client__Requests.py" in files
+            assert "Test__Service__Fast_API__Client__Config.py"   in files
+
 
             # Verify Python code generated
             for filename, content in files.items():
@@ -88,9 +101,9 @@ class test_Fast_API__Client__Generator(TestCase):
 
                 # Verify files exist on disk
                 output_path = Path(temp_dir)
-                assert (output_path / "TestClient.py").exists()
-                assert (output_path / "TestClient__Requests.py").exists()
-                assert (output_path / "TestClient__Config.py").exists()
+                assert (output_path / "TestClient.py"           ).exists()
+                assert (output_path / "TestClient__Requests.py" ).exists()
+                assert (output_path / "TestClient__Config.py"   ).exists()
 
                 # Verify content can be read
                 main_content = (output_path / "TestClient.py").read_text()
@@ -100,6 +113,13 @@ class test_Fast_API__Client__Generator(TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             with self.generator as _:
                 saved_files = _.save_client_files(temp_dir)
+                assert saved_files == [ 'Test__Service__Fast_API__Client.py'                 ,
+                                        'Test__Service__Fast_API__Client__Requests.py'       ,
+                                        'Test__Service__Fast_API__Client__Config.py'         ,
+                                        'root/Fast_API.py'                                   ,
+                                        'config/Test__Service__Fast_API__Client__Config.py'  ,
+                                        'auth/Test__Service__Fast_API__Client__Set_Cookie.py',
+                                        'items/Test__Service__Fast_API__Client__Items.py'    ]
 
                 output_path = Path(temp_dir)
 
@@ -110,20 +130,52 @@ class test_Fast_API__Client__Generator(TestCase):
                         assert full_path.exists()
                         assert full_path.parent.exists()                           # Directory created
 
-    def test_print_client_summary(self, capsys):                                    # Test client summary printing
+    def test_print_client_summary(self):                                    # Test client summary printing
         with self.generator as _:
-            _.print_client_summary()
+            with Stdout() as stdout:
+                _.print_client_summary()
 
-            captured = capsys.readouterr()
-            output = captured.out
+            output = stdout.value()
+            assert output == """\
+Service: Test__Service__Fast_API {version}
+Modules: 4
+Total Endpoints: 10
 
-            assert "Service: TestService v" in output
-            assert "Modules:"                in output
-            assert "Total Endpoints:"        in output
-            assert "Module 'items':"         in output
-            assert "Classes:"                in output
-            assert "Routes__Items"           in output
-            assert "GET /"                   in output                              # At least one endpoint shown
+  Module 'root':
+    Classes: Fast_API
+    Endpoints: 1
+      - Enum__Http__Method.GET / (redirect_to_docs)
+
+  Module 'config':
+    Classes: Routes__Config
+    Endpoints: 4
+      - Enum__Http__Method.GET /config/info (info)
+      - Enum__Http__Method.GET /config/status (status)
+      - Enum__Http__Method.GET /config/version (version)
+      ... and 1 more
+
+  Module 'auth':
+    Classes: Routes__Set_Cookie
+    Endpoints: 2
+      - Enum__Http__Method.GET /auth/set-cookie-form (set_cookie_form)
+      - Enum__Http__Method.POST /auth/set-auth-cookie (set_auth_cookie)
+
+  Module 'items':
+    Classes: Routes__Items
+    Endpoints: 3
+      - Enum__Http__Method.GET /items/get-item/{{item_id}} (get_item__item_id)
+      - Enum__Http__Method.GET /items/list-items (list_items)
+      - Enum__Http__Method.POST /items/create-item (create_item)
+
+""".format(version=version__osbot_fast_api)
+
+            assert "Service: Test__Service__Fast_API "  in output
+            assert "Modules:"                           in output
+            assert "Total Endpoints:"                   in output
+            assert "Module 'items':"                    in output
+            assert "Classes:"                           in output
+            assert "Routes__Items"                      in output
+            assert "GET /"                              in output                              # At least one endpoint shown
 
     def test_generate_client__with_empty_fast_api(self):                            # Test with minimal Fast_API
         with Fast_API() as empty_api:
@@ -144,11 +196,34 @@ class test_Fast_API__Client__Generator(TestCase):
 
             # Generate client
             files = _.generate_client()
-
+            assert list_set(files) == [ 'Test__Service__Fast_API__Client.py'                    ,
+                                        'Test__Service__Fast_API__Client__Config.py'            ,
+                                        'Test__Service__Fast_API__Client__Requests.py'          ,
+                                        'auth/Test__Service__Fast_API__Client__Set_Cookie.py'   ,
+                                        'config/Test__Service__Fast_API__Client__Config.py'     ,
+                                        'items/Test__Service__Fast_API__Client__Items.py'       ,
+                                        'root/Fast_API.py'                                      ]
             # Verify contract details appear in generated code
-            config_code = files["TestService__Client__Config.py"]
-            assert f'service_name    : Safe_Str__Id = "{contract.service_name}"' in config_code
-            assert f'service_version : str          = "{contract.service_version}"' in config_code
+            config_code = files["Test__Service__Fast_API__Client__Config.py"]
+
+            assert config_code == """\
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url import Safe_Str__Url
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
+from typing import Optional
+
+class Test__Service__Fast_API__Client__Config(Type_Safe):
+    base_url        : Safe_Str__Url = "http://localhost:8000"                      # Default to local
+    api_key         : Optional[str] = None                                         # Optional API key
+    api_key_header  : str           = "X-API-Key"                                  # Header name for API key
+    timeout         : int           = 30                                           # Request timeout in seconds
+    verify_ssl      : bool          = True                                         # Verify SSL certificates
+                                                                                    # Service-specific configuration can be added here
+    service_name    : Safe_Str__Id  = "Test__Service__Fast_API"
+    service_version : str           = "v0.26.20\""""
+
+            assert f'service_name    : Safe_Str__Id  = "{contract.service_name}"'   in config_code
+            assert f'service_version : str           = "{contract.service_version}"' in config_code
 
             # Verify endpoints from contract appear in client
             for endpoint in contract.endpoints:
@@ -181,20 +256,20 @@ class test_Fast_API__Client__Generator(TestCase):
             files = _.generate_client()
 
             # Check main client follows Type_Safe patterns
-            main_code = files["TestService__Client.py"]
+            main_code = files["Test__Service__Fast_API__Client.py"]
             assert "from osbot_utils.type_safe.Type_Safe import Type_Safe" in main_code
-            assert ": TestService__Client__Config" in main_code                    # Typed attributes
-            assert ": TestService__Client__Requests = None" in main_code           # Nullable with explicit None
+            assert ": Test__Service__Fast_API__Client" in main_code                            # Typed attributes
+            assert ": Test__Service__Fast_API__Client__Requests = None" in main_code           # Nullable with explicit None
 
             # Check config uses Safe types
-            config_code = files["TestService__Client__Config.py"]
+            config_code = files["Test__Service__Fast_API__Client__Config.py"]
             assert "from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url import Safe_Str__Url" in config_code
             assert ": Safe_Str__Url" in config_code
             assert ": Safe_Str__Id"  in config_code
 
             # Check requests result is Type_Safe
-            requests_code = files["TestService__Client__Requests.py"]
-            assert "class TestService__Client__Requests__Result(Type_Safe):" in requests_code
+            requests_code = files["Test__Service__Fast_API__Client__Requests.py"]
+            assert "class Test__Service__Fast_API__Client__Requests__Result(Type_Safe):" in requests_code
 
     def test_generate_client__handles_all_http_methods(self):                       # Test all HTTP methods handled
         with self.generator as _:
@@ -205,29 +280,30 @@ class test_Fast_API__Client__Generator(TestCase):
             for endpoint in contract.endpoints:
                 if endpoint.route_module and endpoint.route_class:
                     # Find the client file for this endpoint
-                    expected_file = f"{endpoint.route_module}/TestService__Client__{endpoint.route_class.replace('Routes__', '')}.py"
+                    expected_file = f"{endpoint.route_module}/Test__Service__Fast_API__Client__{endpoint.route_class.replace('Routes__', '')}.py"
                     if expected_file in files:
                         client_code = files[expected_file]
                         # Verify method is used in execute call
                         assert f'method = "{endpoint.method.value}"' in client_code
 
-    def test_generate_client__with_complex_paths(self):                             # Test complex path patterns
+
+    def test__generate_client__with_complex_paths(self):                             # Test complex path patterns
         # Create Fast_API with complex paths
-        class Routes__Complex(Fast_API__Routes):
-            tag = 'complex'
 
-            def nested__path__with__many__params(self, a: int, b: str, c: int):
-                return {}
 
-            def setup_routes(self):
-                self.add_route_get(self.nested__path__with__many__params)
-
-        with Fast_API() as complex_api:
+        config = Schema__Fast_API__Config(default_routes=False)
+        with Fast_API(config=config) as complex_api:
             complex_api.add_routes(Routes__Complex)
             complex_api.setup()
 
             generator = Fast_API__Client__Generator(fast_api=complex_api)
             files     = generator.generate_client()
+
+            assert list_set(files) == [  'Fast_API__Client.py'                          ,
+                                         'Fast_API__Client__Config.py'                  ,
+                                         'Fast_API__Client__Requests.py'                ,
+                                         'complex/Fast_API__Client__Complex.py'         ]
+
 
             # Find the complex route in generated code
             complex_files = [f for f in files.keys() if 'complex' in f.lower()]
@@ -235,28 +311,35 @@ class test_Fast_API__Client__Generator(TestCase):
 
             if complex_files:
                 complex_code = files[complex_files[0]]
+
+                assert complex_code == """\
+from typing import Any, Optional, Dict
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class Fast_API__Client__Complex(Type_Safe):
+    _client: Any                                                                    # Reference to main client
+
+    @property
+    def requests(self):                                                             # Access the unified request handler
+        return self._client.requests()
+
+    def nested__path__with__many__params(self, a: int, b: str, c: int) -> Dict:                              # Auto-generated from endpoint get__nested__path__with__many__params
+                                                                                    # Build path
+        path = "/complex/nested/path/with/many/params"
+        body = None
+                                                                                    # Execute request
+        result = self.requests.execute(
+            method = "GET",
+            path   = path,
+            body   = body
+        )
+                                                                                    # Return response data
+        return result.json if result.json else result.text"""
+
                 assert "def nested__path__with__many__params(" in complex_code
                 assert "a: int" in complex_code
                 assert "b: str" in complex_code
                 assert "c: int" in complex_code
-
-    def test_save_client_files__error_handling(self):                               # Test error handling in save
-        with self.generator as _:
-            # Test with non-existent parent directory
-            non_existent = "/tmp/non/existent/deep/path/test_client"
-            saved_files = _.save_client_files(non_existent)
-
-            # Should create directories as needed
-            assert type(saved_files) is list
-            assert len(saved_files)  >  0
-
-            # Verify files were created
-            path = Path(non_existent)
-            assert path.exists()
-
-            # Clean up
-            import shutil
-            shutil.rmtree("/tmp/non", ignore_errors=True)
 
     def test__bug__regression__client_generation_consistency(self):                 # Test consistent generation across runs
         with self.generator as _:
@@ -311,3 +394,12 @@ class Routes__Items(Fast_API__Routes):                                          
         self.add_route_get(self.get_item__item_id)
         self.add_route_get(self.list_items)
         self.add_route_post(self.create_item)
+
+class Routes__Complex(Fast_API__Routes):
+    tag = 'complex'
+
+    def nested__path__with__many__params(self, a: int, b: str, c: int):
+        return {}
+
+    def setup_routes(self):
+        self.add_route_get(self.nested__path__with__many__params)

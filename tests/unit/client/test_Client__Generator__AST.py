@@ -367,7 +367,7 @@ class TestService__Client__Users(Type_Safe):
             assert code =="""\
 
                                                                                     # Return response data
-            return result.json if result.json else result.text"""
+        return result.json if result.json else result.text"""
 
             assert "# Return response data" in code
             assert "return result.json if result.json else result.text" in code
