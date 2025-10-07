@@ -6,7 +6,7 @@ from osbot_utils.type_safe.primitives.core.Safe_Str                             
 from osbot_utils.type_safe.primitives.core.Safe_Int                                import Safe_Int
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                  import Safe_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id    import Safe_Str__Id
-from osbot_fast_api.api.routes.Type_Safe__Route__Analyzer                          import Type_Safe__Route__Analyzer
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Analyzer                import Type_Safe__Route__Analyzer
 from osbot_fast_api.api.schemas.routes.Schema__Route__Signature                    import Schema__Route__Signature
 
 

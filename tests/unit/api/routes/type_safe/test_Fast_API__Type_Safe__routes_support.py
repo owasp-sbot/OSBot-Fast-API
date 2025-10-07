@@ -1,10 +1,10 @@
-from unittest                                                       import TestCase
-from fastapi                                                        import FastAPI
-from starlette.testclient                                           import TestClient
-from osbot_fast_api.client.Fast_API__Route__Extractor               import Fast_API__Route__Extractor
-from osbot_utils.type_safe.Type_Safe                                import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id   import Safe_Id
-from osbot_fast_api.api.routes.Type_Safe__Route__Registration       import Type_Safe__Route__Registration
+from unittest                                                           import TestCase
+from fastapi                                                            import FastAPI
+from starlette.testclient                                               import TestClient
+from osbot_fast_api.client.Fast_API__Route__Extractor                   import Fast_API__Route__Extractor
+from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id       import Safe_Id
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Registration import Type_Safe__Route__Registration
 
 
 class Schema__Integration_User(Type_Safe):                           # Test schema for integration

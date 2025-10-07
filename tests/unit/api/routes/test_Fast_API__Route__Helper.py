@@ -1,10 +1,10 @@
-from unittest                                                                      import TestCase
-from fastapi                                                                       import FastAPI
-from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_Str                                import Safe_Str
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                  import Safe_Id
-from osbot_fast_api.api.routes.Fast_API__Route__Helper                             import Fast_API__Route__Helper
-from osbot_fast_api.api.routes.Type_Safe__Route__Registration                      import Type_Safe__Route__Registration
+from unittest                                                            import TestCase
+from fastapi                                                             import FastAPI
+from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                      import Safe_Str
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id
+from osbot_fast_api.api.routes.Fast_API__Route__Helper                   import Fast_API__Route__Helper
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Registration  import Type_Safe__Route__Registration
 
 
 class test_Fast_API__Route__Helper(TestCase):

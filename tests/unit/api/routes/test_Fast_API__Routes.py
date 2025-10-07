@@ -2,7 +2,7 @@ from unittest                                                               impo
 from fastapi                                                                import FastAPI, APIRouter
 from osbot_utils.utils.Objects                                              import __
 from osbot_fast_api.api.routes.Fast_API__Routes                             import Fast_API__Routes
-from osbot_fast_api.api.routes.Type_Safe__Route__Registration               import Type_Safe__Route__Registration
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Registration     import Type_Safe__Route__Registration
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix  import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag     import Safe_Str__Fast_API__Route__Tag
 from osbot_fast_api.utils.Fast_API_Utils                                    import Fast_API_Utils

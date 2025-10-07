@@ -1,11 +1,11 @@
-from typing                                                       import Callable, List
-from starlette.routing                                            import Router
-from osbot_utils.type_safe.Type_Safe                              import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe    import type_safe
-from osbot_fast_api.api.routes.Type_Safe__Route__Analyzer         import Type_Safe__Route__Analyzer
-from osbot_fast_api.api.routes.Type_Safe__Route__Converter        import Type_Safe__Route__Converter
-from osbot_fast_api.api.routes.Type_Safe__Route__Wrapper          import Type_Safe__Route__Wrapper
-from osbot_fast_api.api.routes.Fast_API__Route__Parser            import Fast_API__Route__Parser
+from typing                                                             import Callable, List
+from starlette.routing                                                  import Router
+from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe          import type_safe
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Analyzer     import Type_Safe__Route__Analyzer
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Converter    import Type_Safe__Route__Converter
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Wrapper      import Type_Safe__Route__Wrapper
+from osbot_fast_api.api.routes.Fast_API__Route__Parser                  import Fast_API__Route__Parser
 
 
 class Type_Safe__Route__Registration(Type_Safe):                        # Unified system for registering routes with Type_Safe support

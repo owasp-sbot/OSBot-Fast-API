@@ -1,15 +1,15 @@
-from unittest                                                       import TestCase
-from fastapi                                                        import APIRouter
-from osbot_fast_api.api.decorators.route_path                       import route_path
-from osbot_utils.type_safe.Type_Safe                                import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_Str                 import Safe_Str
-from osbot_utils.type_safe.primitives.core.Safe_Int                 import Safe_Int
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id   import Safe_Id
-from osbot_fast_api.api.routes.Type_Safe__Route__Registration       import Type_Safe__Route__Registration
-from osbot_fast_api.api.routes.Type_Safe__Route__Analyzer           import Type_Safe__Route__Analyzer
-from osbot_fast_api.api.routes.Type_Safe__Route__Converter          import Type_Safe__Route__Converter
-from osbot_fast_api.api.routes.Type_Safe__Route__Wrapper            import Type_Safe__Route__Wrapper
-from osbot_fast_api.api.routes.Fast_API__Route__Parser              import Fast_API__Route__Parser
+from unittest                                                            import TestCase
+from fastapi                                                             import APIRouter
+from osbot_fast_api.api.decorators.route_path                            import route_path
+from osbot_utils.type_safe.Type_Safe                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                      import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int                      import Safe_Int
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Registration  import Type_Safe__Route__Registration
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Analyzer      import Type_Safe__Route__Analyzer
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Converter     import Type_Safe__Route__Converter
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Wrapper       import Type_Safe__Route__Wrapper
+from osbot_fast_api.api.routes.Fast_API__Route__Parser                   import Fast_API__Route__Parser
 
 
 class test_Type_Safe__Route__Registration(TestCase):

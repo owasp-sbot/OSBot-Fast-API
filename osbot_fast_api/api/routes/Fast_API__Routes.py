@@ -5,7 +5,7 @@ from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag         
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from osbot_utils.decorators.lists.index_by                                       import index_by
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                   import type_safe
-from osbot_fast_api.api.routes.Type_Safe__Route__Registration                    import Type_Safe__Route__Registration
+from osbot_fast_api.api.routes.type_safe.Type_Safe__Route__Registration          import Type_Safe__Route__Registration
 
 
 class Fast_API__Routes(Type_Safe):                                       # Base class for defining FastAPI route collections with Type_Safe support

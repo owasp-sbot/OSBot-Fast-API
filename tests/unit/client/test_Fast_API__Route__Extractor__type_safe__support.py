@@ -4,7 +4,7 @@ from osbot_fast_api.client.testing.Test__Fast_API__With_Routes              impo
 from osbot_fast_api.api.schemas.routes.Schema__Fast_API__Routes__Collection import Schema__Fast_API__Routes__Collection
 
 
-class test_Fast_API__Route__Extractor__type_safety(TestCase):
+class test_Fast_API__Route__Extractor__type_safe__support(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                  # ONE-TIME expensive setup
