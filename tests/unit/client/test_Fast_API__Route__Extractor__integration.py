@@ -225,7 +225,6 @@ class test_Fast_API__Route__Extractor__integration(TestCase):          # Integra
                               if '{path:path}' in str(r.http_path)), None)
         assert catch_all_route is not None
 
-    # JUST FIXED THIS
     def test__regression__serialization_of_extracted_routes(self):                               # Test that extracted routes serialize properly
         collection = self.extractor.extract_routes()
 
