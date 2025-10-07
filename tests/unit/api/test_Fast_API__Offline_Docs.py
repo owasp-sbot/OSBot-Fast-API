@@ -1,11 +1,11 @@
-from unittest                                           import TestCase
-from osbot_utils.utils.Misc                             import list_set
-from osbot_fast_api.api.Fast_API                        import Fast_API
+from unittest                                               import TestCase
+from osbot_utils.utils.Misc                                 import list_set
+from osbot_fast_api.api.Fast_API                            import Fast_API
 from osbot_fast_api.api.schemas.Schema__Fast_API__Config    import Schema__Fast_API__Config
-from osbot_fast_api.utils.Version                       import version__osbot_fast_api
-from osbot_utils.helpers.html.utils.Html__Query         import Html__Query
-from osbot_fast_api.api.Fast_API__Offline_Docs          import Fast_API__Offline_Docs, URL__SWAGGER__JS, URL__STATIC__DOCS, URL__REDOC__JS, URL__REDOC__FAVICON, URL__SWAGGER__CSS, URL__SWAGGER__FAVICON
-from tests.unit.fast_api__for_tests                     import fast_api, fast_api_client
+from osbot_fast_api.utils.Version                           import version__osbot_fast_api
+from osbot_utils.helpers.html.utils.Html__Query             import Html__Query
+from osbot_fast_api.api.Fast_API__Offline_Docs              import Fast_API__Offline_Docs, URL__SWAGGER__JS, URL__STATIC__DOCS, URL__REDOC__JS, URL__REDOC__FAVICON, URL__SWAGGER__CSS, URL__SWAGGER__FAVICON
+from tests.unit.fast_api__for_tests                         import fast_api, fast_api_client
 
 
 class test_Fast_API__Offline_Docs(TestCase):

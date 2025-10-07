@@ -16,6 +16,7 @@ class test_route_path(TestCase):
     def setUp(self):
         self.fast_api_routes = Fast_API__Routes()
 
+
     def test_route_path_decorator(self):
         @route_path("/api/v1/users.json")
         def get_users_json(): pass                                                          # Would normally be /get-users-json
@@ -374,3 +375,12 @@ class test_route_path(TestCase):
 
             assert '/api/文档/用户'  in _.routes_paths()
             assert '/api/café/menú' in _.routes_paths()
+
+    def test__regression__route_path__is_ignored(self):
+        @route_path("/api/v1/users.json")
+        def get_users_json(): pass                                                          # Would normally be /get-users-json
+        with self.fast_api_routes as _:
+            _.add_routes_get(get_users_json)
+            # assert _.routes_paths() != ['/api/v1/users.json']                     # BUG
+            # assert _.routes_paths() == ['/get-users-json']                        # BUG
+            assert _.routes_paths() == ['/api/v1/users.json']

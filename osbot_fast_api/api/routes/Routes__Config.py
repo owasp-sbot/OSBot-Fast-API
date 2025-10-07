@@ -7,7 +7,8 @@ from osbot_fast_api.utils.Fast_API__Routes__Paths        import Fast_API__Routes
 from osbot_fast_api.utils.Fast_API__Server_Info          import fast_api__server_info
 from osbot_fast_api.utils.Version                        import version__osbot_fast_api
 
-
+# todo: these are actually routes, so we should move them into a better location
+#       maybe 'default_routes' or something similar
 class Routes__Config(Fast_API__Routes):
     tag  = 'config'
 

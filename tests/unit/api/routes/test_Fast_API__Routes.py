@@ -1,9 +1,9 @@
-from unittest                                                   import TestCase
-from fastapi                                                    import FastAPI, APIRouter
-from osbot_fast_api.api.routes.Fast_API__Routes                 import Fast_API__Routes
+from unittest                                                                import TestCase
+from fastapi                                                                 import FastAPI, APIRouter
+from osbot_fast_api.api.routes.Fast_API__Routes                              import Fast_API__Routes
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix   import Safe_Str__Fast_API__Route__Prefix
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Tag      import Safe_Str__Fast_API__Route__Tag
-from osbot_fast_api.utils.Fast_API_Utils                        import Fast_API_Utils
+from osbot_fast_api.utils.Fast_API_Utils                                     import Fast_API_Utils
 
 
 class test_Fast_API__Routes(TestCase):
