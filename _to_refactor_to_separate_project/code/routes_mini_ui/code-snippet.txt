@@ -1,0 +1,13 @@
+# from Routes__Config
+
+    def routes__json(self):
+        return Fast_API__Routes__Paths(app=self.app).routes_tree()
+
+    def routes__html(self):
+        html_content = Fast_API__Routes__Paths(app=self.app).routes_html()
+        return HTMLResponse(content=html_content)
+
+
+    def setup_routes(self):
+        self.add_route_get(self.routes__json  )
+        self.add_route_get(self.routes__html  )

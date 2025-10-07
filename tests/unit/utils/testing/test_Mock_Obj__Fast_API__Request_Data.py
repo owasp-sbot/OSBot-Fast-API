@@ -1,6 +1,5 @@
-from osbot_fast_api.api.events.Fast_API__Http_Event                        import Fast_API__Http_Event
-from decimal                                                        import Decimal
-from unittest                                                       import TestCase
+from osbot_fast_api.events.Fast_API__Http_Event                    import Fast_API__Http_Event
+from unittest                                                      import TestCase
 from osbot_fast_api.utils.testing.Mock_Obj__Fast_API__Request_Data import Mock_Obj__Fast_API__Request_Data
 
 
@@ -43,6 +42,7 @@ class test_Mock_Obj__Fast_API__Request_Data(TestCase):
             assert type(_) is Fast_API__Http_Event
             res_content_type   = self.mock_request_data.content_type
             res_content_length = str(len(self.mock_request_data.res_content))
+            duration           = request_data.http_event_request.duration
             expected_data = {'http_event_info'          : { 'client_city'   : self.mock_request_data.city                ,
                                                             'client_country': self.mock_request_data.country             ,
                                                             'client_ip'     : 'pytest'                                   ,
@@ -53,7 +53,7 @@ class test_Mock_Obj__Fast_API__Request_Data(TestCase):
                                                             'log_messages'  : []                                         ,
                                                             'thread_id'     : _.http_event_info.thread_id                ,
                                                             'timestamp'     : _.http_event_info.timestamp                },
-                             'http_event_request'       : { 'duration'      : Decimal('0.000')                           ,
+                             'http_event_request'       : { 'duration'      : duration                                   ,
                                                             'event_id'      : request_data.event_id                      ,
                                                             'headers'       : self.mock_request_data.req_headers_data    ,
                                                             'host_name'     : self.mock_request_data.hostname            ,
@@ -68,8 +68,7 @@ class test_Mock_Obj__Fast_API__Request_Data(TestCase):
                                                             'end_time'      : _.http_event_response.end_time            ,
                                                             'event_id'      : request_data.event_id                     ,
                                                             'headers'       : { 'content-length'    : res_content_length,
-                                                                                'content-type'      : res_content_type  ,
-                                                                                'fast-api-request-id': _.event_id       },
+                                                                                'content-type'      : res_content_type  },
                                                             'response_id'   : request_data.http_event_response.response_id,
                                                             'status_code'   : self.mock_request_data.res_status_code    },
                              'http_event_traces'        : { 'event_id'      : request_data.event_id                     ,

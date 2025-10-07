@@ -1,13 +1,12 @@
 from fastapi                                             import Response
-from fastapi.responses                                   import HTMLResponse
 from osbot_fast_api.api.decorators.route_path            import route_path
 from osbot_fast_api.api.routes.Fast_API__Routes          import Fast_API__Routes
 from osbot_fast_api.api.transformers.OpenAPI__To__Python import OpenAPI__To__Python
-from osbot_fast_api.utils.Fast_API__Routes__Paths        import Fast_API__Routes__Paths
 from osbot_fast_api.utils.Fast_API__Server_Info          import fast_api__server_info
 from osbot_fast_api.utils.Version                        import version__osbot_fast_api
 
-
+# todo: these are actually routes, so we should move them into a better location
+#       maybe 'default_routes' or something similar
 class Routes__Config(Fast_API__Routes):
     tag  = 'config'
 
@@ -19,13 +18,6 @@ class Routes__Config(Fast_API__Routes):
 
     def version(self):
         return {'version': version__osbot_fast_api}
-
-    def routes__json(self):
-        return Fast_API__Routes__Paths(app=self.app).routes_tree()
-
-    def routes__html(self):
-        html_content = Fast_API__Routes__Paths(app=self.app).routes_html()
-        return HTMLResponse(content=html_content)
 
     @route_path('/openapi.py')
     def openapi_python(self):
@@ -39,6 +31,4 @@ class Routes__Config(Fast_API__Routes):
         self.add_route_get(self.info          )
         self.add_route_get(self.status        )
         self.add_route_get(self.version       )
-        self.add_route_get(self.routes__json  )
-        self.add_route_get(self.routes__html  )
         self.add_route_get(self.openapi_python)

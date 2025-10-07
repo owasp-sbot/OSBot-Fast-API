@@ -1,5 +1,7 @@
 from unittest                                                import TestCase
 from pydantic                                                import Field
+
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 from osbot_utils.utils.Misc                                  import random_text
 from pydantic                                                import BaseModel
 from dataclasses                                             import dataclass, field, is_dataclass
@@ -90,13 +92,13 @@ class test__type_safe__Fast_API__Routes__conversions(TestCase):
                 self.add_route_post(self.update_product_price)
 
         class Product_Fast_API(Fast_API):
-            default_routes = False
 
             def setup_routes(self):
                 self.add_routes(Product_Routes)
 
         # Test the implementation
-        product_api = Product_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        product_api = Product_Fast_API(config=config).setup()
         assert product_api.routes_paths() == ['/products/create-product', '/products/update-product-price']
 
         # Test POST with BaseModel validation
@@ -215,12 +217,12 @@ class test__type_safe__Fast_API__Routes__conversions(TestCase):
                 self.add_route_post(self.create_post)
 
         class Blog_Fast_API(Fast_API):
-            default_routes = False
 
             def setup_routes(self):
                 self.add_routes(Blog_Routes)
 
-        blog_api      = Blog_Fast_API().setup()
+        config        = Schema__Fast_API__Config(default_routes=False)
+        blog_api      = Blog_Fast_API(config=config).setup()
         title         = random_text('Understanding Type Systems'            )
         content       = random_text('A deep dive into Python type systems'  )
         post_data     = { 'title'       : title                             ,
@@ -297,13 +299,13 @@ class test__type_safe__Fast_API__Routes__conversions(TestCase):
                 self.add_route_post(self.register_company)
 
         class Company_Fast_API(Fast_API):
-            default_routes = False
 
             def setup_routes(self):
                 self.add_routes(Company_Routes)
 
         # Test the implementation
-        company_api = Company_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        company_api = Company_Fast_API(config=config).setup()
         assert company_api.routes_paths() == ['/company/register-company']
 
         # Test with deeply nested data

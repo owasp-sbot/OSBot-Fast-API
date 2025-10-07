@@ -1,10 +1,10 @@
-from osbot_fast_api.api.events.Fast_API__Http_Event        import Fast_API__Http_Event
-from osbot_fast_api.api.events.Fast_API__Http_Event__Info  import Fast_API__Http_Event__Info
-from osbot_utils.type_safe.Type_Safe             import Type_Safe
-from fastapi                                        import Request
-from starlette.responses                            import Response
-from starlette.datastructures                       import Address
-from osbot_utils.utils.Misc                         import str_to_bytes
+from osbot_fast_api.events.Fast_API__Http_Event                        import Fast_API__Http_Event
+from osbot_fast_api.events.schemas.Schema__Fast_API__Http_Event__Info  import Schema__Fast_API__Http_Event__Info
+from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
+from fastapi                                                           import Request
+from starlette.responses                                               import Response
+from starlette.datastructures                                          import Address
+from osbot_utils.utils.Misc                                            import str_to_bytes
 
 HEADER_NAME__CITY    = 'cloudfront-viewer-city'
 HEADER_NAME__COUNTRY = 'cloudfront-viewer-country'
@@ -85,7 +85,7 @@ class Mock_Obj__Fast_API__Request_Data(Type_Safe):
 
     def create_request_data(self):
         kwargs          = dict(fast_api_name=self.fast_api_name)
-        http_event_info = Fast_API__Http_Event__Info(**kwargs)
+        http_event_info = Schema__Fast_API__Http_Event__Info(**kwargs)
         with Fast_API__Http_Event(http_event_info=http_event_info) as _:
             self.request_data = _
             _.on_request(self.request)

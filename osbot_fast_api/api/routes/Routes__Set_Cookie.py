@@ -1,12 +1,16 @@
-from fastapi                                    import Request, Response
-from fastapi.responses                          import HTMLResponse
-from osbot_utils.type_safe.Type_Safe            import Type_Safe
-from osbot_utils.utils.Env                      import get_env, load_dotenv
-from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
-from osbot_fast_api.schemas.consts__Fast_API    import ENV_VAR__FAST_API__AUTH__API_KEY__NAME
+from fastapi                                            import Request, Response
+from fastapi.responses                                  import HTMLResponse
+from osbot_fast_api.api.schemas.consts.consts__Fast_API import ENV_VAR__FAST_API__AUTH__API_KEY__NAME
+from osbot_utils.type_safe.Type_Safe                    import Type_Safe
+from osbot_utils.utils.Env                              import get_env, load_dotenv
+from osbot_fast_api.api.routes.Fast_API__Routes         import Fast_API__Routes
 
+# todo: (once this class has been moved into a better location, move this schema also to a better location
 class Schema__Set_Cookie(Type_Safe):
     cookie_value: str
+
+# todo: these are actually routes, so we should move them into a better location
+#       maybe 'default_routes' or something similar
 
 class Routes__Set_Cookie(Fast_API__Routes):
     tag: str = 'auth'

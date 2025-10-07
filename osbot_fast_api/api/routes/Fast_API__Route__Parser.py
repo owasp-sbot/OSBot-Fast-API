@@ -21,17 +21,17 @@ class Fast_API__Route__Parser(Type_Safe):
 
     @type_safe
     def extract_param_names(self, function : Callable                                   # Function to extract params from
-                            ) -> Set[str]:                                               # Returns set of param names
-        sig = inspect.signature(function)                                               # Get function signature
+                             ) -> Set[str]:                                             # Returns set of param names
+        sig         = inspect.signature(function)                                       # Get function signature
         param_names = set(sig.parameters.keys())                                        # Get all parameter names
         param_names.discard('self')                                                     # Remove 'self' if present
         return param_names
 
     @type_safe
     def parse_function_name_segments(self, function_name : str       ,                  # Function name to parse
-                                           param_names   : Set[str]                      # Set of parameter names
-                                     ) -> list:                                          # Returns list of path segments
-        parts = function_name.split('__')                                               # Split on double underscore
+                                           param_names   : Set[str]                     # Set of parameter names
+                                      ) -> list:                                        # Returns list of path segments
+        parts   = function_name.split('__')                                             # Split on double underscore
         segments = []                                                                   # Initialize segments list
 
         for i, part in enumerate(parts):                                                # Process each part
@@ -47,7 +47,7 @@ class Fast_API__Route__Parser(Type_Safe):
     @type_safe
     def parse_part_with_params(self, part        : str       ,                          # Part to parse
                                      param_names : Set[str]                             # Set of parameter names
-                               ) -> list:                                                # Returns list of segments
+                                ) -> list:                                              # Returns list of segments
         if '_' in part:                                                                 # Part contains underscore
             return self.parse_part_with_underscore(part, param_names)                   # Handle mixed param/literal
         else:                                                                           # Part has no underscore

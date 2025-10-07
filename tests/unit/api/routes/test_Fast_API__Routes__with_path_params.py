@@ -1,6 +1,7 @@
-from unittest                                   import TestCase
-from osbot_fast_api.api.Fast_API                import Fast_API
-from osbot_fast_api.api.routes.Fast_API__Routes import Fast_API__Routes
+from unittest                                        import TestCase
+from osbot_fast_api.api.Fast_API                     import Fast_API
+from osbot_fast_api.api.routes.Fast_API__Routes      import Fast_API__Routes
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
 
 
 class test_Fast_API__Routes__with_path_params(TestCase):
@@ -43,12 +44,12 @@ class test_Fast_API__Routes__with_path_params(TestCase):
 
 
         class An_Fast_API(Fast_API):
-            default_routes = False
 
             def setup_routes(self):
                 self.add_routes(Param_Routes)
 
-        an_fast_api = An_Fast_API().setup()
+        config      = Schema__Fast_API__Config(default_routes=False)
+        an_fast_api = An_Fast_API(config=config).setup()
 
         assert an_fast_api.routes_paths() ==[ '/param/an/{guid}'            ,
                                               '/param/an/{guid}/delete'     ,

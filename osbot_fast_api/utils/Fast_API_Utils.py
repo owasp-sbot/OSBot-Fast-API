@@ -1,8 +1,8 @@
-from fastapi.routing                         import APIWebSocketRoute
-from starlette.middleware.wsgi               import WSGIMiddleware
-from starlette.routing                       import Mount
-from starlette.staticfiles                   import StaticFiles
-from osbot_fast_api.schemas.consts__Fast_API import FAST_API_DEFAULT_ROUTES_PATHS
+from fastapi.routing                                import APIWebSocketRoute
+from starlette.middleware.wsgi                      import WSGIMiddleware
+from starlette.routing                              import Mount
+from starlette.staticfiles                          import StaticFiles
+from osbot_fast_api.api.schemas.consts.consts__Fast_API import FAST_API_DEFAULT_ROUTES_PATHS
 
 
 class Fast_API_Utils:

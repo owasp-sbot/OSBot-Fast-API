@@ -4,25 +4,23 @@ from unittest.mock                                                              
 from unittest                                                                   import TestCase
 from fastapi                                                                    import FastAPI, HTTPException
 from fastapi.exceptions                                                         import RequestValidationError
-from osbot_utils.testing.Temp_Env_Vars import Temp_Env_Vars
-from osbot_utils.testing.__                                                     import __
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config                        import Schema__Fast_API__Config
+from osbot_utils.testing.Temp_Folder                                            import Temp_Folder
+from osbot_utils.testing.Temp_Env_Vars                                          import Temp_Env_Vars
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version import Safe_Str__Version
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import parent_folder
+from osbot_utils.utils.Files                                                    import parent_folder
 from osbot_utils.utils.Objects                                                  import base_classes
-from osbot_utils.utils.Threads import invoke_async
+from osbot_utils.utils.Threads                                                  import invoke_async
 from starlette.requests                                                         import Request
 from starlette.responses                                                        import JSONResponse
 from starlette.testclient                                                       import TestClient
-from osbot_fast_api.admin_ui.api.Admin_UI__Config                               import Admin_UI__Config
 from osbot_fast_api.api.Fast_API                                                import Fast_API
-from osbot_fast_api.api.events.Fast_API__Http_Events                            import Fast_API__Http_Events
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Name                            import Safe_Str__Fast_API__Name
-from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Prefix                   import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.schemas.consts__Fast_API                                    import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Name               import Safe_Str__Fast_API__Name
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix      import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.consts.consts__Fast_API                         import EXPECTED_ROUTES_PATHS, EXPECTED_ROUTES_METHODS, EXPECTED_DEFAULT_ROUTES, ROUTES__CONFIG, ROUTES__STATIC_DOCS, FAST_API_DEFAULT_ROUTES, ENV_VAR__FAST_API__AUTH__API_KEY__NAME, ENV_VAR__FAST_API__AUTH__API_KEY__VALUE
 from osbot_fast_api.utils.Fast_API_Utils                                        import Fast_API_Utils
 from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
 from tests.unit.fast_api__for_tests                                             import fast_api, fast_api_client
@@ -67,7 +65,7 @@ class test_Fast_API(TestCase):
         assert app.title                == 'Fast_API'
         assert app.version              == version__osbot_fast_api
 
-        assert self.fast_api.enable_cors is False
+        assert self.fast_api.config.enable_cors is False
 
     def test_client(self):
         assert type(self.client) is TestClient
@@ -82,7 +80,7 @@ class test_Fast_API(TestCase):
 
     def test_route__root(self):
         response = self.client.get('/', follow_redirects=False)
-        assert response.status_code == 307
+        assert response.status_code             == 307
         assert response.headers.get('location') == '/docs'
         fast_api_request_id = response.headers.get('fast-api-request-id')
         assert dict(response.headers) == {'content-length': '0', 'location': '/docs', 'fast-api-request-id': fast_api_request_id}
@@ -105,13 +103,10 @@ class test_Fast_API(TestCase):
         assert self.fast_api.setup_routes() == self.fast_api
 
     def test_user_middleware(self):
-        http_events = self.fast_api.http_events
-        params = {'http_events' : http_events}
-        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': params, 'type': 'Middleware__Http_Request'     },
-                                                    {'function_name': None, 'params': {}     ,'type': 'Middleware__Detect_Disconnect'}]
+        assert self.fast_api.user_middlewares() == [{'function_name': None, 'params': {}, 'type': 'Middleware__Request_ID'       },
+                                                    {'function_name': None, 'params': {}, 'type': 'Middleware__Detect_Disconnect'}]
 
     def test__verify__title_description_version(self):
-
         app = self.fast_api.app()
         assert type(app) is FastAPI
         assert app.title       == 'Fast_API'
@@ -121,14 +116,16 @@ class test_Fast_API(TestCase):
         kwargs = dict(name        = 'An Fast API !!',
                       version     = 'v0.1.0'        ,
                       description = 'now with more available charts to talk about Fast API !! @£$%^&*()')
-        with Fast_API(**kwargs) as _:
-            assert _.name       == 'An Fast API __'                                                         # note the chars sanitization
-            assert _.version    ==  'v0.1.0'
-            assert _.description == 'now with more available charts to talk about Fast API __ ______*()'    # note the chars sanitization
+        config = Schema__Fast_API__Config(**kwargs)
 
-            assert type(_.name       ) is Safe_Str__Fast_API__Name
-            assert type(_.version    ) is Safe_Str__Version
-            assert type(_.description) is Safe_Str__Text
+        with Fast_API(config=config) as _:
+            assert _.config.name              == 'An Fast API __'                                                         # note the chars sanitization
+            assert _.config.version           ==  'v0.1.0'
+            assert _.config.description       == 'now with more available charts to talk about Fast API __ ______*()'    # note the chars sanitization
+
+            assert type(_.config.name       ) is Safe_Str__Fast_API__Name
+            assert type(_.config.version    ) is Safe_Str__Version
+            assert type(_.config.description) is Safe_Str__Text
 
             app = _.app()
             assert type(app) is FastAPI
@@ -138,7 +135,7 @@ class test_Fast_API(TestCase):
 
         error_message = 'in Safe_Str__Version, value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$'
         with pytest.raises(ValueError, match=re.escape(error_message)):
-            Fast_API(version="0.1.1")                                       # confirm validation provided by Safe_Str__Version
+            Schema__Fast_API__Config(version="0.1.1")                                       # confirm validation provided by Safe_Str__Version
 
 
 
@@ -151,62 +148,60 @@ class test_Fast_API(TestCase):
             assert base_classes(_) == [Type_Safe, object]                          # Verify Type_Safe inheritance
 
             # Verify all attributes are properly typed
-            assert type(_.base_path)      is Safe_Str__Fast_API__Route__Prefix
-            assert type(_.add_admin_ui)   is bool
-            assert type(_.docs_offline)   is bool
-            assert type(_.enable_cors)    is bool
-            assert type(_.enable_api_key) is bool
-            assert type(_.default_routes) is bool
-            assert type(_.admin_config)   is Admin_UI__Config
-            assert type(_.name)           is Safe_Str__Fast_API__Name
-            assert type(_.version)        is Safe_Str__Version
-            assert type(_.description)    is type(None)                           # None by default
-            assert type(_.http_events)    is Fast_API__Http_Events
-            assert type(_.server_id)      is Random_Guid
+            assert type(_.config.base_path)      is Safe_Str__Fast_API__Route__Prefix
+            assert type(_.config.add_admin_ui)   is bool
+            assert type(_.config.docs_offline)   is bool
+            assert type(_.config.enable_cors)    is bool
+            assert type(_.config.enable_api_key) is bool
+            assert type(_.config.default_routes) is bool
+            assert type(_.config.name)           is Safe_Str__Fast_API__Name
+            assert type(_.config.version)        is Safe_Str__Version
+            assert type(_.config.description)    is type(None)                           # None by default
+
+            assert type(_.server_id)             is Random_Guid
 
             # Verify defaults
-            assert _.base_path      == '/'
-            assert _.add_admin_ui   is False
-            assert _.docs_offline   is True
-            assert _.enable_cors    is False
-            assert _.enable_api_key is False
-            assert _.default_routes is True
-            assert _.version        == version__osbot_fast_api
-            assert _.description    is None
+            assert _.config.base_path      == '/'
+            assert _.config.add_admin_ui   is False
+            assert _.config.docs_offline   is True
+            assert _.config.enable_cors    is False
+            assert _.config.enable_api_key is False
+            assert _.config.default_routes is True
+            assert _.config.version        == version__osbot_fast_api
+            assert _.config.description    is None
 
     def test__init__with_custom_name(self):                                        # Test custom name initialization
-        custom_name = "My API Service!"
-        with Fast_API(name=custom_name) as _:
-            assert _.name == "My API Service_"                                     # Sanitized by Safe_Str__Fast_API__Name
-            assert _.http_events.fast_api_name == "My API Service_"                # Propagated to http_events
+        config = Schema__Fast_API__Config(name = "My API Service!")
+        with Fast_API(config=config) as _:
+            assert _.config.name               == "My API Service_"                # Sanitized by Safe_Str__Fast_API__Name
 
     def test__init__without_name(self):                                            # Test auto-name from class
         with Fast_API() as _:
-            assert _.name == "Fast_API"                                            # Uses class name
-            assert _.http_events.fast_api_name == "Fast_API"
+            assert _.config.name               == "Fast_API"                       # Uses class name
 
     def test__init__with_all_parameters(self):                                     # Test comprehensive initialization
         kwargs = dict(base_path      = '/api/v1'               ,
-                     add_admin_ui   = True                    ,
-                     docs_offline   = False                   ,
-                     enable_cors    = True                    ,
-                     enable_api_key = True                    ,
-                     default_routes = False                   ,
-                     name           = 'Test API'              ,
-                     version        = 'v1.2.3'                ,
-                     description    = 'Test description'      )
+                      add_admin_ui   = True                    ,
+                      docs_offline   = False                   ,
+                      enable_cors    = True                    ,
+                      enable_api_key = True                    ,
+                      default_routes = False                   ,
+                      name           = 'Test API'              ,
+                      version        = 'v1.2.3'                ,
+                      description    = 'Test description'      )
 
-        with Fast_API(**kwargs) as _:
+        config = Schema__Fast_API__Config(**kwargs)
+        with Fast_API(config=config) as _:
             # Direct attribute verification (avoiding .obj() due to deque serialization issue)
-            assert _.base_path      == '/api/v1'
-            assert _.add_admin_ui   is True
-            assert _.docs_offline   is False
-            assert _.enable_cors    is True
-            assert _.enable_api_key is True
-            assert _.default_routes is False
-            assert _.name           == 'Test API'
-            assert _.version        == 'v1.2.3'
-            assert _.description    == 'Test description'
+            assert _.config.base_path      == '/api/v1'
+            assert _.config.add_admin_ui   is True
+            assert _.config.docs_offline   is False
+            assert _.config.enable_cors    is True
+            assert _.config.enable_api_key is True
+            assert _.config.default_routes is False
+            assert _.config.name           == 'Test API'
+            assert _.config.version        == 'v1.2.3'
+            assert _.config.description    == 'Test description'
 
     # Exception handler tests
 
@@ -274,51 +269,7 @@ class test_Fast_API(TestCase):
             assert response.status_code == 400
             assert b'"detail"' in response.body
 
-    # Shell server tests
-
-    def test_add_shell_server(self):                                               # Test shell server route addition
-        with Fast_API() as _:
-            _.setup()
-            initial_routes = len(_.routes_paths())
-
-            _.add_shell_server()
-
-            # Verify route was added
-            assert len(_.routes_paths()) == initial_routes + 1
-            assert '/shell-server' in _.routes_paths()
-
     # Route management tests
-
-    def test_add_route_get(self):                                                  # Test GET route addition
-        with Fast_API() as _:
-            def test_endpoint():
-                return {"message": "test"}
-
-            _.add_route_get(test_endpoint)
-
-            assert '/test-endpoint' in _.routes_paths()
-
-            # Test the route works
-            client = _.client()
-            response = client.get('/test-endpoint')
-            assert response.status_code == 200
-            assert response.json() == {"message": "test"}
-
-    def test_add_route_post(self):                                                 # Test POST route addition
-        with Fast_API() as _:
-            def submit_data(data: dict):
-                return {"received": data}
-
-            _.add_route_post(submit_data)
-
-            assert '/submit-data' in _.routes_paths()
-
-            # Test the route works
-            client = _.client()
-            test_data = {"key": "value"}
-            response = client.post('/submit-data', json=test_data)
-            assert response.status_code == 200
-            assert response.json() == {"received": test_data}
 
     def test_add_route_with_custom_methods(self):                                  # Test custom HTTP methods
         with Fast_API() as _:
@@ -371,7 +322,8 @@ class test_Fast_API(TestCase):
             assert 'description' not in kwargs                                     # Not set when None
 
     def test_app_kwargs_with_custom_values(self):                                  # Test custom app kwargs
-        with Fast_API(name="Custom", version="v2.0.0", description="Test") as _:
+        config = Schema__Fast_API__Config(name="Custom", version="v2.0.0", description="Test")
+        with Fast_API(config=config) as _:
             kwargs = _.app_kwargs()
 
             assert kwargs['title']       == 'Custom'
@@ -379,7 +331,8 @@ class test_Fast_API(TestCase):
             assert kwargs['description'] == 'Test'
 
     def test_app_kwargs_with_default_routes_false(self):                           # Test with default routes disabled
-        with Fast_API(default_routes=False) as _:
+        config   = Schema__Fast_API__Config(default_routes=False)
+        with Fast_API(config=config) as _:
             kwargs = _.app_kwargs()
 
             assert 'docs_url' not in kwargs                                        # Not overridden
@@ -405,8 +358,10 @@ class test_Fast_API(TestCase):
     # Mounting tests
 
     def test_mount_on_parent_app(self):                                            # Test mounting on parent app
-        parent = Fast_API(name="Parent").setup()
-        child = Fast_API(name="Child", base_path="/child").setup()
+        config_parent = Schema__Fast_API__Config(name="Parent")
+        config_child  = Schema__Fast_API__Config(name="Child", base_path="/child")
+        parent = Fast_API(config=config_parent).setup()
+        child = Fast_API (config=config_child ).setup()
 
         child.mount(parent.app())
 
@@ -415,7 +370,7 @@ class test_Fast_API(TestCase):
         assert response.status_code == 200
 
     def test_mount_fast_api_class(self):                                            # Test mounting another Fast_API class
-        with Fast_API(name="Main") as main:
+        with Fast_API() as main:
             main.setup()
 
             class Child_API(Fast_API):                                              # Create child class
@@ -444,14 +399,6 @@ class test_Fast_API(TestCase):
             assert len(_.routes_paths()) > 0                                       # Routes added
             assert _.user_middlewares() != []                                      # Middlewares added
 
-    def test_setup_with_admin_ui(self):                                            # Test admin UI setup
-        with Fast_API(add_admin_ui=True) as _:
-            _.admin_config = Admin_UI__Config()                                    # Set config
-            _.setup()
-
-            # Admin UI should be mounted
-            assert '/admin/admin-config/api/routes' in _.routes_paths(expand_mounts=True)
-
     def test_setup_static_routes_with_path(self):                                  # Test static route setup
         with Fast_API() as _:
             _.path_static_folder = lambda: parent_folder(__file__)                  # Override to provide static path
@@ -462,7 +409,8 @@ class test_Fast_API(TestCase):
             assert len(mounts) == 1
 
     def test_setup_without_default_routes(self):                                    # Test setup without default routes
-        with Fast_API(default_routes=False) as _:
+        config   = Schema__Fast_API__Config(default_routes=False)
+        with Fast_API(config=config) as _:
             _.setup()
 
             assert '/'       not in _.routes_paths()                                # Should not have default routes
@@ -472,7 +420,8 @@ class test_Fast_API(TestCase):
     # Middleware tests
 
     def test_setup_middleware_cors_enabled(self):                                   # Test CORS middleware
-        with Fast_API(enable_cors=True) as _:
+        config = Schema__Fast_API__Config(enable_cors=True)
+        with Fast_API(config=config) as _:
             _.setup_middleware__cors()
 
             # Make request to verify CORS headers
@@ -485,8 +434,9 @@ class test_Fast_API(TestCase):
     def test_setup_middleware_api_key_enabled(self):                               # Test API key middleware
         temp_env_vars = { ENV_VAR__FAST_API__AUTH__API_KEY__NAME  : 'X-API-Key',
                           ENV_VAR__FAST_API__AUTH__API_KEY__VALUE : 'test-key-123'}
+        config        = Schema__Fast_API__Config(enable_api_key=True)
         with Temp_Env_Vars(env_vars=temp_env_vars):
-            with Fast_API(enable_api_key=True).setup() as _:
+            with Fast_API(config=config).setup() as _:
                 client                 = _.client()
                 path_that_doesnt_exist = '/config'
                 path_that_exists       = '/config/info'
@@ -508,15 +458,6 @@ class test_Fast_API(TestCase):
 
             assert 'Middleware__Detect_Disconnect' in middleware_types
 
-    def test_setup_middleware_http_events(self):                                   # Test HTTP events middleware
-        with Fast_API() as _:
-            _.setup_middleware__http_events()
-
-            middlewares = _.user_middlewares()
-            http_middleware = [m for m in middlewares if m['type'] == 'Middleware__Http_Request']
-
-            assert len(http_middleware) == 1
-            assert http_middleware[0]['params']['http_events'] == _.http_events
 
     # Route removal tests
 
@@ -603,40 +544,42 @@ class test_Fast_API(TestCase):
     def test_invalid_version_format(self):                                         # Test invalid version validation
         error_message = 'in Safe_Str__Version, value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$'
         with pytest.raises(ValueError, match=re.escape(error_message)):
-            Fast_API(version="not-version")
+            Schema__Fast_API__Config(version="not-version")
 
     def test_special_characters_in_name(self):                                     # Test name sanitization
-        with Fast_API(name="Test@API#2024!") as _:
-            assert _.name == "Test_API_2024_"                                      # Special chars replaced
+        config = Schema__Fast_API__Config(name="Test@API#2024!")
+        with Fast_API(config=config) as _:
+            assert _.config.name == "Test_API_2024_"                                      # Special chars replaced
 
     def test_special_characters_in_description(self):                              # Test description sanitization
-        with Fast_API(description="API with @#$ special chars!") as _:
-            assert _.description == "API with ___ special chars_"                  # Sanitized
+        config = Schema__Fast_API__Config(description="API with @#$ special chars!")
+        with Fast_API(config=config) as _:
+            assert _.config.description == "API with ___ special chars_"                  # Sanitized
 
     def test_base_path_sanitization(self):                                         # Test base path validation
-        with Fast_API(base_path="/api/v1/") as _:
-            assert _.base_path == "/api/v1"                                       # Preserved
+        config = Schema__Fast_API__Config(base_path="/api/v1/")
+        with Fast_API(config=config) as _:
+            assert _.config.base_path == "/api/v1"                                       # Preserved
 
     def test_from_json_deserialization(self):                                      # Test Type_Safe deserialization
-        json_data = {
-            'name': 'RestoredAPI',
-            'version': 'v2.0.0',
-            'enable_cors': True,
-            'enable_api_key': True
-        }
+        json_data = {'config': { 'name'          : 'RestoredAPI',
+                                 'version'       : 'v2.0.0'     ,
+                                 'enable_cors'   : True         ,
+                                 'enable_api_key': True         }}
 
         restored = Fast_API.from_json(json_data)
 
         assert type(restored) is Fast_API
-        assert restored.name == 'RestoredAPI'
-        assert restored.version == 'v2.0.0'
-        assert restored.enable_cors is True
-        assert restored.enable_api_key is True
+        assert restored.config.name == 'RestoredAPI'
+        assert restored.config.version == 'v2.0.0'
+        assert restored.config.enable_cors is True
+        assert restored.config.enable_api_key is True
 
     # Integration tests
 
     def test_full_lifecycle(self):                                                 # Test complete API lifecycle
-        with Fast_API(name="FullTest") as api:
+        config = Schema__Fast_API__Config(name="FullTest")
+        with Fast_API(config=config) as api:
             # Setup
             api.setup()
 
@@ -669,13 +612,15 @@ class test_Fast_API(TestCase):
             assert response.status_code == 404
 
     def test_multiple_fast_api_instances(self):                                    # Test multiple instances don't interfere
-        api1 = Fast_API(name="API1").setup()
-        api2 = Fast_API(name="API2").setup()
+        config_api1 = Schema__Fast_API__Config(name="API1")
+        config_api2 = Schema__Fast_API__Config(name="API2")
+        api1 = Fast_API(config=config_api1).setup()
+        api2 = Fast_API(config=config_api2).setup()
 
         # Each should have its own state
-        assert api1.name != api2.name
-        assert api1.server_id != api2.server_id
-        assert api1.app() is not api2.app()
+        assert api1.config.name != api2.config.name
+        assert api1.server_id   != api2.server_id
+        assert api1.app()       is not api2.app()
 
         # Add route to api1 only
         def api1_route():
@@ -685,3 +630,50 @@ class test_Fast_API(TestCase):
         # Should only exist in api1
         assert '/api1-route' in api1.routes_paths()
         assert '/api1-route' not in api2.routes_paths()
+
+
+    def test_server_id_persistence(self):                                             # Test server_id uniqueness
+        api1 = Fast_API()
+        api2 = Fast_API()
+
+        assert api1.server_id != api2.server_id                                       # Each instance unique
+        assert type(api1.server_id) is Random_Guid
+        assert type(api2.server_id) is Random_Guid
+
+    def test_path_static_folder_override(self):                                       # Test static folder configuration
+        with Temp_Folder() as temp_folder:
+
+            class Custom_Fast_API(Fast_API):
+                def path_static_folder(self):
+                    return temp_folder.full_path
+
+
+            with Custom_Fast_API() as _:
+                _.setup()
+                assert _.path_static_folder() == temp_folder.full_path
+
+                # Verify static mount created
+                static_mounts = [r for r in _.app().routes if hasattr(r, 'path') and r.path == '/static']
+                assert len(static_mounts) == 1
+
+    def test__regression__serialization_round_trip__doesnt_work_due_to_deque_use(self):
+        config = Schema__Fast_API__Config(name="TestAPI", version="v1.0.0", enable_cors=True)
+        with Fast_API(config=config) as original:
+            # error_message = "Type <class 'collections.deque'> not serializable"
+            # with pytest.raises(TypeError, match=re.escape(error_message)):
+            #     original.json()                                                           # BUG: should have not raised exception
+
+            # Serialize to JSON
+            json_data = original.json()
+
+            # Deserialize back
+            with Fast_API.from_json(json_data) as restored:
+                # Must be perfect round-trip
+                assert restored.config.name         == original.config.name
+                assert restored.config.version      == original.config.version
+                assert restored.config.enable_cors  == original.config.enable_cors
+
+                # Verify type preservation
+                assert type(restored.config.name     ) is Safe_Str__Fast_API__Name
+                assert type(restored.config.version  ) is Safe_Str__Version
+                assert type(restored.server_id       ) is Random_Guid
