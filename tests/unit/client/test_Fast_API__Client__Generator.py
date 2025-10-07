@@ -220,7 +220,7 @@ class Test__Service__Fast_API__Client__Config(Type_Safe):
     verify_ssl      : bool          = True                                         # Verify SSL certificates
                                                                                     # Service-specific configuration can be added here
     service_name    : Safe_Str__Id  = "Test__Service__Fast_API"
-    service_version : str           = "v0.26.20\""""
+    service_version : str           = "{version}\"""".format(version=version__osbot_fast_api)
 
             assert f'service_name    : Safe_Str__Id  = "{contract.service_name}"'   in config_code
             assert f'service_version : str           = "{contract.service_version}"' in config_code
