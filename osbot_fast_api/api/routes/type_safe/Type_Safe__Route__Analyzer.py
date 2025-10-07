@@ -1,5 +1,5 @@
 import inspect
-from typing                                                                      import get_type_hints, Callable
+from typing import get_type_hints, Callable, Type
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive                                  import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                   import type_safe
@@ -42,10 +42,11 @@ class Type_Safe__Route__Analyzer(Type_Safe):                            # Analyz
                     # Will be populated by converter
                     pass
 
-        return_type = type_hints.get('return', None)                     # Analyze return type
+        return_type = type_hints.get('return', None)                                    # Analyze return type
         if return_type and return_type != inspect.Parameter.empty:
-            signature.return_type             = return_type
-            signature.return_needs_conversion = self.is_type_safe_class(return_type) and not self.is_primitive_class(return_type)
+            if isinstance(return_type, (type, Type)):                   # Only set return_type if it's an actual class, not a typing construct
+                signature.return_type             = return_type
+                signature.return_needs_conversion = self.is_type_safe_class(return_type) and not self.is_primitive_class(return_type)
 
         return signature
 
