@@ -31,6 +31,12 @@ class Type_Safe__Route__Wrapper(Type_Safe):                             # Create
         if hasattr(function, '__route_path__'):                                         # Also preserve route_path decorator if it exists
             wrapper_function.__route_path__ = function.__route_path__
 
+        if signature.type_safe_conversions or signature.primitive_conversions:
+            wrapper_function.__original_param_types__ = {}
+            for param_info in signature.parameters:
+                wrapper_function.__original_param_types__[str(param_info.name)] = param_info.param_type
+
+
         return wrapper_function
 
     @type_safe

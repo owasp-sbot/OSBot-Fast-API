@@ -225,7 +225,8 @@ class test_Fast_API__Route__Extractor__integration(TestCase):          # Integra
                               if '{path:path}' in str(r.http_path)), None)
         assert catch_all_route is not None
 
-    def test__bug__serialization_of_extracted_routes(self):                               # Test that extracted routes serialize properly
+    # JUST FIXED THIS
+    def test__regression__serialization_of_extracted_routes(self):                               # Test that extracted routes serialize properly
         collection = self.extractor.extract_routes()
 
         # Serialize to JSON
@@ -237,19 +238,20 @@ class test_Fast_API__Route__Extractor__integration(TestCase):          # Integra
         assert json_data['total_routes'] == len(json_data['routes'])
 
         # Deserialize back
-        error_message = "Type 'Schema__Set_Cookie__BaseModel' not found in module 'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel'"
-        with pytest.raises(ValueError, match=re.escape(error_message)):
-            restored = Schema__Fast_API__Routes__Collection.from_json(json_data) # todo: figure out why this is happening
+        # error_message = "Type 'Schema__Set_Cookie__BaseModel' not found in module 'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel'"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     restored = Schema__Fast_API__Routes__Collection.from_json(json_data) # BUG: this should not have happened
+        restored = Schema__Fast_API__Routes__Collection.from_json(json_data)
+        assert collection.obj() == restored.obj()                                           # confirm they are the same
+        # Compare specific routes
+        original_paths = {str(r.http_path) for r in collection.routes}
+        restored_paths = {str(r.http_path) for r in restored.routes}
+        assert original_paths == restored_paths
 
-        # # Compare specific routes
-        # original_paths = {str(r.http_path) for r in collection.routes}
-        # restored_paths = {str(r.http_path) for r in restored.routes}
-        # assert original_paths == restored_paths
-        #
-        # # Check enum preservation
-        # for orig, rest in zip(collection.routes, restored.routes):
-        #     if orig.route_type == Enum__Fast_API__Route__Type.WEBSOCKET:
-        #         assert rest.route_type == Enum__Fast_API__Route__Type.WEBSOCKET
+        # Check enum preservation
+        for orig, rest in zip(collection.routes, restored.routes):
+            if orig.route_type == Enum__Fast_API__Route__Type.WEBSOCKET:
+                assert rest.route_type == Enum__Fast_API__Route__Type.WEBSOCKET
 
     def test_filtering_default_routes(self):                                        # Test include_default flag behavior
         # Without defaults

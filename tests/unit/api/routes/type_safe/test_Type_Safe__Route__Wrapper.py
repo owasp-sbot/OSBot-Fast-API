@@ -263,3 +263,73 @@ class test_Type_Safe__Route__Wrapper(TestCase):
 
             result = wrapper(user_id='test-id')
             assert result == {"user_id": 'test-id'}
+
+
+    def test__create_wrapper__preserves_original_param_types(self):             # Test that original parameter types are preserved
+        def test_function(user: Schema__Test_User) -> dict:                     # Function with Type_Safe parameter
+            return {'user_id': user.user_id}
+
+        signature = self.analyzer.analyze_function(test_function)
+        signature = self.converter.enrich_signature_with_conversions(signature)
+        wrapper   = self.wrapper.create_wrapper(test_function, signature)
+
+        assert hasattr(wrapper, '__original_param_types__')                     # CRITICAL: Verify original types are preserved in metadata
+        assert 'user' in wrapper.__original_param_types__
+        assert wrapper.__original_param_types__['user'] is Schema__Test_User    # Original Type_Safe class, NOT BaseModel
+
+    def test__create_wrapper__preserves_original_return_type(self):             # Test that original return type is preserved
+        def test_function() -> Schema__Test_User:                               # Function with Type_Safe return
+            return Schema__Test_User(user_id='USER-123', name='Test', age=25)
+
+        signature = self.analyzer.analyze_function(test_function)
+        signature = self.converter.enrich_signature_with_conversions(signature)
+        wrapper   = self.wrapper.create_wrapper(test_function, signature)
+
+        # Verify original return type is preserved
+        assert hasattr(wrapper, '__original_return_type__')
+        assert wrapper.__original_return_type__ is Schema__Test_User  # Original Type_Safe class
+
+    def test__create_wrapper__no_metadata_when_no_conversions(self):  # Test that no metadata added for simple functions
+        def simple_function(x: int) -> int:                           # No Type_Safe types
+            return x * 2
+
+        signature = self.analyzer.analyze_function(simple_function)
+        signature = self.converter.enrich_signature_with_conversions(signature)
+        wrapper   = self.wrapper.create_wrapper(simple_function, signature)
+
+        # Should not have metadata for simple types
+        assert not hasattr(wrapper, '__original_param_types__')       # No conversions needed
+
+    def test__create_wrapper__multiple_type_safe_params(self):        # Test handling multiple Type_Safe parameters
+        class Schema__Order(Type_Safe):
+            order_id: Safe_Id
+
+        def multi_param_function(user: Schema__Test_User, order: Schema__Order) -> dict:
+            return {'user': user.user_id, 'order': order.order_id}
+
+        signature = self.analyzer.analyze_function(multi_param_function)
+        signature = self.converter.enrich_signature_with_conversions(signature)
+        wrapper   = self.wrapper.create_wrapper(multi_param_function, signature)
+
+        # All Type_Safe params should be preserved
+        assert 'user'  in wrapper.__original_param_types__
+        assert 'order' in wrapper.__original_param_types__
+        assert wrapper.__original_param_types__['user']  is Schema__Test_User
+        assert wrapper.__original_param_types__['order'] is Schema__Order
+
+    def test__create_wrapper__mixed_param_types(self):                # Test mix of Type_Safe and primitive types
+        def mixed_function(user: Schema__Test_User, count: int, active: bool) -> dict:
+            return {'user': user.user_id, 'count': count, 'active': active}
+
+        signature = self.analyzer.analyze_function(mixed_function)
+        signature = self.converter.enrich_signature_with_conversions(signature)
+        wrapper   = self.wrapper.create_wrapper(mixed_function, signature)
+
+        # Only Type_Safe params should have metadata
+        assert 'user' in wrapper.__original_param_types__
+        assert wrapper.__original_param_types__['user'] is Schema__Test_User
+
+class Schema__Test_User(Type_Safe):                                  # Test schema for wrapper tests
+    user_id : Safe_Id
+    name    : str
+    age     : int

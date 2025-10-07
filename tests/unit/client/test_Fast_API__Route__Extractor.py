@@ -1141,8 +1141,8 @@ class test_Fast_API__Route__Extractor(TestCase):
 
             # Check body param is detected
             assert len(route.body_params) > 0
-            type_safe__as__base_model = 'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel.UserRequest__BaseModel'
-            assert full_type_name(route.body_params[0].param_type) == type_safe__as__base_model # BUG this should be test_Fast_API__Route__Extractor.UserRequest
+
+            assert full_type_name(route.body_params[0].param_type) == 'test_Fast_API__Route__Extractor.UserRequest'
 
             # Check return type is detected
             #assert route.return_type is not None                           # BUG
@@ -1166,7 +1166,8 @@ class test_Fast_API__Route__Extractor(TestCase):
                                                                                      description  = None              ,
                                                                                      required     = True              ,
                                                                                      name         = 'user'            ,
-                                                                                     param_type   = 'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel.UserRequest__BaseModel')],
-                                                                return_type   = 'test_Fast_API__Route__Extractor.UserResponse'                                   ,                      # FIXED BUG should be  UserResponse
+                                                                                     #param_type   = 'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel.UserRequest__BaseModel')], # BUG
+                                                                                    param_type   = 'test_Fast_API__Route__Extractor.UserRequest')],                                       # FIXED
+                                                                return_type   = 'test_Fast_API__Route__Extractor.UserResponse'                                   ,                        # FIXED BUG should be  UserResponse
                                                                 http_path     = '/users'                               ,
                                                                 http_methods  = [Enum__Http__Method.POST              ])])

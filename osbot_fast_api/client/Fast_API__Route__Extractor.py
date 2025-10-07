@@ -178,10 +178,15 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
     @type_safe
     def extract__body_params(self, route: APIRoute):
         body_params = []
+        original_types = getattr(route.endpoint, '__original_param_types__', {})                                        # todo: find a better way to communicate these mappings
+
         for param in route.dependant.body_params:
-            body_params.append(Schema__Endpoint__Param(name        = param.name                   ,
-                                                       param_type  = param.type_                  ,
-                                                       required    = param.required               ,
+
+            param_type = original_types.get(param.name, param.type_)                                                   # Use original type if available, otherwise fall back to current behavior
+
+            body_params.append(Schema__Endpoint__Param(name        = param.name,
+                                                       param_type  = param_type,                                       # Now the original Type_Safe class!
+                                                       required    = param.required,
                                                        description = param.field_info.description))
         return body_params
 
