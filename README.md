@@ -1,6 +1,6 @@
 # OSBot-Fast-API
 
-![Current Release](https://img.shields.io/badge/release-v0.26.20-blue)
+![Current Release](https://img.shields.io/badge/release-v0.26.21-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-red)
 ![Type-Safe](https://img.shields.io/badge/Type--Safe-✓-brightgreen)
