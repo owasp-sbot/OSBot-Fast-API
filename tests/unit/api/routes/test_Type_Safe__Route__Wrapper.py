@@ -1,16 +1,14 @@
-from unittest                                                                      import TestCase
-from fastapi                                                                       import HTTPException
-from osbot_utils.utils.Objects import type_full_name
-
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Email import Safe_Str__Email
-
-from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_Str                                import Safe_Str
-from osbot_utils.type_safe.primitives.core.Safe_Int                                import Safe_Int
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                  import Safe_Id
-from osbot_fast_api.api.routes.Type_Safe__Route__Analyzer                          import Type_Safe__Route__Analyzer
-from osbot_fast_api.api.routes.Type_Safe__Route__Converter                         import Type_Safe__Route__Converter
-from osbot_fast_api.api.routes.Type_Safe__Route__Wrapper                           import Type_Safe__Route__Wrapper
+from unittest                                                                       import TestCase
+from fastapi                                                                        import HTTPException
+from osbot_utils.utils.Objects                                                      import type_full_name
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Email          import Safe_Str__Email
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                 import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int                                 import Safe_Int
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
+from osbot_fast_api.api.routes.Type_Safe__Route__Analyzer                           import Type_Safe__Route__Analyzer
+from osbot_fast_api.api.routes.Type_Safe__Route__Converter                          import Type_Safe__Route__Converter
+from osbot_fast_api.api.routes.Type_Safe__Route__Wrapper                            import Type_Safe__Route__Wrapper
 import re
 
 
