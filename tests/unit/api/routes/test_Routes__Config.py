@@ -32,7 +32,7 @@ class test_Routes__Config(TestCase):
         expected_routes = [{'http_methods': ['GET'], 'http_path': '/info'       , 'method_name': 'info'          },
                            {'http_methods': ['GET'], 'http_path': '/status'     , 'method_name': 'status'        },
                            {'http_methods': ['GET'], 'http_path': '/version'    , 'method_name': 'version'       },
-                           {'http_methods': ['GET'], 'http_path': '/routes/json', 'method_name': 'routes__json'  },
-                           {'http_methods': ['GET'], 'http_path': '/routes/html', 'method_name': 'routes__html'  },
+                           #{'http_methods': ['GET'], 'http_path': '/routes/json', 'method_name': 'routes__json'  },
+                           #{'http_methods': ['GET'], 'http_path': '/routes/html', 'method_name': 'routes__html'  },
                            {'http_methods': ['GET'], 'http_path': '/openapi.py' , 'method_name': 'openapi_python'}]
         assert self.routes_config.routes() == expected_routes

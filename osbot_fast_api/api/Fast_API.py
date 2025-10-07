@@ -1,4 +1,5 @@
 from osbot_fast_api.api.middlewares.Middleware__Request_ID                      import Middleware__Request_ID
+from osbot_fast_api.api.routes.Fast_API__Route__Helper                          import Fast_API__Route__Helper
 from osbot_fast_api.api.schemas.Schema__Fast_API__Config                        import Schema__Fast_API__Config
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.decorators.lists.index_by                                      import index_by
@@ -20,7 +21,11 @@ class Fast_API(Type_Safe):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if not self.config.name:
-            self.config.name           = self.__class__.__name__                # this makes the api name more user friendly
+            self.config.name           = self.__class__.__name__                # this makes the api name more user-friendly
+
+    @cache_on_self
+    def route_helper(self):
+        return Fast_API__Route__Helper()
 
     # todo: improve the error handling of validation errors (namely from Type_Safe_Primitive)
     #       see code example in https://claude.ai/chat/f443e322-fa43-487f-9dd9-2d4cfb261b1e
@@ -55,16 +60,25 @@ class Fast_API(Type_Safe):
         self.app().mount(path, WSGIMiddleware(flask_app))
         return self
 
-    def add_route(self,function, methods):
-        path = '/' + function.__name__.replace('_', '-')
-        self.app().add_api_route(path=path, endpoint=function, methods=methods)
+    def add_route(self, function, methods):                                             # Register a route with Type_Safe support
+        self.route_helper().add_route(self.app(), function, methods)
         return self
 
-    def add_route_get(self, function):
-        return self.add_route(function=function, methods=['GET'])
+    def add_route_get(self, function):                                                  # Register GET route with Type_Safe support
+        self.route_helper().add_route_get(self.app(), function)
+        return self
 
-    def add_route_post(self, function):
-        return self.add_route(function=function, methods=['POST'])
+    def add_route_post(self, function):                                                 # Register POST route with Type_Safe support
+        self.route_helper().add_route_post(self.app(), function)
+        return self
+
+    def add_route_put(self, function):                                                  # Register PUT route with Type_Safe support
+        self.route_helper().add_route_put(self.app(), function)
+        return self
+
+    def add_route_delete(self, function):                                               # Register DELETE route with Type_Safe support
+        self.route_helper().add_route_delete(self.app(), function)
+        return self
 
     def add_routes(self, class_routes):
         class_routes(app=self.app()).setup()
@@ -152,7 +166,6 @@ class Fast_API(Type_Safe):
 
     def routes_paths_all(self):
         return self.routes_paths(include_default=True, expand_mounts=True)
-
 
     def setup_middlewares(self):                 # overwrite to add more middlewares    (NOTE: the middleware execution is the reverse of the order they are added)
         self.setup_middleware__detect_disconnect()

@@ -20,10 +20,18 @@ class Type_Safe__Route__Wrapper(Type_Safe):                             # Create
         if not signature.primitive_conversions and not signature.type_safe_conversions and not signature.return_needs_conversion:
             return function                                                 # No conversion needed - return original
 
-        if signature.has_body_params:                                       # Different wrappers for different scenarios
-            return self.create_body_wrapper(function, signature)
+        if signature.has_body_params:                                                   # Different wrappers for different scenarios
+            wrapper_function = self.create_body_wrapper(function, signature)
         else:
-            return self.create_query_wrapper(function, signature)
+            wrapper_function = self.create_query_wrapper(function, signature)
+
+        if signature.return_type is not None:
+            wrapper_function.__original_return_type__ = signature.return_type           # Preserve original return type metadata for route extractors
+
+        if hasattr(function, '__route_path__'):                                         # Also preserve route_path decorator if it exists
+            wrapper_function.__route_path__ = function.__route_path__
+
+        return wrapper_function
 
     @type_safe
     def create_body_wrapper(self, function  : Callable                ,     # Function to wrap

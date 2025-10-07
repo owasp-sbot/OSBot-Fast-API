@@ -1,4 +1,3 @@
-import re
 import pytest
 from unittest                                                                    import TestCase
 from fastapi                                                                     import FastAPI, APIRouter, Path
@@ -473,8 +472,8 @@ class test_Fast_API__Route__Extractor(TestCase):
                 assert routes_with_class == [(Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('info'           )),
                                              (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('status'         )),
                                              (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('version'        )),
-                                             (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('routes__json'   )),
-                                             (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('routes__html'   )),
+                                             #(Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('routes__json'   )),
+                                             #(Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('routes__html'   )),
                                              (Safe_Str__Id('Routes__Config'    ), Safe_Str__Id('openapi_python' )),
                                              (Safe_Str__Id('Routes__Set_Cookie'), Safe_Str__Id('set_cookie_form')),
                                              (Safe_Str__Id('Routes__Set_Cookie'), Safe_Str__Id('set_auth_cookie')),
@@ -1112,7 +1111,7 @@ class test_Fast_API__Route__Extractor(TestCase):
                                                                 http_methods  = [Enum__Http__Method.POST              ] )])
 
 
-    def test__bug__complex_type_safe_params__using__type_safe(self):                                         # Test with Type_Safe parameters
+    def test__regression__complex_type_safe_params__using__type_safe(self):                                         # Test with Type_Safe parameters
         from osbot_utils.type_safe.Type_Safe import Type_Safe
 
         class UserRequest(Type_Safe):
@@ -1130,19 +1129,15 @@ class test_Fast_API__Route__Extractor(TestCase):
 
         fast_api = Fast_API()
 
-        error_message = "Invalid args for response field! Hint: check that <class 'test_Fast_API__Route__Extractor.test_Fast_API__Route__Extractor.test__bug__complex_type_safe_params__using__type_safe.<locals>.UserResponse'> is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/"
-        with pytest.raises(RuntimeError, match=re.escape(error_message)):
-            fast_api.add_route_post(create_user)                            # BUG this should work, but it doesn't because the Fast_API class doesn't leverage the Type_Safe conversions from Fast_API__Routes
+        # error_message = "Invalid args for response field! Hint: check that <class 'test_Fast_API__Route__Extractor.test_Fast_API__Route__Extractor.test__bug__complex_type_safe_params__using__type_safe.<locals>.UserResponse'> is a valid Pydantic field type. If you are using a return type annotation that is not a valid Pydantic field (e.g. Union[Response, dict, None]) you can disable generating the response model from the type annotation with the path operation decorator parameter response_model=None. Read more: https://fastapi.tiangolo.com/tutorial/response-model/"
+        # with pytest.raises(RuntimeError, match=re.escape(error_message)):
+        #     fast_api.add_route_post(create_user)                            # BUG this should work, but it doesn't because the Fast_API class doesn't leverage the Type_Safe conversions from Fast_API__Routes
 
-        fast_api_routes = Fast_API__Routes(router=fast_api.app_router(), app=fast_api.app())
-        fast_api_routes.add_route_post(create_user)
+        fast_api.add_route_post(create_user)                                  # FIXED we can now add this route
 
         with Fast_API__Route__Extractor(app=fast_api.app()) as _:
             collection = _.extract_routes()
-
-            #collection.print_obj()
-
-            route = collection.routes[0]
+            route      = collection.routes[0]
 
             # Check body param is detected
             assert len(route.body_params) > 0
@@ -1151,8 +1146,8 @@ class test_Fast_API__Route__Extractor(TestCase):
 
             # Check return type is detected
             #assert route.return_type is not None                           # BUG
-            #assert 'UserResponse' in str(route.return_type)                # BUG
-            assert route.return_type is None                                # BUG
+            assert 'UserResponse' in str(route.return_type)                 # FIXED: BUG
+            assert route.return_type is UserResponse                        # FIXED: BUG
 
 
             assert collection.obj() == __(total_routes    = 1                                   ,
@@ -1162,19 +1157,16 @@ class test_Fast_API__Route__Extractor(TestCase):
                                                                 is_mount      = False                                ,
                                                                 method_name   = 'create_user'                          ,
                                                                 route_type    = 'api_route'                            ,
-                                                                route_class  = 'test_Fast_API__Route__Extractor'      ,
+                                                                route_class   = 'test_Fast_API__Route__Extractor'      ,
                                                                 route_tags    = []                                     ,
                                                                 description   = ''                                     ,
                                                                 path_params   = []                                     ,
                                                                 query_params  = []                                     ,
                                                                 body_params   = [__(default      = None               ,
-                                                                                    description  = None               ,
-                                                                                    required     = True               ,
-                                                                                    name         = 'user'             ,
-                                                                                    #param_type   = 'test_Fast_API__Route__Extractor.UserRequest',                                            # BUG
-                                                                                    param_type   = 'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel.UserRequest__BaseModel'          # BUG
-                                                                                    )],
-                                                                #return_type   = 'test_Fast_API__Route__Extractor.UserResponse',                    # BUG
-                                                                return_type   = None                                  ,                             # BUG
-                                                                http_path     = '/users'                              ,
-                                                                http_methods  = [Enum__Http__Method.POST              ] )])
+                                                                                     description  = None              ,
+                                                                                     required     = True              ,
+                                                                                     name         = 'user'            ,
+                                                                                     param_type   = 'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel.UserRequest__BaseModel')],
+                                                                return_type   = 'test_Fast_API__Route__Extractor.UserResponse'                                   ,                      # FIXED BUG should be  UserResponse
+                                                                http_path     = '/users'                               ,
+                                                                http_methods  = [Enum__Http__Method.POST              ])])

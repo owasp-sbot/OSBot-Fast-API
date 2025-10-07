@@ -1,3 +1,4 @@
+import inspect
 from typing                                                                     import List, Union
 from pydantic_core                                                              import PydanticUndefined
 from osbot_fast_api.api.schemas.routes.Schema__Fast_API__Route                  import Schema__Fast_API__Route
@@ -16,8 +17,8 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 from starlette.middleware.wsgi                                                  import WSGIMiddleware
 from starlette.routing                                                          import Mount, Route
 from starlette.staticfiles                                                      import StaticFiles
-from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix          import Safe_Str__Fast_API__Route__Prefix
-from osbot_fast_api.api.schemas.enums.Enum__Fast_API__Route__Type                   import Enum__Fast_API__Route__Type
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix      import Safe_Str__Fast_API__Route__Prefix
+from osbot_fast_api.api.schemas.enums.Enum__Fast_API__Route__Type               import Enum__Fast_API__Route__Type
 
 class Fast_API__Route__Extractor(Type_Safe):                              # Dedicated class for route extraction
     app               : FastAPI
@@ -185,10 +186,10 @@ class Fast_API__Route__Extractor(Type_Safe):                              # Dedi
         return body_params
 
     @type_safe
-    def extract__return_type(self, route: APIRoute):
-        # Get return type from endpoint callable
+    def extract__return_type(self, route: APIRoute):                                                # Get return type from endpoint callable
         if hasattr(route, 'endpoint') and route.endpoint:
-            import inspect
+            if hasattr(route.endpoint, '__original_return_type__'):                                 # check if Type_Safe__Route__Wrapper added the __original_return_type__
+                return route.endpoint.__original_return_type__
             sig = inspect.signature(route.endpoint)
             if sig.return_annotation != inspect.Parameter.empty:
                 return sig.return_annotation

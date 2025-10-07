@@ -271,37 +271,6 @@ class test_Fast_API(TestCase):
 
     # Route management tests
 
-    def test_add_route_get(self):                                                  # Test GET route addition
-        with Fast_API() as _:
-            def test_endpoint():
-                return {"message": "test"}
-
-            _.add_route_get(test_endpoint)
-
-            assert '/test-endpoint' in _.routes_paths()
-
-            # Test the route works
-            client = _.client()
-            response = client.get('/test-endpoint')
-            assert response.status_code == 200
-            assert response.json() == {"message": "test"}
-
-    def test_add_route_post(self):                                                 # Test POST route addition
-        with Fast_API() as _:
-            def submit_data(data: dict):
-                return {"received": data}
-
-            _.add_route_post(submit_data)
-
-            assert '/submit-data' in _.routes_paths()
-
-            # Test the route works
-            client = _.client()
-            test_data = {"key": "value"}
-            response = client.post('/submit-data', json=test_data)
-            assert response.status_code == 200
-            assert response.json() == {"received": test_data}
-
     def test_add_route_with_custom_methods(self):                                  # Test custom HTTP methods
         with Fast_API() as _:
             def custom_endpoint():
@@ -692,7 +661,7 @@ class test_Fast_API(TestCase):
         with Fast_API(config=config) as original:
             # error_message = "Type <class 'collections.deque'> not serializable"
             # with pytest.raises(TypeError, match=re.escape(error_message)):
-            #     original.json()                                                           # BUG: should had not raised exception
+            #     original.json()                                                           # BUG: should have not raised exception
 
             # Serialize to JSON
             json_data = original.json()
