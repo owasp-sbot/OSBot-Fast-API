@@ -1,56 +1,53 @@
-from unittest                                                          import TestCase
-from fastapi                                                           import Request
-from osbot_fast_api.api.schemas.Schema__Fast_API__Config                   import Schema__Fast_API__Config
-from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
-from osbot_fast_api.api.Fast_API                                       import Fast_API
-from osbot_fast_api.api.routes.Fast_API__Routes                        import Fast_API__Routes
-from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix import Safe_Str__Fast_API__Route__Prefix
+from unittest                                                               import TestCase
+from fastapi                                                                import Request
+from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
+from osbot_fast_api.api.Fast_API                                            import Fast_API
+from osbot_fast_api.api.routes.Fast_API__Routes                             import Fast_API__Routes
+from osbot_fast_api.api.schemas.Schema__Fast_API__Config                    import Schema__Fast_API__Config
+from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix  import Safe_Str__Fast_API__Route__Prefix
 
 
 class test_Fast_API__Routes__client(TestCase):
 
-    def setUp(self):
-        # Create a Fast_API instance and a custom routes class
-        self.config   = Schema__Fast_API__Config(default_routes=False)      # Disable default routes for cleaner testing
-        self.fast_api = Fast_API        (config=self.config)
-        self.app      = self.fast_api.app()
-        self.client   = self.fast_api.client()
+    @classmethod
+    def setUpClass(cls):                                                            # Setup expensive resources once
+        cls.config   = Schema__Fast_API__Config(default_routes=False)
+        cls.fast_api = Fast_API(config=cls.config)
+        cls.app      = cls.fast_api.app()
+        cls.client   = cls.fast_api.client()
 
-        # Create a routes instance
-        self.routes   = Routes__Examples(app=self.app)
-        self.routes.setup()
+        cls.routes   = Routes__Examples(app=cls.app)
+        cls.routes.setup()
 
-    def test_get_routes(self):
+    def test_get_routes(self):                                                      # Test GET route endpoints
         response = self.client.get('/routes-examples/hello')
         assert response.status_code == 200
-        assert response.json() == {"message": "Hello from GET"}
+        assert response.json()      == {"message": "Hello from GET"}
 
         response = self.client.get('/routes-examples/data')
         assert response.status_code == 200
-        assert response.json() == {"data": [1, 2, 3]}
+        assert response.json()      == {"data": [1, 2, 3]}
 
-    def test_post_routes(self):
+    def test_post_routes(self):                                                     # Test POST route endpoints
         response = self.client.post('/routes-examples/create', json={"name": "test", "value": 42})
         assert response.status_code == 200
-        assert response.json() == {"created": True, "item": {"name": "test", "value": 42}}
+        assert response.json()      == {"created": True, "item": {"name": "test", "value": 42}}
 
-        # Test POST without body
-        response = self.client.post('/routes-examples/action')
+        response = self.client.post('/routes-examples/action')                      # POST without body
         assert response.status_code == 200
-        assert response.json() == {"action": "performed"}
+        assert response.json()      == {"action": "performed"}
 
-    def test_put_routes(self):
+    def test_put_routes(self):                                                      # Test PUT route endpoints
         response = self.client.put('/routes-examples/update/123', json={"name": "updated"})
         assert response.status_code == 200
-        assert response.json() == {"updated": True, "id": 123, "data": {"name": "updated"}}
+        assert response.json()      == {"updated": True, "id": 123, "data": {"name": "updated"}}
 
-    def test_delete_routes(self):
+    def test_delete_routes(self):                                                   # Test DELETE route endpoints
         response = self.client.delete('/routes-examples/item/456')
         assert response.status_code == 200
-        assert response.json() == {"deleted": True, "id": 456}
+        assert response.json()      == {"deleted": True, "id": 456}
 
-    def test_route_any_without_path(self):
-        # Test ANY route with default path parsing
+    def test_route_any__without_path(self):                                         # Test ANY route with default path parsing
         for method in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']:
             if method == 'GET':
                 response = self.client.get('/routes-examples/any-method')
@@ -66,13 +63,13 @@ class test_Fast_API__Routes__client(TestCase):
             assert response.status_code == 200
             assert response.json()["method"] == method
 
-    def test_route_any_with_catch_all_path(self):                                   # Test proxy-style catch-all route
-        test_paths = [  '/routes-examples/proxy/simple',
-                        '/routes-examples/proxy/deep/nested/path',
+    def test_route_any__with_catch_all_path(self):                                  # Test proxy-style catch-all route
+        test_paths = [  '/routes-examples/proxy/simple'                   ,
+                        '/routes-examples/proxy/deep/nested/path'         ,
                         '/routes-examples/proxy/with-dashes-and_underscores',
-                        '/routes-examples/proxy/123/456/789']
+                        '/routes-examples/proxy/123/456/789'              ]
 
-        for test_path in test_paths:                                                # Test different HTTP methods
+        for test_path in test_paths:
             response = self.client.get(test_path)
             assert response.status_code == 200
             expected_path = test_path.replace('/routes-examples/proxy/', '')
@@ -80,128 +77,120 @@ class test_Fast_API__Routes__client(TestCase):
 
             response = self.client.post(test_path, json={"data": "test"})
             assert response.status_code == 200
-            assert response.json()["method"] == "POST"
+            assert response.json()["method"]       == "POST"
             assert response.json()["proxied_path"] == expected_path
 
-    def test_path_parameters(self):
-        # Test routes with path parameters
+    def test_path_parameters(self):                                                 # Test routes with path parameters
         response = self.client.get('/routes-examples/user/alice')
         assert response.status_code == 200
-        assert response.json() == {"user_id": "alice"}
+        assert response.json()      == {"user_id": "alice"}
 
         response = self.client.get('/routes-examples/user/alice/post/123')
         assert response.status_code == 200
-        assert response.json() == {"user_id": "alice", "post_id": 123}
+        assert response.json()      == {"user_id": "alice", "post_id": 123}
 
-    def test_routes_with_request_object(self):
-        # Test route that accesses request directly
+    def test_routes_with_request_object(self):                                      # Test route that accesses request directly
         response = self.client.get('/routes-examples/request-info', headers={"X-Custom-Header": "test-value"})
         assert response.status_code == 200
         result = response.json()
-        assert result["method"] == "GET"
-        assert result["path"] == "/routes-examples/request-info"
-        assert "x-custom-header" in result["headers"]  # Headers are lowercase in request
+        assert result["method"]     == "GET"
+        assert result["path"]       == "/routes-examples/request-info"
+        assert "x-custom-header" in result["headers"]
 
-    def test_multiple_routes_methods(self):
-        # Test add_routes_get, add_routes_post, etc.
+    def test_multiple_routes_methods(self):                                         # Test batch route registration
         response = self.client.get('/routes-examples/multi1')
         assert response.status_code == 200
-        assert response.json() == {"endpoint": "multi1"}
+        assert response.json()      == {"endpoint": "multi1"}
 
         response = self.client.get('/routes-examples/multi2')
         assert response.status_code == 200
-        assert response.json() == {"endpoint": "multi2"}
+        assert response.json()      == {"endpoint": "multi2"}
 
-    def test_404_for_nonexistent_routes(self):
+    def test_404_for_nonexistent_routes(self):                                      # Test error responses
         response = self.client.get('/routes-examples/nonexistent')
         assert response.status_code == 404
 
-        # Test wrong method for a route
-        response = self.client.post('/routes-examples/hello')  # This is a GET-only route
-        assert response.status_code == 405  # Method Not Allowed
+    def test_405_for_wrong_method(self):                                            # Test wrong HTTP method returns 405
+        response = self.client.post('/routes-examples/hello')
+        assert response.status_code == 405
 
-    def test__regression__path_path_colon_was_lost(self):
+    def test__regression__path_path_colon_was_lost(self):                           # Regression test: colon in path params preserved
         with self.fast_api as _:
             routes_paths = _.routes_paths()
-            assert  Safe_Str__Fast_API__Route__Prefix('/routes-examples/proxy/{path_path}') not in routes_paths   # FIXED: BUG should not be there (path_path was sanitized by Safe_Str__Fast_API__Route__Prefix)
-            assert  Safe_Str__Fast_API__Route__Prefix('/routes-examples/proxy/{path:path}') in     routes_paths   # FIXED: ok but false positive
-            assert                                    '/routes-examples/proxy/{path_path}'  not in routes_paths   # FIXED: BUG should not be there
-            assert                                    '/routes-examples/proxy/{path:path}'  in     routes_paths   # FIXED: BUG should be there
+            assert Safe_Str__Fast_API__Route__Prefix('/routes-examples/proxy/{path_path}') not in routes_paths
+            assert Safe_Str__Fast_API__Route__Prefix('/routes-examples/proxy/{path:path}') in     routes_paths
+            assert '/routes-examples/proxy/{path_path}'  not in routes_paths
+            assert '/routes-examples/proxy/{path:path}'  in     routes_paths
 
-class Schema__Multiple_Examples__Base(Type_Safe):
+
+class Schema__Multiple_Examples__Base(Type_Safe):                                   # Test schemas
     name : str
 
 class Schema__Multiple_Examples__Create(Schema__Multiple_Examples__Base):
     value: int
 
-class Routes__Examples(Fast_API__Routes):            # Test routes class with various endpoint types
+
+class Routes__Examples(Fast_API__Routes):                                           # Test routes class with various endpoint types
     tag = 'routes-examples'
 
-    def setup_routes(self):
-        # GET routes
+    def setup_routes(self):                                                         # Register all test routes
         self.add_route_get(self.hello)
         self.add_route_get(self.data)
         self.add_route_get(self.user__user_id)
         self.add_route_get(self.user__user_id__post__post_id)
         self.add_route_get(self.request_info)
 
-        # POST routes
         self.add_route_post(self.create)
         self.add_route_post(self.action)
 
-        # PUT route
         self.add_route_put(self.update__id)
 
-        # DELETE route
         self.add_route_delete(self.item__id)
 
-        # ANY routes
         self.add_route_any(self.any_method)
         self.add_route_any(self.proxy, "/proxy/{path:path}")
 
-        # Multiple routes at once
         self.add_routes_get(self.multi1, self.multi2)
 
-    # Route implementations
-    def hello(self):
+    def hello(self):                                                                # Simple GET endpoint
         return {"message": "Hello from GET"}
 
-    def data(self):
+    def data(self):                                                                 # GET endpoint returning data
         return {"data": [1, 2, 3]}
 
-    def create(self, create: Schema__Multiple_Examples__Create):
+    def create(self, create: Schema__Multiple_Examples__Create):                    # POST endpoint with Type_Safe body
         return {"created": True, "item": {"name": create.name, "value": create.value}}
 
-    def action(self):
+    def action(self):                                                               # POST endpoint without body
         return {"action": "performed"}
 
-    def update__id(self, id: int, base: Schema__Multiple_Examples__Base):
+    def update__id(self, id: int, base: Schema__Multiple_Examples__Base):           # PUT endpoint with path param and body
         return {"updated": True, "id": id, "data": {"name": base.name}}
 
-    def item__id(self, id: int):
+    def item__id(self, id: int):                                                    # DELETE endpoint with path param
         return {"deleted": True, "id": id}
 
-    def any_method(self, request: Request):
+    def any_method(self, request: Request):                                         # ANY method endpoint
         return {"method": request.method, "path": request.url.path}
 
-    def proxy(self, request: Request, path: str):
+    def proxy(self, request: Request, path: str):                                   # ANY method proxy endpoint
         return {"method": request.method, "proxied_path": path}
 
-    def user__user_id(self, user_id: str):
+    def user__user_id(self, user_id: str):                                          # GET endpoint with path param
         return {"user_id": user_id}
 
-    def user__user_id__post__post_id(self, user_id: str, post_id: int):
+    def user__user_id__post__post_id(self, user_id: str, post_id: int):             # GET endpoint with multiple path params
         return {"user_id": user_id, "post_id": post_id}
 
-    def request_info(self, request: Request):
+    def request_info(self, request: Request):                                       # GET endpoint accessing request object
         return {
-            "method": request.method,
-            "path": str(request.url.path),
-            "headers": dict(request.headers)
+            "method"  : request.method               ,
+            "path"    : str(request.url.path)        ,
+            "headers" : dict(request.headers)
         }
 
-    def multi1(self):
+    def multi1(self):                                                               # Batch registered endpoint 1
         return {"endpoint": "multi1"}
 
-    def multi2(self):
+    def multi2(self):                                                               # Batch registered endpoint 2
         return {"endpoint": "multi2"}

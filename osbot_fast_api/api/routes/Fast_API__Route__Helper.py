@@ -42,6 +42,6 @@ class Fast_API__Route__Helper(Type_Safe):                               # Helper
     @type_safe
     def add_route_any(self, app       : FastAPI  ,                       # FastAPI app instance
                             function  : Callable ,                       # Function to register
-                            path      : str      = None                  # Optional explicit path
+                            path      : str      = None                  # Optional explicit path   # todo: replace str with a Safe_Str__* class
                          ):                                              # Register route accepting ANY HTTP method
         self.route_registration.register_route_any(app.router, function, path)
