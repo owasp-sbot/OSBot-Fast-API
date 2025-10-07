@@ -13,26 +13,26 @@ class Type_Safe__Route__Wrapper(Type_Safe):                             # Create
     converter : Type_Safe__Route__Converter
 
     @type_safe
-    def create_wrapper(self, function  : Callable                       ,# Original function to wrap
-                            signature  : Schema__Route__Signature       # Signature with conversion info
-                         ) -> Callable:                                 # Returns wrapper function
+    def create_wrapper(self, function  : Callable                 ,         # Original function to wrap
+                             signature : Schema__Route__Signature           # Signature with conversion info
+                        ) -> Callable:                                      # Returns wrapper function
 
         if not signature.primitive_conversions and not signature.type_safe_conversions and not signature.return_needs_conversion:
-            return function                                              # No conversion needed - return original
+            return function                                                 # No conversion needed - return original
 
-        if signature.has_body_params:                                    # Different wrappers for different scenarios
+        if signature.has_body_params:                                       # Different wrappers for different scenarios
             return self.create_body_wrapper(function, signature)
         else:
             return self.create_query_wrapper(function, signature)
 
     @type_safe
-    def create_body_wrapper(self, function  : Callable                  ,# Function to wrap
-                                 signature  : Schema__Route__Signature  # Signature info
-                              ) -> Callable:                            # Returns wrapper for POST/PUT/DELETE routes
+    def create_body_wrapper(self, function  : Callable                ,     # Function to wrap
+                                  signature : Schema__Route__Signature      # Signature info
+                             ) -> Callable:                                 # Returns wrapper for POST/PUT/DELETE routes
 
         @functools.wraps(function)
         def wrapper(**kwargs):
-            converted_kwargs = {}                                        # Convert each parameter
+            converted_kwargs = {}                                           # Convert each parameter
 
             for param_name, param_value in kwargs.items():
                 converted_value                = self.converter.convert_parameter_value(param_name, param_value, signature)
@@ -49,54 +49,52 @@ class Type_Safe__Route__Wrapper(Type_Safe):                             # Create
 
             return self.converter.convert_return_value(result, signature)# Convert return value
 
-        new_params = self.build_wrapper_parameters(function, signature) # Update function signature for FastAPI
+        new_params              = self.build_wrapper_parameters(function, signature)            # Update function signature for FastAPI
         wrapper.__signature__   = inspect.Signature(parameters=new_params)
         wrapper.__annotations__ = self.build_wrapper_annotations(function, signature)
 
         return wrapper
 
     @type_safe
-    def create_query_wrapper(self, function  : Callable                 ,# Function to wrap
-                                  signature  : Schema__Route__Signature # Signature info
-                               ) -> Callable:                           # Returns wrapper for GET routes
+    def create_query_wrapper(self, function  : Callable                 ,       # Function to wrap
+                                   signature  : Schema__Route__Signature        # Signature info
+                              ) -> Callable:                                    # Returns wrapper for GET routes
 
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             converted_kwargs   = {}
             validation_errors  = []
 
-            for param_name, param_value in kwargs.items():               # Convert parameters with validation error tracking
+            for param_name, param_value in kwargs.items():                      # Convert parameters with validation error tracking
                 try:
                     converted_value                = self.converter.convert_parameter_value(param_name, param_value, signature)
                     converted_kwargs[param_name]   = converted_value
                 except (ValueError, TypeError) as e:
-                    validation_errors.append({                           # Format as FastAPI validation error
-                        'type' : 'value_error'  ,
-                        'loc'  : ('query', param_name),
-                        'msg'  : str(e)         ,
-                        'input': param_value
-                    })
+                    validation_errors.append({ 'type' : 'value_error'        ,              # Format as FastAPI validation error
+                                               'loc'  : ('query', param_name),
+                                               'msg'  : str(e)               ,
+                                               'input': param_value          })
 
-            if validation_errors:                                        # Raise validation errors
+            if validation_errors:                                               # Raise validation errors
                 raise RequestValidationError(validation_errors)
 
-            if args:                                                     # Call with positional args if present
+            if args:                                                            # Call with positional args if present
                 result = function(*args, **converted_kwargs)
             else:
                 result = function(**converted_kwargs)
 
             return self.converter.convert_return_value(result, signature)# Convert return value
 
-        new_params = self.build_wrapper_parameters(function, signature) # Update function signature
+        new_params              = self.build_wrapper_parameters(function, signature)        # Update function signature
         wrapper.__signature__   = inspect.Signature(parameters=new_params)
         wrapper.__annotations__ = self.build_wrapper_annotations(function, signature)
 
         return wrapper
 
     @type_safe
-    def build_wrapper_parameters(self, function  : Callable             ,# Original function
-                                       signature  : Schema__Route__Signature# Signature info
-                                  ):                                    # Returns list of inspect.Parameter
+    def build_wrapper_parameters(self, function  : Callable                 ,       # Original function
+                                       signature  : Schema__Route__Signature        # Signature info
+                                       ):                                           # Returns list of inspect.Parameter
 
         sig        = inspect.signature(function)
         new_params = []
@@ -115,21 +113,19 @@ class Type_Safe__Route__Wrapper(Type_Safe):                             # Create
                 else:
                     new_param_type = param.annotation
 
-                new_params.append(inspect.Parameter(
-                    name       = param.name       ,
-                    kind       = param.kind       ,
-                    default    = param.default    ,
-                    annotation = new_param_type
-                ))
+                new_params.append(inspect.Parameter(name       = param.name       ,
+                                                    kind       = param.kind       ,
+                                                    default    = param.default    ,
+                                                    annotation = new_param_type))
             else:
                 new_params.append(param)                                 # Keep unchanged
 
         return new_params
 
     @type_safe
-    def build_wrapper_annotations(self, function  : Callable            ,# Original function
-                                        signature  : Schema__Route__Signature# Signature info
-                                     ) -> dict:                         # Returns annotations dict
+    def build_wrapper_annotations(self, function  : Callable                 ,  # Original function
+                                        signature  : Schema__Route__Signature   # Signature info
+                                   ) -> dict:                                   # Returns annotations dict
 
         from typing import get_type_hints
 

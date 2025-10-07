@@ -19,10 +19,10 @@ class Type_Safe__Route__Registration(Type_Safe):                        # Unifie
         self.wrapper_creator.converter = self.converter              # Wire up dependencies
 
     @type_safe
-    def register_route(self, router    : Router   ,                       # FastAPI router to register on
-                             function  : Callable ,                       # Function to register
-                             methods   : List[str]                       # HTTP methods (GET, POST, etc)
-                         ):                                              # Register a route with full Type_Safe support
+    def register_route(self, router    : Router   ,                         # FastAPI router to register on
+                             function  : Callable ,                         # Function to register
+                             methods   : List[str]                          # HTTP methods (GET, POST, etc)
+                         ):                                                 # Register a route with full Type_Safe support
 
         signature = self.analyzer.analyze_function                  (function           )   # Analyze function signature
         signature = self.converter.enrich_signature_with_conversions(signature          )   # Add conversion metadata
@@ -39,7 +39,7 @@ class Type_Safe__Route__Registration(Type_Safe):                        # Unifie
     @type_safe
     def register_route_any(self, router   : Router   ,                  # FastAPI router
                                  function : Callable ,                  # Function to register
-                                 path     : str             = None      # Optional explicit path
+                                 path     : str      = None             # Optional explicit path
                            ):                                           # Register route accepting ANY HTTP method
 
         methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']

@@ -1,20 +1,16 @@
-from unittest                                                                      import TestCase
-
-from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Email import Safe_Str__Email
-
+from unittest                                                                             import TestCase
+from osbot_fast_api.api.schemas.routes.Schema__Route__Signature                           import Schema__Route__Signature
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Email                import Safe_Str__Email
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Display_Name import Safe_Str__Display_Name
-
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
-
-from osbot_utils.utils.Objects                                                     import __
-from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_Str                                import Safe_Str
-from osbot_utils.type_safe.primitives.core.Safe_Int                                import Safe_Int
-from osbot_utils.type_safe.primitives.core.Safe_Float                              import Safe_Float
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                  import Safe_Id
-from osbot_fast_api.api.routes.Type_Safe__Route__Analyzer                          import Type_Safe__Route__Analyzer
-from osbot_fast_api.api.routes.Type_Safe__Route__Converter                         import Type_Safe__Route__Converter
-from pydantic                                                                      import BaseModel
+from osbot_utils.utils.Objects                                                            import __
+from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                       import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int                                       import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Float                                     import Safe_Float
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                         import Safe_Id
+from osbot_fast_api.api.routes.Type_Safe__Route__Analyzer                                 import Type_Safe__Route__Analyzer
+from osbot_fast_api.api.routes.Type_Safe__Route__Converter                                import Type_Safe__Route__Converter
+from pydantic                                                                             import BaseModel
 
 
 class test_Type_Safe__Route__Converter(TestCase):
@@ -129,7 +125,58 @@ class test_Type_Safe__Route__Converter(TestCase):
 
         with self.analyzer as analyzer:
             signature = analyzer.analyze_function(create_order)
+
+            assert type(signature) is Schema__Route__Signature
+            assert signature.obj() == __(return_type             = None                                            ,
+                                         return_converted_type   = None                                            ,
+                                         return_needs_conversion = False                                           ,
+                                         has_body_params         = True                                            ,
+                                         has_path_params         = False                                           ,
+                                         has_query_params        = False                                           ,
+                                         function_name           = 'create_order'                                  ,
+                                         parameters              = [__(converted_type          = None              ,
+                                                                       is_primitive           = False             ,
+                                                                       is_type_safe           = True              ,
+                                                                       primitive_base         = None              ,
+                                                                       requires_conversion    = True              ,
+                                                                       default_value          = None              ,
+                                                                       has_default            = False             ,
+                                                                       nested_primitive_fields = __(order_id = 'osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id.Safe_Id' ,
+                                                                                                     quantity = 'osbot_utils.type_safe.primitives.core.Safe_Int.Safe_Int'             ,
+                                                                                                     price    = 'osbot_utils.type_safe.primitives.core.Safe_Float.Safe_Float'         ),
+                                                                       name                   = 'order'           ,
+                                                                       param_type             = 'test_Type_Safe__Route__Converter.Order_Data')],
+                                         primitive_conversions   = __()                                           ,
+                                         type_safe_conversions   = __()                                           ,
+                                         primitive_field_types   = __()                                           )
+
             signature = self.converter.enrich_signature_with_conversions(signature)
+
+            assert type(signature) is Schema__Route__Signature
+            assert signature.obj() == __(return_type             = None                                            ,
+                                         return_converted_type   = None                                            ,
+                                         return_needs_conversion = False                                           ,
+                                         has_body_params         = True                                            ,
+                                         has_path_params         = False                                           ,
+                                         has_query_params        = False                                           ,
+                                         function_name           = 'create_order'                                  ,
+                                         parameters              = [__(converted_type          = 'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel.Order_Data__BaseModel',
+                                                                       is_primitive           = False             ,
+                                                                       is_type_safe           = True              ,
+                                                                       primitive_base         = None              ,
+                                                                       requires_conversion    = True              ,
+                                                                       default_value          = None              ,
+                                                                       has_default            = False             ,
+                                                                       nested_primitive_fields = __(order_id = 'osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id.Safe_Id' ,
+                                                                                                     quantity = 'osbot_utils.type_safe.primitives.core.Safe_Int.Safe_Int'             ,
+                                                                                                     price    = 'osbot_utils.type_safe.primitives.core.Safe_Float.Safe_Float'         ),
+                                                                       name                   = 'order'           ,
+                                                                       param_type             = 'test_Type_Safe__Route__Converter.Order_Data')],
+                                         primitive_conversions   = __()                                           ,
+                                         type_safe_conversions   = __(order = ('test_Type_Safe__Route__Converter.Order_Data'                                  ,
+                                                                               'osbot_fast_api.api.transformers.Type_Safe__To__BaseModel.Order_Data__BaseModel')),
+                                         primitive_field_types   = __()                                           )
+
 
         order_dict = {  'order_id' : 'ORD-123',
                         'quantity' : 5        ,
