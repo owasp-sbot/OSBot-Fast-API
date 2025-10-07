@@ -17,7 +17,7 @@ from osbot_fast_api.api.schemas.routes.Schema__Fast_API__Routes__Collection     
 from osbot_fast_api.api.schemas.enums.Enum__Fast_API__Route__Type                import Enum__Fast_API__Route__Type
 
 
-class test_Fast_API__Route__Extraction__integration(TestCase):          # Integration tests for complete route extraction workflow
+class test_Fast_API__Route__Extractor__integration(TestCase):          # Integration tests for complete route extraction workflow
 
     # todo: see if can use the Test__Fast_API__With_Routes.py class and endpoints here
     @classmethod
