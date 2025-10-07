@@ -4,8 +4,6 @@ from osbot_fast_api.client.schemas.Schema__Endpoint__Contract   import Schema__E
 from osbot_fast_api.client.schemas.Schema__Routes__Module       import Schema__Routes__Module
 from osbot_fast_api.client.schemas.Schema__Service__Contract    import Schema__Service__Contract
 from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.helpers.ast                                    import Ast_Module
-from osbot_utils.helpers.ast.Ast_Merge                          import Ast_Merge
 
 
 class Client__Generator__AST(Type_Safe):
