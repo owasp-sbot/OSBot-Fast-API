@@ -2,7 +2,7 @@ from fastapi                                import Request
 from unittest                               import TestCase
 from starlette.datastructures               import Address
 from osbot_fast_api.utils.Fast_API__Request import Fast_API__Request
-from osbot_utils.utils.Objects              import __
+from osbot_utils.testing.__                 import __
 
 
 class test_Fast_API__Request(TestCase):

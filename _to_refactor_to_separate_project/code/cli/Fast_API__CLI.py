@@ -7,7 +7,6 @@ from typer import Typer
 from osbot_fast_api.api.Fast_API import Fast_API
 from osbot_fast_api.utils.Fast_API_Server import Fast_API_Server
 from osbot_utils.type_safe.Type_Safe import Type_Safe
-from osbot_utils.utils.Objects import obj_data
 
 
 class Fast_API__CLI(Type_Safe):

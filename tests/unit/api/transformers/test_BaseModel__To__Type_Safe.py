@@ -3,7 +3,7 @@ import sys
 import pytest
 from typing                                                      import List, Dict, Optional, Union, Set, Any
 from unittest                                                    import TestCase
-from osbot_utils.utils.Objects                                   import __
+from osbot_utils.testing.__                                      import __
 from pydantic                                                    import BaseModel, Field
 from osbot_utils.type_safe.Type_Safe                             import Type_Safe
 from osbot_fast_api.api.transformers.BaseModel__To__Type_Safe     import BaseModel__To__Type_Safe, basemodel__to__type_safe

@@ -1,6 +1,6 @@
 import functools
 import inspect
-from typing                                                          import Callable
+from typing                                                          import Callable, get_type_hints
 from fastapi                                                         import HTTPException
 from fastapi.exceptions                                              import RequestValidationError
 from osbot_utils.type_safe.Type_Safe                                 import Type_Safe
@@ -18,7 +18,9 @@ class Type_Safe__Route__Wrapper(Type_Safe):                             # Create
                         ) -> Callable:                                      # Returns wrapper function
 
         if not signature.primitive_conversions and not signature.type_safe_conversions and not signature.return_needs_conversion:
-            return function                                                 # No conversion needed - return original
+            if signature.return_type is not None:                                           # Even if no conversions needed, preserve return type for OpenAPI
+                return self.create_passthrough_wrapper(function, signature)                 # Create minimal wrapper that preserves return type annotation
+            return function                                                                 # No return type - return original
 
         if signature.has_body_params:                                                   # Different wrappers for different scenarios
             wrapper_function = self.create_body_wrapper(function, signature)
@@ -38,6 +40,33 @@ class Type_Safe__Route__Wrapper(Type_Safe):                             # Create
 
 
         return wrapper_function
+
+    @type_safe
+    def create_passthrough_wrapper(self, function  : Callable                ,     # Function to wrap
+                                         signature : Schema__Route__Signature      # Signature info
+                                    ) -> Callable:                                 # Returns minimal wrapper that preserves annotations
+
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            return function(*args, **kwargs)                                        # Simply pass through to the original function
+
+        wrapper.__signature__ = inspect.signature(function)                         # Preserve the original signature
+
+        try:                                                                        # Build annotations dict including the return type
+            type_hints              = get_type_hints(function)
+            wrapper.__annotations__ = type_hints.copy()
+        except:
+            wrapper.__annotations__ = getattr(function, '__annotations__', {}).copy()   # Fallback to __annotations__ if get_type_hints fails
+
+        if signature.return_type is not None and 'return' not in wrapper.__annotations__:  # Ensure return type is set
+            wrapper.__annotations__['return'] = signature.return_type
+
+        wrapper.__original_return_type__ = signature.return_type                    # Preserve original return type metadata
+
+        if hasattr(function, '__route_path__'):                                     # Preserve route_path decorator if it exists
+            wrapper.__route_path__ = function.__route_path__
+
+        return wrapper
 
     @type_safe
     def create_body_wrapper(self, function  : Callable                ,     # Function to wrap

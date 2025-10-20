@@ -2,7 +2,7 @@ from unittest                                                                   
 from osbot_fast_api.api.schemas.routes.Schema__Route__Signature                           import Schema__Route__Signature
 from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Email                import Safe_Str__Email
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Display_Name import Safe_Str__Display_Name
-from osbot_utils.utils.Objects                                                            import __
+from osbot_utils.testing.__                                                               import __
 from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_Str                                       import Safe_Str
 from osbot_utils.type_safe.primitives.core.Safe_Int                                       import Safe_Int
