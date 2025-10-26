@@ -1,6 +1,6 @@
 [tool.poetry]
 name        = "osbot_fast_api"
-version     = "v0.30.0"
+version     = "v0.30.1"
 description = "OWASP Security Bot - Fast API"
 authors     = ["Dinis Cruz <dinis.cruz@owasp.org>"]
 license     = "MIT"
