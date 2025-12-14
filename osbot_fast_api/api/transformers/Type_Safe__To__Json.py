@@ -1,11 +1,11 @@
-from typing                                                        import Type, Dict, Any, get_args, Union, Optional, Tuple
-from osbot_utils.type_safe.Type_Safe                               import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Primitive                    import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.core.Safe_Str            import Safe_Str
-from osbot_utils.type_safe.primitives.core.Safe_Int            import Safe_Int
-from osbot_utils.type_safe.primitives.core.Safe_Float        import Safe_Float
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe     import type_safe
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache  import type_safe_cache
+from typing                                                         import Type, Dict, Any, get_args, Union, Optional, Tuple
+from osbot_utils.type_safe.Type_Safe                                import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                     import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.core.Safe_Str                 import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int                 import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Float               import Safe_Float
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe      import type_safe
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache   import type_safe_cache
 
 
 class Type_Safe__To__Json(Type_Safe):       # Converts Type_Safe classes to JSON Schema (draft-07 compatible)
