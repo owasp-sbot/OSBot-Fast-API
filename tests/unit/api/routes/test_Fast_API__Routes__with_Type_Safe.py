@@ -356,6 +356,30 @@ class test_Fast_API__Routes__with_Type_Safe(TestCase):
         assert response.status_code == 200
         assert response.json()      == {'user_id': 'user-abc', 'user_name': 'abc'}
 
+
+    def test__8__with_Type_Safe__return_value(self):
+        class An_Response(Type_Safe):
+            an_str : str = None
+
+        class Routes__POST(Fast_API__Routes):
+            def an_response(self) -> An_Response:
+                return An_Response()
+
+            def setup_routes(self):
+                self.add_route_post(self.an_response)
+
+        class An_Fast_API(Fast_API):
+            def setup_routes(self):
+                self.add_routes(Routes__POST)
+        an_fast_api = An_Fast_API().config__no_default_routes().setup()
+
+        assert an_fast_api.routes_paths() == ['/an-response']
+
+        with an_fast_api.client() as _:
+            assert _.post('/an-response').json() == {'an_str': None}
+
+
+
     def test__regression__primitive_type__not_supported_on__init(self):
         class An_Class(Type_Safe):
             tag : Safe_Str__File__Path

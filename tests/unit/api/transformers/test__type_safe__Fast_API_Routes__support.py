@@ -2,9 +2,10 @@ from typing                                                                     
 from unittest                                                                       import TestCase
 
 from osbot_fast_api.api.schemas.Schema__Fast_API__Config import Schema__Fast_API__Config
+from osbot_utils.testing.__helpers import obj
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name           import Safe_Str__File__Name
 from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Content_Type    import Safe_Str__Http__Content_Type
-from osbot_utils.testing.__                                                                 import __
+from osbot_utils.testing.__ import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive                                             import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                     import Timestamp_Now
@@ -247,7 +248,7 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
                                  'tags'     : ['developer', 'python'],
                                  'status'   : 'active'}
 
-    def test__6__bug__type_safe__on_put_requests(self):      # Test PUT requests with Type_Safe support
+    def test__6__type_safe__on_put_requests(self):      # Test PUT requests with Type_Safe support
 
         class UpdateRequest(Type_Safe):
             id      : int
@@ -305,12 +306,12 @@ class test__type_safe__Fast_API__Routes__support(TestCase):
         # Test with minimal data (using defaults)       # BUG name should be optional but it is needed
         minimal_data = {'id': 456}
         response = an_fast_api.client().put('/updates/update-item', json=minimal_data)
-        assert response.status_code == 400
-        assert response.json() == {'detail': [{'input': {'id': 456},
-                                              'loc': ['body', 'name'],
-                                              'msg': 'Field required',
-                                              'type': 'missing'}]}
-
+        assert response.status_code  == 200
+        assert obj(response.json())  == __(id         = 456                   ,
+                                           name       = 'default_name'        ,
+                                           active     = True                  ,
+                                           metadata   = __()                  ,
+                                           updated_at = "2024-01-15T10:00:00Z")
         minimal_data = {'id': 456, 'name': 'abc'}
         response = an_fast_api.client().put('/updates/update-item', json=minimal_data)
 

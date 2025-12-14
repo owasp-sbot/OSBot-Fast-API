@@ -7,6 +7,12 @@ from osbot_fast_api.utils.Version                        import version__osbot_f
 
 # todo: these are actually routes, so we should move them into a better location
 #       maybe 'default_routes' or something similar
+
+ROUTES_PATHS__CONFIG = ['/config/info'          ,
+                        '/config/openapi.py'    ,
+                        '/config/status'        ,
+                        '/config/version'       ]
+
 class Routes__Config(Fast_API__Routes):
     tag  = 'config'
 
