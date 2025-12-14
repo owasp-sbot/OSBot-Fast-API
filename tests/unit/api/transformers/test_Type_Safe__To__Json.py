@@ -6,6 +6,7 @@ from osbot_utils.type_safe.primitives.core.Safe_Str         import Safe_Str
 from osbot_utils.type_safe.primitives.core.Safe_Int         import Safe_Int
 from osbot_utils.type_safe.primitives.core.Safe_Float       import Safe_Float
 from osbot_fast_api.api.transformers.Type_Safe__To__Json    import Type_Safe__To__Json, type_safe__to__json
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 
 
 class test_Type_Safe__To__Json(TestCase):
@@ -199,8 +200,14 @@ class test_Type_Safe__To__Json(TestCase):
         schema1 = self.converter.convert_class(CachedClass)                              # First conversion
         schema2 = self.converter.convert_class(CachedClass)                              # Second should return cached
 
-        assert schema1 is schema2                                                        # Should be same object
-        assert (CachedClass, False) in self.converter.schema_cache                                # Verify cache contains class
+        assert type(schema1) is Type_Safe__Dict
+        assert type(schema2) is Type_Safe__Dict
+
+        assert schema1 is not schema2                                                    # objects are not exactly the same because of the @type_safe conversion from Dict to Type_Safe__Dict
+        assert schema1 == schema2                                                        # values are the same
+        assert (CachedClass, False) in self.converter.schema_cache                       # Verify cache contains class
+        assert self.converter.schema_cache[(CachedClass, False)] == schema1              # confirm cache entries
+        assert self.converter.schema_cache[(CachedClass, False)] == schema2
 
     def test__with_title_and_description(self):                                          # Test custom title and description
         class DocumentedClass(Type_Safe):

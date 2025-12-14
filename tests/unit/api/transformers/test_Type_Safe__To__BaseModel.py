@@ -1,16 +1,15 @@
 import re
 import sys
 import pytest
-from typing                                                  import List, Dict, Optional, Union
-from unittest                                                import TestCase
-from osbot_utils.testing.__                                  import __
-from pydantic                                                import BaseModel, ValidationError
-
-from osbot_utils.testing.__helpers import obj
-from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel import Type_Safe__To__BaseModel, type_safe__to__basemodel
-from osbot_utils.type_safe.primitives.core.Safe_Int import Safe_Int
-from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+from typing                                                     import List, Dict, Optional, Union
+from unittest                                                   import TestCase
+from osbot_utils.testing.__                                     import __
+from pydantic                                                   import BaseModel, ValidationError
+from osbot_utils.testing.__helpers                              import obj
+from osbot_utils.type_safe.Type_Safe                            import Type_Safe
+from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel   import Type_Safe__To__BaseModel, type_safe__to__basemodel
+from osbot_utils.type_safe.primitives.core.Safe_Int             import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Str             import Safe_Str
 
 
 class test_Type_Safe__To__BaseModel(TestCase):
