@@ -20,14 +20,22 @@ class Type_Safe__To__BaseModel(Type_Safe):
 
         annotations     = type_safe_cache.get_class_annotations(type_safe_class)    # Get class annotations (using type_safe_cache)
         pydantic_fields = {}                                                        # Build Pydantic fields
+        cls_kwargs      = type_safe_class.__cls_kwargs__()                          # Get class kwargs with defaults once
 
         for field_name, field_type in annotations:
             pydantic_type = self.convert_type(field_type)                           # Convert Type_Safe types to Pydantic
-            default_value = self.get_default_value(type_safe_class, field_name)     # Get default value if exists
+            has_default   = field_name in cls_kwargs                                # Check if field has any default (including None)
 
-            if default_value is not None:                                           # Create field with proper config
-                pydantic_fields[field_name] = (pydantic_type, default_value)
-            else:
+            if has_default:
+                default_value = cls_kwargs[field_name]
+                default_value = self.normalize_default_value(default_value)         # Normalize collections
+
+                if default_value is None:                                           # Explicit None default - make Optional
+                    pydantic_type = Optional[pydantic_type]
+                    pydantic_fields[field_name] = (pydantic_type, None)
+                else:
+                    pydantic_fields[field_name] = (pydantic_type, default_value)
+            else:                                                                   # No default - required field
                 pydantic_fields[field_name] = (pydantic_type, Field(...))
 
         model_name = f"{type_safe_class.__name__}__BaseModel"                       # Generate model name
@@ -93,22 +101,16 @@ class Type_Safe__To__BaseModel(Type_Safe):
 
         return type_safe_type                                                           # Return as-is for standard types
 
-    def get_default_value(self, type_safe_class: Type[Type_Safe],                       # Class to get default from
-                                field_name: str                                         # Field name to check
-                           ) -> Any:                                                    # Returns default value or None
-        cls_kwargs = type_safe_class.__cls_kwargs__()                                   # Get class kwargs with defaults
+    def get_default_value(self, type_safe_class: Type[Type_Safe],                   # Class to get default from
+                                field_name: str                                     # Field name to check
+                           ) -> Any:                                                # Returns default value or None
+        cls_kwargs = type_safe_class.__cls_kwargs__()                               # Get class kwargs with defaults
 
         if field_name in cls_kwargs:
-            value = cls_kwargs[field_name]
-            if isinstance(value, Type_Safe__List):                                      # Convert Type_Safe collections
-                return list(value)
-            elif isinstance(value, Type_Safe__Dict):
-                return dict(value)
-            elif isinstance(value, Type_Safe__Set):
-                return list(value)                                                      # Convert set to list for Pydantic
-            return value
+            return self.normalize_default_value(cls_kwargs[field_name])
 
         return None
+
 
     def extract_instance_data(self, type_safe_instance: Type_Safe                       # Instance to extract data from
                                ) -> Dict[str, Any]:                                     # Returns dict of instance data
@@ -162,6 +164,16 @@ class Type_Safe__To__BaseModel(Type_Safe):
                 result[key] = value
 
         return result
+
+    def normalize_default_value(self, value: Any                                   # Default value to normalize
+                                  ) -> Any:                                         # Returns normalized value
+        if isinstance(value, Type_Safe__List):                                      # Convert Type_Safe collections
+            return list(value)
+        elif isinstance(value, Type_Safe__Dict):
+            return dict(value)
+        elif isinstance(value, Type_Safe__Set):
+            return list(value)                                                      # Convert set to list for Pydantic
+        return value
 
 
 type_safe__to__basemodel = Type_Safe__To__BaseModel()                                   # Singleton instance for convenience (and to have a more global model_cache)

@@ -1,12 +1,15 @@
 import re
 import sys
 import pytest
-from typing                                                  import List, Dict, Optional, Union
-from unittest                                                import TestCase
-from osbot_utils.testing.__                                  import __
-from pydantic                                                import BaseModel, ValidationError
-from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel import Type_Safe__To__BaseModel, type_safe__to__basemodel
+from typing                                                     import List, Dict, Optional, Union
+from unittest                                                   import TestCase
+from osbot_utils.testing.__                                     import __
+from pydantic                                                   import BaseModel, ValidationError
+from osbot_utils.testing.__helpers                              import obj
+from osbot_utils.type_safe.Type_Safe                            import Type_Safe
+from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel   import Type_Safe__To__BaseModel, type_safe__to__basemodel
+from osbot_utils.type_safe.primitives.core.Safe_Int             import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Str             import Safe_Str
 
 
 class test_Type_Safe__To__BaseModel(TestCase):
@@ -165,11 +168,11 @@ class test_Type_Safe__To__BaseModel(TestCase):
                                                       'headers' : { 'anyOf'  : [{ 'additionalProperties': {'type': 'string' },
                                                                                   'type'                : 'object'          },
                                                                                 {'type'                 : 'null'            }],
-                                                                    'title'  : 'Headers'                                     },
+                                                                    'title'  : 'Headers'                                     ,
+                                                                    'default': None,},
                                                       'method'  : { 'default': 'GET'                                         ,
                                                                     'title'  : 'Method'                                      ,
                                                                     'type'   : 'string'                                      }},
-                                       'required': ['headers']                                                                 ,
                                        'title'   : 'APIRequest__BaseModel'                                                     ,
                                        'type'    : 'object'                                                                    }
 
@@ -182,16 +185,17 @@ class test_Type_Safe__To__BaseModel(TestCase):
         RequestModel = self.converter.convert_class(APIRequest)                                             # Convert to BaseModel
         schema       = RequestModel.model_json_schema()                                                     # Test schema generation
         assert APIRequest().obj() == __(method='GET', headers=None, endpoint=None)
-        assert schema             == { 'properties': {'endpoint': { 'title'  : 'Endpoint'                                   ,
-                                                                    'type'   : 'string'                                     },
+        assert schema             == { 'properties': {'endpoint': { 'anyOf': [{'type': 'string'}, {'type': 'null'}],
+                                                                    'title'  : 'Endpoint'                                   ,
+                                                                    'default': None                                         },
                                                       'headers' : { 'anyOf'  : [{ 'additionalProperties': {'type': 'string' },
                                                                                   'type'                : 'object'          },
                                                                                 {'type'                 : 'null'            }],
-                                                                    'title'  : 'Headers'                                     },
+                                                                    'title'  : 'Headers'                                     ,
+                                                                    'default': None                                          },
                                                       'method'  : { 'default': 'GET'                                         ,
                                                                     'title'  : 'Method'                                      ,
                                                                     'type'   : 'string'                                      }},
-                                       'required': ['endpoint', 'headers']                                                                 ,
                                        'title'   : 'APIRequest__BaseModel'                                                     ,
                                        'type'    : 'object'                                                                    }
 
@@ -302,3 +306,31 @@ class test_Type_Safe__To__BaseModel(TestCase):
             assert self.converter.convert_instance(Simple_Class)                            # should raise exception since Simple_Class() is an Type_Safe class not a Type_Safe instance
 
         assert isinstance(self.converter.convert_instance(Simple_Class()), BaseModel)       # confirm we get a base model when we pass a Type_Safe instance
+
+    def test__handle__none_return_values(self):
+
+        class An_Class(Type_Safe):
+            an_str     : Optional[str     ] = None
+            an_safe_str: Optional[Safe_Str] = None
+            an_safe_int: Optional[Safe_Int] = None
+
+
+
+        result = self.converter.convert_instance(An_Class())
+        assert obj(result.model_json_schema()) == __(properties = __(an_str      = __(anyOf   = [ __(type = 'string'),
+                                                                                                  __(type = 'null')  ],
+                                                                                      title   = 'An Str'              ,
+                                                                                      default = None                  ),
+                                                                     an_safe_str = __(anyOf   = [ __(type = 'string') ,
+                                                                                                  __(type = 'null')   ],
+                                                                                      title   = 'An Safe Str'          ,
+                                                                                      default = None                   ),
+                                                                     an_safe_int = __(anyOf   = [ __(type = 'integer'),
+                                                                                                  __(type = 'null')   ],
+                                                                                      title   = 'An Safe Int',
+                                                                                      default = None                  )),
+                                                     title      = 'An_Class__BaseModel'                              ,
+                                                     type       = 'object')
+
+
+

@@ -1,11 +1,11 @@
-from typing                                                        import Type, Dict, Any, get_args, Union, Optional, Tuple
-from osbot_utils.type_safe.Type_Safe                               import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Primitive                    import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.core.Safe_Str            import Safe_Str
-from osbot_utils.type_safe.primitives.core.Safe_Int            import Safe_Int
-from osbot_utils.type_safe.primitives.core.Safe_Float        import Safe_Float
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe     import type_safe
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache  import type_safe_cache
+from typing                                                         import Type, Dict, Any, get_args, Union, Optional, Tuple
+from osbot_utils.type_safe.Type_Safe                                import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                     import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.core.Safe_Str                 import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int                 import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Float               import Safe_Float
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe      import type_safe
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache   import type_safe_cache
 
 
 class Type_Safe__To__Json(Type_Safe):       # Converts Type_Safe classes to JSON Schema (draft-07 compatible)
@@ -14,6 +14,9 @@ class Type_Safe__To__Json(Type_Safe):       # Converts Type_Safe classes to JSON
     include_examples : bool = False
     strict_mode      : bool = False                                             # If True, includes all Type_Safe constraints
 
+    # todo: the @type_safe here breaks some of the cache behaviour below since the @type_safe will
+    #       convert the Dict to Type_Safe__Dict which means the returned objects are not the same (but from the cached value, so the performance implications might not be that big)
+    #       (see if this has any side effects or main performance implications)
     @type_safe
     def convert_class(self, type_safe_class : Type[Type_Safe]        ,          # Type_Safe class to convert
                             title           : str             = None ,          # Optional schema title

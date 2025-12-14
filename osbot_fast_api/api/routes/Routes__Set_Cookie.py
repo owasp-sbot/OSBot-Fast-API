@@ -12,6 +12,10 @@ class Schema__Set_Cookie(Type_Safe):
 # todo: these are actually routes, so we should move them into a better location
 #       maybe 'default_routes' or something similar
 
+ROUTES_PATHS__SET_COOKIE = ['/auth/set-auth-cookie' ,
+                            '/auth/set-cookie-form']
+
+
 class Routes__Set_Cookie(Fast_API__Routes):
     tag: str = 'auth'
 
