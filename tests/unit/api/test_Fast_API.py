@@ -133,9 +133,9 @@ class test_Fast_API(TestCase):
             assert app.version       == Safe_Str__Version        ('v0.1.0')
             assert app.description   == Safe_Str__Text('now with more available charts to talk about Fast API __ ______*()')
 
-        error_message = 'in Safe_Str__Version, value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$'
+        error_message = 'in Safe_Str__Version, value does not match required pattern: ^v?\\d{1,3}(?:\\.\\d{1,3}){0,2}$'
         with pytest.raises(ValueError, match=re.escape(error_message)):
-            Schema__Fast_API__Config(version="0.1.1")                                       # confirm validation provided by Safe_Str__Version
+            Schema__Fast_API__Config(version="a0.1.1")                                       # confirm validation provided by Safe_Str__Version
 
 
 
@@ -542,7 +542,7 @@ class test_Fast_API(TestCase):
     # Edge cases and error scenarios
 
     def test_invalid_version_format(self):                                         # Test invalid version validation
-        error_message = 'in Safe_Str__Version, value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$'
+        error_message = 'in Safe_Str__Version, value does not match required pattern: ^v?\\d{1,3}(?:\\.\\d{1,3}){0,2}$'
         with pytest.raises(ValueError, match=re.escape(error_message)):
             Schema__Fast_API__Config(version="not-version")
 

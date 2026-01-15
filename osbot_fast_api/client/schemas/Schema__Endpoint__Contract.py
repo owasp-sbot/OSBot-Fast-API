@@ -5,7 +5,7 @@ from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method     
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id             import Safe_Str__Id
 from osbot_fast_api.client.schemas.Schema__Endpoint__Param                                  import Schema__Endpoint__Param
 from osbot_fast_api.api.schemas.safe_str.Safe_Str__Fast_API__Route__Prefix                  import Safe_Str__Fast_API__Route__Prefix
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Python__Module import Safe_Str__Python__Module
+from osbot_utils.type_safe.primitives.domains.python.safe_str.Safe_Str__Python__Module      import Safe_Str__Python__Module
 
 
 class Schema__Endpoint__Contract(Type_Safe):

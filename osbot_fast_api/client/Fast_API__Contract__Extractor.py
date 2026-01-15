@@ -16,7 +16,7 @@ from osbot_fast_api.client.schemas.Schema__Routes__Module                       
 from osbot_fast_api.client.schemas.Schema__Service__Contract                                import Schema__Service__Contract
 from osbot_fast_api.client.schemas.enums.Enum__Param__Location                              import Enum__Param__Location
 from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method                 import Enum__Http__Method
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Python__Module import Safe_Str__Python__Module
+from osbot_utils.type_safe.primitives.domains.python.safe_str.Safe_Str__Python__Module      import Safe_Str__Python__Module
 
 
 class Fast_API__Contract__Extractor(Type_Safe):
