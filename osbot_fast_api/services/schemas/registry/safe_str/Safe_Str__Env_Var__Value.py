@@ -1,11 +1,11 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Safe_Str__API_Key__Value
-# Type-safe string for API key values (the actual secret key)
+# Safe_Str__Env_Var__Value
+# Type-safe string for environment variable values
 # ═══════════════════════════════════════════════════════════════════════════════
-
 from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Header__Value import Safe_Str__Http__Header__Value
 
 
-# todo: rename to Safe_Str__Fast_API__Auth__Key_Name
-class Safe_Str__API_Key__Value(Safe_Str__Http__Header__Value):                                       # API key value (the secret)
+# todo: for OSBot-Utils migration - consider moving this to osbot_utils.type_safe.primitives.domains.env
+#     : see is Safe_Str__Http__Header__Value is the best base type to use here
+class Safe_Str__Env_Var__Value(Safe_Str__Http__Header__Value):                                      # Environment variable value
     pass

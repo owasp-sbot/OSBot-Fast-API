@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                   import TestCase
-from mgraph_ai_service_cache_client.client.requests.schemas.enums.Enum__Client__Mode import Enum__Client__Mode
+from osbot_fast_api.services.schemas.registry.enums.Enum__Client__Mode          import Enum__Client__Mode
 
 
 class test_Enum__Client__Mode(TestCase):
