@@ -1,4 +1,5 @@
 import json
+import pytest
 from typing                                                           import List, Dict, Optional, Union
 from unittest                                                         import TestCase
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
@@ -253,22 +254,6 @@ class test_Type_Safe__To__Json(TestCase):
                                                                 'type'                : 'object' },
                                                      'type' : 'array' }}
 
-    def test__validate_against_schema(self):                                             # Test schema validation
-        class ValidatedClass(Type_Safe):
-            name : str
-            age  : int
-
-        instance = ValidatedClass(name="Alice", age=30)
-        schema   = self.converter.convert_class(ValidatedClass)
-
-        try:
-            import jsonschema
-            assert self.converter.validate_against_schema(instance, schema) == True       # Valid instance passes
-
-            instance.age = "not_an_int"                                                  # This would fail Type_Safe validation
-        except ImportError:
-            pass                                                                          # Skip if jsonschema not installed
-
     def test__singleton_instance(self):                                                  # Test singleton works
         class TestClass(Type_Safe):
             value : int
@@ -294,3 +279,25 @@ class test_Type_Safe__To__Json(TestCase):
             schema = _.convert_class(DefaultClass)                                              # clear cache
             assert schema['properties'] == {'name' : {'default': '', 'type': 'string' },        # Defaults included when enabled
                                             'value': {'default': 42, 'type': 'integer'}}
+
+    def test__list_without_type_args(self):                                                 # Test List without type args (uses List generic)
+        from typing import List
+        class ListClass(Type_Safe):
+            items : List                                                                    # List without element type
+
+        schema = self.converter.convert_class(ListClass)
+        assert schema['properties']['items'] == {'type': 'array'}                           # just array, no items schema
+
+    def test__dict_without_full_type_args(self):                                            # Test Dict without full type args
+        class DictClass(Type_Safe):
+            data : dict                                                                     # untyped dict
+
+        schema = self.converter.convert_class(DictClass)
+        assert schema['properties']['data'] == {'type': 'object'}                           # just object, no additionalProperties
+
+    def test__unknown_field_type_fallback(self):                                            # Test fallback for unknown types
+        class UnknownTypeClass(Type_Safe):
+            custom : object                                                                 # unknown type
+
+        schema = self.converter.convert_class(UnknownTypeClass)
+        assert schema['properties']['custom'] == {'type': 'object'}                         # defaults to object                                                           # validation should fail

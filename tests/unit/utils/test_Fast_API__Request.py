@@ -38,3 +38,36 @@ class test_Fast_API__Request(TestCase):
         with self.fast_api_request as _:
             assert type(_) is Request
             assert _.scope == self.fast_api_request.scope()
+
+    def test_create_headers(self):
+        with Fast_API__Request() as _:
+            assert _.headers.items() == []                                                              # no headers set
+
+        with Fast_API__Request(scope_headers={'content-type': 'application/json'}) as _:
+            assert _.headers.get('content-type') == 'application/json'                                  # single header
+
+        with Fast_API__Request(scope_headers={'content-type': 'application/json',
+                                              'accept'      : 'text/html'       }) as _:
+            assert _.headers.get('content-type') == 'application/json'                                  # multiple headers
+            assert _.headers.get('accept'      ) == 'text/html'
+
+    def test_set_cookie(self):
+        with Fast_API__Request() as _:
+            assert _.cookies == {}                                                                      # no cookies set
+        with Fast_API__Request().set_cookie('session_id', 'abc123') as _:
+            assert _.cookies.get('session_id') == 'abc123'                                              # single cookie
+
+    def test_set_cookies(self):
+        cookies = [('session_id', 'abc123'), ('user_id', '42')]
+        with Fast_API__Request().set_cookies(cookies) as _:
+            assert _.cookies.get('user_id'   ) == '42'                                                  # note: starlette only keeps last cookie
+
+    def test_set_header(self):
+        with Fast_API__Request().set_header('x-custom', 'value') as _:
+            assert _.headers.get('x-custom') == 'value'                                                 # single header via set_header
+
+    def test_set_headers(self):
+        headers = {'X-Custom-One': 'value1', 'X-Custom-Two': 'value2'}
+        with Fast_API__Request().set_headers(headers) as _:
+            assert _.headers.get('x-custom-one') == 'value1'                                            # keys are lowercased
+            assert _.headers.get('x-custom-two') == 'value2'
