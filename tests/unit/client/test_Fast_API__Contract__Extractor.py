@@ -1,19 +1,22 @@
+import inspect
+from typing                                                                     import List, Dict, Optional
 from unittest                                                                   import TestCase
 from fastapi                                                                    import HTTPException
-from osbot_fast_api.client.schemas.Schema__Endpoint__Param                      import Schema__Endpoint__Param
+from osbot_fast_api.api.Fast_API                                                import Fast_API
 from osbot_fast_api.api.schemas.Schema__Fast_API__Tag__Classes_And_Routes       import Schema__Fast_API__Tag__Classes_And_Routes
 from osbot_fast_api.api.schemas.Schema__Fast_API__Tags__Classes_And_Routes      import Schema__Fast__API_Tags__Classes_And_Routes
 from osbot_fast_api.api.schemas.routes.Schema__Fast_API__Route                  import Schema__Fast_API__Route
 from osbot_fast_api.client.Fast_API__Contract__Extractor                        import Fast_API__Contract__Extractor
-from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
-from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method     import Enum__Http__Method
-from osbot_utils.testing.__                                                     import __, __SKIP__
-from osbot_utils.utils.Objects                                                  import base_classes
-from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_fast_api.api.Fast_API                                                import Fast_API
+from osbot_fast_api.client.schemas.enums.Enum__Param__Location                  import Enum__Param__Location
 from osbot_fast_api.client.schemas.Schema__Endpoint__Contract                   import Schema__Endpoint__Contract
+from osbot_fast_api.client.schemas.Schema__Endpoint__Param                      import Schema__Endpoint__Param
 from osbot_fast_api.client.schemas.Schema__Service__Contract                    import Schema__Service__Contract
 from osbot_fast_api.client.testing.Test__Fast_API__With_Routes                  import Test__Fast_API__With_Routes
+from osbot_fast_api.utils.Version                                               import version__osbot_fast_api
+from osbot_utils.testing.__                                                     import __, __SKIP__
+from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method     import Enum__Http__Method
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.utils.Objects                                                  import base_classes
 
 class test_Fast_API__Contract__Extractor(TestCase):
 
@@ -581,3 +584,145 @@ class test_Fast_API__Contract__Extractor(TestCase):
                                                generated_at=__SKIP__,
                                                service_version=version__osbot_fast_api,
                                                client_version='')
+
+    def test__extract_endpoint_contracts__empty_route(self):                        # Test with empty route data (line 91)
+        with self.extractor as _:
+            route_data = Schema__Fast_API__Route()                                  # empty route with no method_name or http_path
+            contracts = _.extract_endpoint_contracts(route_data)
+            assert contracts == []                                                  # returns empty list
+
+    def test__bug__enhance_with_signature__type_safe_detection(self):               # Test Type_Safe class detection logic (lines 141-143)
+        with self.extractor as _:
+            assert _._is_type_safe_class(Type_Safe) is True                         # verify Type_Safe detection works
+
+            class RequestBody(Type_Safe):                                           # Type_Safe class as body
+                name : str
+                age  : int
+
+            assert _._is_type_safe_class(RequestBody) is True                       # nested class recognized as Type_Safe
+
+            # todo: BUG: The actual _enhance_with_signature tries to set request_schema
+            #       to a string but schema expects Type. Exception is silently caught.
+            endpoint = Schema__Endpoint__Contract(operation_id = 'test_method'   ,
+                                                  path_pattern = '/test'         ,
+                                                  method       = Enum__Http__Method.POST)
+
+            def test_func(body: RequestBody):                                       # function with Type_Safe param (no self)
+                pass
+
+            _._enhance_with_signature(endpoint, test_func)                          # should not crash
+            assert endpoint.request_schema is None                                  # todo: BUG: stays None due to type mismatch
+
+    def test__bug__enhance_with_signature__with_path_param_update(self):            # Test path param type update (lines 153-157)
+        with self.extractor as _:
+            path_param = Schema__Endpoint__Param(name       = 'user_id'           ,
+                                                 location   = Enum__Param__Location.PATH,
+                                                 param_type = str                 ,       # use str type, not 'Any' string
+                                                 required   = True                )
+
+            endpoint = Schema__Endpoint__Contract(operation_id = 'test_method'   ,
+                                                  path_pattern = '/users/{user_id}',
+                                                  method       = Enum__Http__Method.GET,
+                                                  path_params  = [path_param]    )
+
+            def test_func(user_id: int):                                            # function with typed path param (no self)
+                pass
+
+            _._enhance_with_signature(endpoint, test_func)
+            # todo: BUG: param_type expects Type not string, exception is caught
+            #       so original param_type is preserved instead of being updated
+            assert endpoint.path_params[0].param_type == str                        # todo: BUG: original type preserved
+
+    def test__bug__enhance_with_signature__with_return_type(self):                  # Test return type extraction (lines 159-162)
+        with self.extractor as _:
+            endpoint = Schema__Endpoint__Contract(operation_id = 'test_method'   ,
+                                                  path_pattern = '/test'         ,
+                                                  method       = Enum__Http__Method.GET)
+
+            def test_func() -> Dict[str, str]:                                      # function with return type (no self)
+                return {}
+
+            _._enhance_with_signature(endpoint, test_func)
+            # todo: BUG: response_schema expects Type not string, assignment fails silently
+            assert endpoint.response_schema is None                                 # todo: BUG: stays None due to type mismatch
+
+    def test__enhance_with_signature__exception_handling(self):                     # Test signature exception handling (line 164-165)
+        with self.extractor as _:
+            endpoint = Schema__Endpoint__Contract(operation_id = 'test_method'   ,
+                                                  path_pattern = '/test'         ,
+                                                  method       = Enum__Http__Method.GET)
+
+            class BadFunc:                                                          # not a real function
+                pass
+
+            _._enhance_with_signature(endpoint, BadFunc)                            # should not raise, handles exception
+            assert endpoint.response_schema is None                                 # no enhancement done
+
+    def test__enhance_with_ast_analysis__exception_handling(self):                  # Test AST exception handling (lines 185-186)
+        with self.extractor as _:
+            endpoint = Schema__Endpoint__Contract(operation_id = 'test_method'   ,
+                                                  path_pattern = '/test'         ,
+                                                  method       = Enum__Http__Method.GET)
+
+            _._enhance_with_ast_analysis(endpoint, len)                             # builtin - can't get source
+            assert endpoint.error_codes == []                                       # no errors added, exception handled
+
+    def test__extract_status_code_from_raise__no_http_exception(self):              # Test non-HTTPException raise (lines 194-200)
+        with self.extractor as _:
+            class MockRaiseNode:                                                    # mock AST raise node
+                def info(self):
+                    return "ValueError: some error"                                 # not HTTPException
+
+            result = _._extract_status_code_from_raise(MockRaiseNode())
+            assert result is None                                                   # no status code extracted
+
+    def test__extract_status_code_from_raise__with_status_codes(self):              # Test HTTPException status code extraction
+        with self.extractor as _:
+            class MockRaiseNode401:                                                 # mock with 401
+                def info(self):
+                    return "HTTPException(status_code=401, detail='Unauthorized')"
+
+            result = _._extract_status_code_from_raise(MockRaiseNode401())
+            assert result == 401                                                    # 401 extracted
+
+            class MockRaiseNode404:                                                 # mock with 404
+                def info(self):
+                    return "HTTPException(status_code=404, detail='Not found')"
+
+            result = _._extract_status_code_from_raise(MockRaiseNode404())
+            assert result == 404                                                    # 404 extracted
+
+            class MockRaiseNode500:                                                 # mock with 500
+                def info(self):
+                    return "HTTPException(status_code=500, detail='Server error')"
+
+            result = _._extract_status_code_from_raise(MockRaiseNode500())
+            assert result == 500                                                    # 500 extracted
+
+    def test__type_to_string__typing_generics(self):                                # Test typing module types (lines 211-217)
+        with self.extractor as _:
+            result = _._type_to_string(List[str])
+            assert 'list' in result.lower() or 'List' in result                     # List detected
+
+            result = _._type_to_string(Dict[str, int])
+            assert 'dict' in result.lower() or 'Dict' in result                     # Dict detected
+
+            result = _._type_to_string(Optional[str])
+            assert 'Optional' in result or 'str' in result                          # Optional detected
+
+    def test__is_type_safe_class__with_inspect_empty(self):                         # Test with inspect.Parameter.empty (line 222-223)
+        with self.extractor as _:
+            result = _._is_type_safe_class(inspect.Parameter.empty)
+            assert result is False                                                  # empty is not Type_Safe
+
+    def test__is_type_safe_class__exception_handling(self):                         # Test exception in issubclass (lines 229-230)
+        with self.extractor as _:
+            class BadMeta(type):                                                    # metaclass that raises on issubclass
+                def __subclasscheck__(cls, subclass):
+                    raise TypeError("Cannot check")
+
+            class BadClass(metaclass=BadMeta):
+                pass
+
+            result = _._is_type_safe_class(BadClass)                                # should not raise
+            assert result is False                                                  # returns False on exception

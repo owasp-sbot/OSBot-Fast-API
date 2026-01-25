@@ -1,15 +1,16 @@
 import re
 import sys
 import pytest
-from typing                                                     import List, Dict, Optional, Union
-from unittest                                                   import TestCase
-from osbot_utils.testing.__                                     import __
-from pydantic                                                   import BaseModel, ValidationError
-from osbot_utils.testing.__helpers                              import obj
-from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel   import Type_Safe__To__BaseModel, type_safe__to__basemodel
-from osbot_utils.type_safe.primitives.core.Safe_Int             import Safe_Int
-from osbot_utils.type_safe.primitives.core.Safe_Str             import Safe_Str
+from typing                                                          import List, Dict, Optional, Union, Set
+from unittest                                                        import TestCase
+from osbot_utils.testing.__                                          import __
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set import Type_Safe__Set
+from pydantic                                                        import BaseModel, ValidationError
+from osbot_utils.testing.__helpers                                   import obj
+from osbot_utils.type_safe.Type_Safe                                 import Type_Safe
+from osbot_fast_api.api.transformers.Type_Safe__To__BaseModel        import Type_Safe__To__BaseModel, type_safe__to__basemodel
+from osbot_utils.type_safe.primitives.core.Safe_Int                  import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Str                  import Safe_Str
 
 
 class test_Type_Safe__To__BaseModel(TestCase):
@@ -331,6 +332,59 @@ class test_Type_Safe__To__BaseModel(TestCase):
                                                                                       default = None                  )),
                                                      title      = 'An_Class__BaseModel'                              ,
                                                      type       = 'object')
+
+    def test__set_conversion(self):                                                          # Test set field conversion
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
+
+
+        class TaggedItem(Type_Safe):
+            name : str
+            tags : Set[str]
+
+        item       = TaggedItem(name="Widget", tags={"red", "large", "sale"})                 # Create with set
+        base_model = self.converter.convert_instance(item)
+
+        assert base_model.name == "Widget"                                                    # Set converted to list
+        assert set(base_model.tags) == {"red", "large", "sale"}                               # verify values (order may vary)
+
+    def test__get_default_value(self):                                                        # Test get_default_value method
+        class DefaultsClass(Type_Safe):
+            with_default    : str = "hello"
+            without_default : int
+
+        result_with    = self.converter.get_default_value(DefaultsClass, 'with_default')
+        result_without = self.converter.get_default_value(DefaultsClass, 'without_default')
+        result_missing = self.converter.get_default_value(DefaultsClass, 'nonexistent')
+
+        assert result_with    == "hello"                                                      # has default
+        assert result_without == 0                                                            # Type_Safe assigns default for int
+        assert result_missing is None                                                         # nonexistent field
+
+    def test__untyped_collections(self):                                                      # Test untyped list/dict/set handling
+        class UntypedCollections(Type_Safe):
+            items    : list = None
+            mapping  : dict = None
+
+        ModelClass = self.converter.convert_class(UntypedCollections)
+        instance   = ModelClass(items=[1, 2, 3], mapping={"a": 1})
+
+        assert instance.items   == [1, 2, 3]
+        assert instance.mapping == {"a": 1}
+
+    def test__convert_type__with_set_no_args(self):                                           # Test set without type args
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
+
+        result = self.converter.convert_type(Set)                                             # Set without element type
+        assert result == list                                                                 # falls back to list
+
+    def test__normalize_default_value__with_type_safe_set(self):                              # Test normalizing Type_Safe__Set
+        ts_set = Type_Safe__Set(expected_type=int, initial_data={1, 2, 3})                    # Type_Safe__Set requires expected_type
+        result = self.converter.normalize_default_value(ts_set)
+
+        assert isinstance(result, list)                                                       # converted to list
+        assert set(result) == {1, 2, 3}                                                       # values preserved
 
 
 
