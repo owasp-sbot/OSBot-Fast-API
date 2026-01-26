@@ -12,7 +12,8 @@ class test_Version(TestCase):
 
     def test_path_code_code(self):
         path_code_root = self.version.path_code_root()
-        assert path_code_root.endswith('/OSBot-Fast-API/osbot_fast_api')
+        assert path_code_root.endswith('/osbot_fast_api')                                               # check ends with package name
+        assert 'OSBot-Fast-API' in path_code_root or 'osbot_fast_api' in path_code_root                 # support worktrees
 
     def test_path_version_file(self):
         path_version_file = self.version.path_version_file()

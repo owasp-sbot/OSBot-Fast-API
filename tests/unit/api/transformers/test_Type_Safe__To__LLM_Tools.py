@@ -269,3 +269,63 @@ class test_Type_Safe__To__LLM_Tools(TestCase):
             assert props['text'  ] == {'type': 'string' , 'default': ''   }
             assert props['number'] == {'type': 'integer', 'default': 0    }
             assert props['flag'  ] == {'type': 'boolean', 'default': False}
+
+    def test__generate_example_value__all_types(self):                                      # Test example generation for all types
+        from typing import Set
+        class AllTypesParams(Type_Safe):
+            a_str   : str
+            a_int   : int
+            a_float : float
+            a_bool  : bool
+            a_list  : List[str]
+            a_dict  : Dict[str, str]
+            a_set   : Set[str]                                                              # use typing.Set for origin detection
+
+        example = self.converter.create_example_call(AllTypesParams, 'test')
+
+        args = example['args']
+        assert args['a_str'  ] == 'example_string'                                          # str example
+        assert args['a_int'  ] == 42                                                        # int example
+        assert args['a_float'] == 3.14                                                      # float example
+        assert args['a_bool' ] == True                                                      # bool example
+        assert args['a_list' ] == ['item1', 'item2']                                        # list example
+        assert args['a_dict' ] == {'key': 'value'}                                          # dict example
+        assert args['a_set'  ] == ['unique1', 'unique2']                                    # set example (as list)
+
+    def test__generate_example_value__nested_type_safe(self):                               # Test example for nested Type_Safe
+        class Inner(Type_Safe):
+            value : str
+
+        class Outer(Type_Safe):
+            inner : Inner
+
+        example = self.converter.create_example_call(Outer, 'test')
+        assert example['args']['inner'] == {'example': 'data'}                              # nested Type_Safe as dict
+
+    def test__type_to_string__with_typing_generic(self):                                    # Test _type_to_string with typing generics
+        result_list = self.converter._type_to_string(List[str])
+        result_dict = self.converter._type_to_string(Dict[str, int])
+
+        assert 'List' in result_list or 'list' in result_list                               # typing.List or list
+        assert 'Dict' in result_dict or 'dict' in result_dict                               # typing.Dict or dict
+
+    def test__gemini_nested_properties_conversion(self):                                    # Test Gemini type conversion for nested structures
+        class Nested(Type_Safe):
+            value : int
+
+        class Parent(Type_Safe):
+            nested : Nested
+            items  : List[Nested]
+
+        function_def = self.converter.to_gemini_function(Parent, 'test', 'Test nested')
+
+        props = function_def['parameters']['properties']
+        assert props['nested']['properties']['value']['type'] == 'number'                   # nested int -> number
+        assert props['items']['items']['properties']['value']['type'] == 'number'           # items nested int -> number
+
+    def test__create_example_call__uses_default_when_no_example(self):                      # Test default value as example
+        class DefaultsOnly(Type_Safe):
+            custom_type : object = None                                                     # type with no example generation
+
+        example = self.converter.create_example_call(DefaultsOnly, 'test')
+        assert example['args']['custom_type'] is None                                       # uses default value

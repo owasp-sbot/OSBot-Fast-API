@@ -301,3 +301,160 @@ class test_BaseModel__To__Dataclass(TestCase):
         assert instance.name  == "John"
         assert instance.age   == 30
         assert instance.email == "john@example.com"
+
+    def test__convert_field_type__list_without_args(self):                              # Test List without type args (line 90)
+        class UntypedListModel(BaseModel):
+            items : list                                                                 # untyped list
+
+        DataclassType = self.converter.convert_class(UntypedListModel)
+        assert is_dataclass(DataclassType)
+        instance = DataclassType(items=[1, "two", 3.0])
+        assert instance.items == [1, "two", 3.0]
+
+    def test__convert_field_type__dict_without_args(self):                              # Test Dict without type args (line 98)
+        class UntypedDictModel(BaseModel):
+            data : dict                                                                  # untyped dict
+
+        DataclassType = self.converter.convert_class(UntypedDictModel)
+        assert is_dataclass(DataclassType)
+        instance = DataclassType(data={"key": "value", "num": 42})
+        assert instance.data == {"key": "value", "num": 42}
+
+    def test__convert_field_type__set_without_args(self):                               # Test Set without type args (line 105)
+        class UntypedSetModel(BaseModel):
+            tags : set                                                                   # untyped set
+
+        DataclassType = self.converter.convert_class(UntypedSetModel)
+        assert is_dataclass(DataclassType)
+        instance = DataclassType(tags={1, 2, 3})
+        assert instance.tags == {1, 2, 3}
+
+    def test__convert_field_type__optional(self):                                       # Test Optional type (line 111)
+        class OptionalModel(BaseModel):
+            optional_str : Optional[str] = None
+            optional_int : Optional[int] = None
+
+        DataclassType = self.converter.convert_class(OptionalModel)
+        assert is_dataclass(DataclassType)
+        instance = DataclassType(optional_str="hello", optional_int=42)
+        assert instance.optional_str == "hello"
+        assert instance.optional_int == 42
+
+    def test__convert_nested_value__none(self):                                         # Test None value in nested conversion (line 205)
+        class NullableNestedModel(BaseModel):
+            nested : Optional[Dict[str, str]] = None
+
+        model = NullableNestedModel()                                                    # nested is None
+        dc = self.converter.convert_instance(model)
+        assert is_dataclass(dc)
+        assert dc.nested is None
+
+    def test__convert_nested_value__dict_representation(self):                          # Test dict representation of nested model (lines 209-210)
+        class InnerModel(BaseModel):
+            value : str
+
+        class OuterModel(BaseModel):
+            items : List[InnerModel]
+
+        model = OuterModel(items=[InnerModel(value="test")])                             # Create with BaseModel
+        dc = self.converter.convert_instance(model)
+        assert is_dataclass(dc)
+        assert len(dc.items) == 1
+        assert is_dataclass(dc.items[0])
+        assert dc.items[0].value == "test"
+
+    def test__convert_nested_value__nested_dict(self):                                  # Test nested dict conversion (lines 215-223)
+        class ComplexModel(BaseModel):
+            nested_dict : Dict[str, Dict[str, int]]
+
+        model = ComplexModel(nested_dict={"a": {"x": 1, "y": 2}, "b": {"z": 3}})
+        dc = self.converter.convert_instance(model)
+        assert is_dataclass(dc)
+        assert dc.nested_dict == {"a": {"x": 1, "y": 2}, "b": {"z": 3}}
+
+    def test__convert_nested_value__nested_list(self):                                  # Test nested list conversion (lines 226-231)
+        class NestedListModel(BaseModel):
+            nested_list : List[List[str]]
+
+        model = NestedListModel(nested_list=[["a", "b"], ["c", "d"]])
+        dc = self.converter.convert_instance(model)
+        assert is_dataclass(dc)
+        assert dc.nested_list == [["a", "b"], ["c", "d"]]
+
+    def test__is_mutable_default(self):                                                 # Test mutable default detection
+        assert self.converter.is_mutable_default(None) == False                          # None is not mutable
+        assert self.converter.is_mutable_default([])   == True                           # list is mutable
+        assert self.converter.is_mutable_default({})   == True                           # dict is mutable
+        assert self.converter.is_mutable_default(set()) == True                          # set is mutable
+        assert self.converter.is_mutable_default(42)    == False                         # int is not mutable
+        assert self.converter.is_mutable_default("str") == False                         # str is not mutable
+
+    def test__convert_field_type__typed_list(self):                                      # Test List[T] type (hits lines 85-89)
+        class TypedListModel(BaseModel):
+            items : List[str]
+
+        DataclassType = self.converter.convert_class(TypedListModel)
+        assert is_dataclass(DataclassType)
+
+    def test__convert_field_type__typed_dict(self):                                      # Test Dict[K,V] type (hits lines 92-97)
+        class TypedDictModel(BaseModel):
+            data : Dict[str, int]
+
+        DataclassType = self.converter.convert_class(TypedDictModel)
+        assert is_dataclass(DataclassType)
+
+    def test__convert_field_type__typed_set(self):                                       # Test Set[T] type (hits lines 100-104)
+        class TypedSetModel(BaseModel):
+            tags : Set[str]
+
+        DataclassType = self.converter.convert_class(TypedSetModel)
+        assert is_dataclass(DataclassType)
+
+    def test__convert_field_type__union_type(self):                                      # Test Union type (hits lines 107-112)
+        class UnionModel(BaseModel):
+            value : Union[str, int]
+
+        DataclassType = self.converter.convert_class(UnionModel)
+        assert is_dataclass(DataclassType)
+
+    def test__convert_list_value__with_nested_models(self):                              # Test list value with nested BaseModel
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
+
+        class ItemModel(BaseModel):
+            name : str
+
+        class ContainerModel(BaseModel):
+            items : List[ItemModel]
+
+        model = ContainerModel(items=[ItemModel(name="a"), ItemModel(name="b")])
+        dc = self.converter.convert_instance(model)
+        assert len(dc.items) == 2
+        assert dc.items[0].name == "a"
+        assert dc.items[1].name == "b"
+
+    def test__convert_set_value__with_primitives(self):                                  # Test set value conversion
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
+
+        class SetModel(BaseModel):
+            values : Set[int]
+
+        model = SetModel(values={1, 2, 3})
+        dc = self.converter.convert_instance(model)
+        assert dc.values == {1, 2, 3}
+
+    def test__convert_dict_value__with_nested_models(self):                              # Test dict value with nested models
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
+
+        class ValueModel(BaseModel):
+            data : str
+
+        class ContainerModel(BaseModel):
+            mapping : Dict[str, ValueModel]
+
+        model = ContainerModel(mapping={"key": ValueModel(data="test")})
+        dc = self.converter.convert_instance(model)
+        assert is_dataclass(dc.mapping["key"])
+        assert dc.mapping["key"].data == "test"

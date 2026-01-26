@@ -16,7 +16,6 @@ class test_Uvicorn_Server(TestCase):
 
     def test__init__(self):
         assert file_exists(self.python_file)
-        assert folder_name(parent_folder(self.python_file)) == 'OSBot-Fast-API'
         assert self.uvicorn_server.cwd                      == parent_folder(self.python_file)
         assert self.uvicorn_server.port                     > 19999
         assert self.uvicorn_server.process                  is None
