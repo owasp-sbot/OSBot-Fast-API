@@ -3,11 +3,12 @@
 # Central registry for service client discovery across deployment modes
 # Enables zero-code-change switching between IN_MEMORY and REMOTE modes
 # ═══════════════════════════════════════════════════════════════════════════════
-from osbot_fast_api.services.registry.Fast_API__Service__Registry__Client__Base       import Fast_API__Service__Registry__Client__Base
-from osbot_fast_api.services.schemas.registry.collections.Dict__Fast_API__Service__Clients_By_Type import Dict__Fast_API__Service__Clients_By_Type
-from osbot_fast_api.services.schemas.registry.collections.List__Fast_API__Service__Client_Types   import List__Fast_API__Service__Client_Types
-from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                        import type_safe
+from typing                                                                                         import Type
+from osbot_fast_api.services.registry.Fast_API__Service__Registry__Client__Base                     import Fast_API__Service__Registry__Client__Base
+from osbot_fast_api.services.schemas.registry.collections.Dict__Fast_API__Service__Clients_By_Type  import Dict__Fast_API__Service__Clients_By_Type
+from osbot_fast_api.services.schemas.registry.collections.List__Fast_API__Service__Client_Types     import List__Fast_API__Service__Client_Types
+from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                      import type_safe
 
 
 class Fast_API__Service__Registry(Type_Safe):                                          # Instance-based registry for service clients
@@ -17,7 +18,9 @@ class Fast_API__Service__Registry(Type_Safe):                                   
     def register(self, client: Fast_API__Service__Registry__Client__Base) -> None:    # Register a client instance
         self.clients[type(client)] = client                                            # Index by actual type
 
-    def client(self, client_type: type) -> Fast_API__Service__Registry__Client__Base: # Retrieve client by type
+    @type_safe
+    def client(self, client_type: Type[Fast_API__Service__Registry__Client__Base]
+                ) -> Fast_API__Service__Registry__Client__Base: # Retrieve client by type
         if client_type not in self.clients:
             return None                                                                # Not registered = None
         return self.clients[client_type]                                               # Return registered client

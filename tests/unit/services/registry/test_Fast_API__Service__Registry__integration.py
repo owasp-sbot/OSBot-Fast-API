@@ -3,16 +3,16 @@
 # Tests IN_MEMORY and REMOTE modes with actual FastAPI apps
 # Uses Temp_Web_Server from osbot_utils for REMOTE mode testing
 # ═══════════════════════════════════════════════════════════════════════════════
-from unittest                                                                                  import TestCase
-from fastapi                                                                                   import FastAPI
-from fastapi.testclient                                                                        import TestClient
-from osbot_utils.testing.Temp_Web_Server                                                       import Temp_Web_Server
-from osbot_utils.testing.Temp_Folder                                                           import Temp_Folder
-from osbot_utils.testing.__                                                                    import __
-from osbot_utils.testing.__helpers                                                             import obj
-from osbot_fast_api.services.registry.Fast_API__Service__Registry                              import Fast_API__Service__Registry
-from osbot_fast_api.services.schemas.registry.enums.Enum__Client__Mode                         import Enum__Client__Mode
-from tests.unit.services.registry.test_clients.Integration__Test__Client                       import Integration__Test__Client
+from unittest                                                                                       import TestCase
+from fastapi                                                                                        import FastAPI
+from fastapi.testclient                                                                             import TestClient
+from osbot_utils.testing.Temp_Web_Server                                                            import Temp_Web_Server
+from osbot_utils.testing.Temp_Folder                                                                import Temp_Folder
+from osbot_utils.testing.__                                                                         import __
+from osbot_utils.testing.__helpers                                                                  import obj
+from osbot_fast_api.services.registry.Fast_API__Service__Registry                                   import Fast_API__Service__Registry
+from osbot_fast_api.services.schemas.registry.enums.Enum__Fast_API__Service__Registry__Client__Mode import Enum__Fast_API__Service__Registry__Client__Mode
+from tests.unit.services.registry.test_clients.Integration__Test__Client                            import Integration__Test__Client
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -54,7 +54,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
 
         with Fast_API__Service__Registry() as registry:
             client = Integration__Test__Client()
-            client.config.mode         = Enum__Client__Mode.IN_MEMORY
+            client.config.mode         = Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY
             client.config.fast_api_app = app
 
             registry.register(client)
@@ -67,7 +67,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
 
         with Fast_API__Service__Registry() as registry:
             client = Integration__Test__Client()
-            client.config.mode         = Enum__Client__Mode.IN_MEMORY
+            client.config.mode         = Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY
             client.config.fast_api_app = app
 
             registry.register(client)
@@ -83,7 +83,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
 
         with Fast_API__Service__Registry() as registry:
             client = Integration__Test__Client()
-            client.config.mode         = Enum__Client__Mode.IN_MEMORY
+            client.config.mode         = Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY
             client.config.fast_api_app = app
 
             registry.register(client)
@@ -97,7 +97,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
         app = create_test_app()
 
         client = Integration__Test__Client()
-        client.config.mode         = Enum__Client__Mode.IN_MEMORY
+        client.config.mode         = Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY
         client.config.fast_api_app = app
 
         transport = client.requests()
@@ -115,7 +115,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
             with Temp_Web_Server(root_folder=folder.path()) as server:
                 with Fast_API__Service__Registry() as registry:
                     client = Integration__Test__Client()
-                    client.config.mode     = Enum__Client__Mode.REMOTE
+                    client.config.mode     = Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
                     client.config.base_url = server.url().rstrip('/')              # Remove trailing slash
 
                     registry.register(client)
@@ -132,7 +132,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
             with Temp_Web_Server(root_folder=folder.path()) as server:
                 with Fast_API__Service__Registry() as registry:
                     client = Integration__Test__Client()
-                    client.config.mode     = Enum__Client__Mode.REMOTE
+                    client.config.mode     = Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
                     client.config.base_url = server.url().rstrip('/')
 
                     registry.register(client)
@@ -150,7 +150,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
             with Temp_Web_Server(root_folder=folder.path()) as server:
                 with Fast_API__Service__Registry() as registry:
                     client = Integration__Test__Client()
-                    client.config.mode          = Enum__Client__Mode.REMOTE
+                    client.config.mode          = Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
                     client.config.base_url      = server.url().rstrip('/')
                     client.config.api_key_name  = 'X-API-KEY'
                     client.config.api_key_value = 'secret-123'
@@ -172,7 +172,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
         with Fast_API__Service__Registry() as registry:
             # Start with IN_MEMORY mode
             client = Integration__Test__Client()
-            client.config.mode         = Enum__Client__Mode.IN_MEMORY
+            client.config.mode         = Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY
             client.config.fast_api_app = app
 
             registry.register(client)
@@ -184,12 +184,12 @@ class test_Fast_API__Service__Registry__integration(TestCase):
 
                 with Temp_Web_Server(root_folder=folder.path()) as server:
                     remote_client = Integration__Test__Client()
-                    remote_client.config.mode     = Enum__Client__Mode.REMOTE
+                    remote_client.config.mode     = Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
                     remote_client.config.base_url = server.url().rstrip('/')
 
                     registry.register(remote_client)                               # Re-register with new mode
                     assert registry.client(Integration__Test__Client).health() is True
-                    assert registry.client(Integration__Test__Client).config.mode == Enum__Client__Mode.REMOTE
+                    assert registry.client(Integration__Test__Client).config.mode == Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
 
     def test__multiple_clients__different_modes(self):                             # Test multiple clients with different modes
         app = create_test_app()
@@ -207,20 +207,20 @@ class test_Fast_API__Service__Registry__integration(TestCase):
                 with Fast_API__Service__Registry() as registry:
                     # First client - IN_MEMORY mode
                     in_memory_client = Integration__Test__Client()
-                    in_memory_client.config.mode         = Enum__Client__Mode.IN_MEMORY
+                    in_memory_client.config.mode         = Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY
                     in_memory_client.config.fast_api_app = app
 
                     # Second client - REMOTE mode
                     remote_client = Secondary__Test__Client()
-                    remote_client.config.mode     = Enum__Client__Mode.REMOTE
+                    remote_client.config.mode     = Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
                     remote_client.config.base_url = server.url().rstrip('/')
 
                     registry.register(in_memory_client)
                     registry.register(remote_client)
 
                     # Both clients should work independently
-                    assert registry.client(Integration__Test__Client).config.mode  == Enum__Client__Mode.IN_MEMORY
-                    assert registry.client(Secondary__Test__Client).config.mode    == Enum__Client__Mode.REMOTE
+                    assert registry.client(Integration__Test__Client).config.mode == Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY
+                    assert registry.client(Secondary__Test__Client).config.mode   == Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
 
                     assert registry.client(Integration__Test__Client).health() is True
                     assert registry.client(Secondary__Test__Client).health()   is True
@@ -239,7 +239,7 @@ class test_Fast_API__Service__Registry__integration(TestCase):
 
     def test__remote_mode__connection_failure__returns_false_health(self):         # Test health check fails on connection error
         client = Integration__Test__Client()
-        client.config.mode     = Enum__Client__Mode.REMOTE
+        client.config.mode     = Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
         client.config.base_url = 'http://localhost:99999'                          # Non-existent server
 
         assert client.health() is False                                            # Should return False, not raise

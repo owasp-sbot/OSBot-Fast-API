@@ -110,7 +110,7 @@ class TestService__Client(Type_Safe):
 
             assert code == AUTO_GEN__CODE__GENERATE_REQUEST_HANDLER
 
-            assert "class Enum__Client__Mode(str, Enum):" in code
+            assert "class Enum__Fast_API__Service__Registry__Client__Mode(str, Enum):" in code
             assert "REMOTE       = \"remote\""            in code
             assert "IN_MEMORY    = \"in_memory\""         in code
             assert "LOCAL_SERVER = \"local_server\""      in code
@@ -513,7 +513,7 @@ from typing import Any, Optional, Dict
 import requests
 from osbot_utils.type_safe.Type_Safe import Type_Safe
 
-class Enum__Client__Mode(str, Enum):
+class Enum__Fast_API__Service__Registry__Client__Mode(str, Enum):
     REMOTE       = "remote"                                                        # HTTP calls to deployed service
     IN_MEMORY    = "in_memory"                                                     # FastAPI TestClient (same process)
     LOCAL_SERVER = "local_server"                                                  # Fast_API_Server (local HTTP)
@@ -528,7 +528,7 @@ class TestService__Client__Requests__Result(Type_Safe):
 
 class TestService__Client__Requests(Type_Safe):
     config       : Any                                                             # TestService__Client__Config
-    mode         : Enum__Client__Mode         = Enum__Client__Mode.REMOTE
+    mode         : Enum__Fast_API__Service__Registry__Client__Mode         = Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
     _app         : Optional[Any]              = None                               # FastAPI app for in-memory
     _server      : Optional[Any]              = None                               # Fast_API_Server for local
     _test_client : Optional[Any]              = None                               # TestClient for in-memory
@@ -541,19 +541,19 @@ class TestService__Client__Requests(Type_Safe):
     def _setup_mode(self):                                                         # Initialize the appropriate execution backend
 
         if self._app:                                                              # In-memory mode with TestClient
-            self.mode = Enum__Client__Mode.IN_MEMORY
+            self.mode = Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY
             from fastapi.testclient import TestClient
             self._test_client = TestClient(self._app)
 
         elif self._server:                                                         # Local server mode
-            self.mode = Enum__Client__Mode.LOCAL_SERVER
+            self.mode = Enum__Fast_API__Service__Registry__Client__Mode.LOCAL_SERVER
             from osbot_fast_api.utils.Fast_API_Server import Fast_API_Server
             if not isinstance(self._server, Fast_API_Server):
                 self._server = Fast_API_Server(app=self._server)
                 self._server.start()
 
         else:                                                                      # Remote mode
-            self.mode     = Enum__Client__Mode.REMOTE
+            self.mode     = Enum__Fast_API__Service__Registry__Client__Mode.REMOTE
             self._session = requests.Session()
             self._configure_session()
 
@@ -570,9 +570,9 @@ class TestService__Client__Requests(Type_Safe):
                                                                                     # Merge headers
         request_headers = {**self.auth_headers(), **(headers or {})}
                                                                                     # Execute based on mode
-        if self.mode == Enum__Client__Mode.IN_MEMORY:
+        if self.mode == Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY:
             response = self._execute_in_memory(method, path, body, request_headers)
-        elif self.mode == Enum__Client__Mode.LOCAL_SERVER:
+        elif self.mode == Enum__Fast_API__Service__Registry__Client__Mode.LOCAL_SERVER:
             response = self._execute_local_server(method, path, body, request_headers)
         else:
             response = self._execute_remote(method, path, body, request_headers)
