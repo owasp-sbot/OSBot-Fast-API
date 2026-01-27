@@ -32,11 +32,15 @@ class test_Fast_API__Service__Registry__with_config(TestCase):
         self.registry.register(Fake__Cache__Service__Client, cache_config)
         self.registry.register(Fake__Html__Service__Client , html_config )
 
+
+        # confirm they are there before
+        assert self.registry.config(Fake__Cache__Service__Client) is cache_config
+        assert self.registry.config(Fake__Html__Service__Client)  is html_config
+
         with self.registry.with_config(Fake__Cache__Service__Client, new_cache):
-            # Cache changed
-            assert self.registry.config(Fake__Cache__Service__Client) is new_cache
-            # Html unchanged
-            assert self.registry.config(Fake__Html__Service__Client)  is html_config
+
+            assert self.registry.config(Fake__Cache__Service__Client) is new_cache          # Cache changed
+            assert self.registry.config(Fake__Html__Service__Client ) is html_config        # Html unchanged
 
         # Both restored
         assert self.registry.config(Fake__Cache__Service__Client) is cache_config

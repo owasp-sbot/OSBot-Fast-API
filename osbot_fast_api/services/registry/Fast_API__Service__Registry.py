@@ -43,16 +43,21 @@ class Fast_API__Service__Registry(Type_Safe):                                   
     # Save / Restore - For setUp/tearDown patterns
     # ───────────────────────────────────────────────────────────────────────────
 
-    def configs__save(self) -> None:                                            # Save current configs to stack
+    def configs__save(self, clear_configs=True) -> None:                                            # Save current configs to stack
         snapshot = Dict__Fast_API__Service__Configs_By_Type()
         snapshot.update(self.configs)
         self.configs_stack.append(snapshot)
+        if clear_configs:
+            self.clear()
+        return self
+
 
     def configs__restore(self) -> None:                                         # Restore configs from stack
         if len(self.configs_stack) > 0:
             saved = self.configs_stack.pop()
             self.configs.clear()
             self.configs.update(saved)
+        return self
 
     def configs__stack_size(self) -> int:                                       # Check stack depth
         return len(self.configs_stack)
@@ -74,7 +79,7 @@ class Fast_API__Service__Registry(Type_Safe):                                   
     @contextmanager
     def with_config(self, client_type: type,                                    # Temporarily override single client's config
                           config     : Fast_API__Service__Registry__Client__Config):
-        self.configs__save()
+        self.configs__save(clear_configs=False)
         self.configs[client_type] = config
         try:
             yield self
