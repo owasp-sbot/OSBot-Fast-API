@@ -7,7 +7,6 @@ from osbot_fast_api.services.schemas.registry.Fast_API__Service__Registry__Clien
 from osbot_fast_api.services.schemas.registry.collections.List__Fast_API__Registry__Env_Vars import List__Fast_API__Registry__Env_Vars
 from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
 
-
 class Fast_API__Service__Registry__Client__Base(Type_Safe):                            # Base class for all service clients
     config : Fast_API__Service__Registry__Client__Config                               # Configuration for this client
 
