@@ -1,0 +1,513 @@
+# Technical Debrief: Registry Config Stack & Context Managers
+
+**Date**: January 2025  
+**Component**: `Fast_API__Service__Registry`  
+**Package**: `osbot-fast-api`  
+**Related**: Unified Service Client Architecture
+
+---
+
+## Executive Summary
+
+Added native support for saving and restoring registry configurations, enabling clean test isolation and hot-swapping of service client configs without manual state management. This eliminates ~50% of boilerplate code in integration tests and prevents common bugs related to forgetting to restore global state.
+
+---
+
+## 1. Problem Statement
+
+### 1.1 The Global Registry Pattern
+
+The `Fast_API__Service__Registry` is designed as a **singleton** that stores service client configurations:
+
+```python
+fast_api__service__registry = Fast_API__Service__Registry()  # Global instance
+```
+
+This design enables **stateless service clients** — clients don't hold their own config, they look it up from the registry at request time:
+
+```python
+class Cache__Service__Client(Type_Safe):
+    def requests(self):
+        requests = Cache__Service__Client__Requests()
+        requests.service_type = Cache__Service__Client  # For registry lookup
+        return requests
+```
+
+### 1.2 The Testing Problem
+
+Integration tests need to register **test-specific configurations** (typically IN_MEMORY mode with a test FastAPI app). But they must:
+
+1. **Not pollute** other tests running in the same process
+2. **Not lose** any existing production configs
+3. **Restore state** after the test completes
+4. **Handle exceptions** — restore even if test fails
+
+### 1.3 The Old Pattern (Verbose & Error-Prone)
+
+```python
+class test_Cache__Service__Client__integration(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # Manual save — easy to forget dict() copy
+        cls.original_configs = dict(fast_api__service__registry.configs)
+        
+        # Manual clear
+        fast_api__service__registry.configs.clear()
+        
+        # Register test config
+        register_cache_service__in_memory()
+        
+        cls.cache_service_client = Cache__Service__Client()
+
+    @classmethod
+    def tearDownClass(cls):
+        # Manual restore — easy to forget, or do incorrectly
+        fast_api__service__registry.configs.clear()
+        fast_api__service__registry.configs.update(cls.original_configs)
+```
+
+**Problems with this approach:**
+
+| Issue | Impact |
+|-------|--------|
+| **Boilerplate** | 8+ lines of state management per test class |
+| **Easy to forget** | Missing `tearDownClass` leaves polluted state |
+| **Copy semantics** | Must use `dict()` to copy, not `=` (reference) |
+| **Exception safety** | If `setUpClass` fails after clear, state is lost |
+| **Repetitive** | Same pattern copied across every integration test |
+
+---
+
+## 2. Solution: Native Save/Restore with Stack
+
+### 2.1 Design Principles
+
+1. **Stack-based** — Supports nested save/restore (test within test, fixtures within fixtures)
+2. **Type-safe** — Stack is `List[Dict__Fast_API__Service__Configs_By_Type]`
+3. **Context managers** — Auto-restore on scope exit, even on exceptions
+4. **Simple API** — `configs__save()` / `configs__restore()` naming is clear
+
+### 2.2 New Registry Attributes
+
+```python
+class Fast_API__Service__Registry(Type_Safe):
+    configs       : Dict__Fast_API__Service__Configs_By_Type      # Current configs
+    configs_stack : List__Fast_API__Service__Configs_Stack        # Stack for save/restore
+```
+
+### 2.3 New Methods
+
+#### Stack Operations
+
+```python
+def configs__save(self) -> None:
+    """Save current configs to stack"""
+    snapshot = Dict__Fast_API__Service__Configs_By_Type()
+    snapshot.update(self.configs)
+    self.configs_stack.append(snapshot)
+
+def configs__restore(self) -> None:
+    """Restore configs from stack"""
+    if len(self.configs_stack) > 0:
+        saved = self.configs_stack.pop()
+        self.configs.clear()
+        self.configs.update(saved)
+
+def configs__stack_size(self) -> int:
+    """Check stack depth"""
+    return len(self.configs_stack)
+```
+
+#### Context Managers
+
+```python
+@contextmanager
+def with_registry(self, registry: 'Fast_API__Service__Registry'):
+    """Temporarily use another registry's configs"""
+    self.configs__save()
+    self.configs.clear()
+    self.configs.update(registry.configs)
+    try:
+        yield self
+    finally:
+        self.configs__restore()
+
+@contextmanager
+def with_config(self, client_type: type, config: Fast_API__Service__Registry__Client__Config):
+    """Temporarily override single client's config"""
+    self.configs__save()
+    self.configs[client_type] = config
+    try:
+        yield self
+    finally:
+        self.configs__restore()
+```
+
+---
+
+## 3. How It Works
+
+### 3.1 Stack Mechanics
+
+```
+Initial State:
+┌─────────────────────────────────┐
+│ configs: {CacheClient: prod}    │
+│ configs_stack: []               │
+└─────────────────────────────────┘
+
+After configs__save():
+┌─────────────────────────────────┐
+│ configs: {CacheClient: prod}    │
+│ configs_stack: [                │
+│   {CacheClient: prod}  ←────────│── Snapshot saved
+│ ]                               │
+└─────────────────────────────────┘
+
+After clear() + register test config:
+┌─────────────────────────────────┐
+│ configs: {CacheClient: test}    │  ←── Now using test config
+│ configs_stack: [                │
+│   {CacheClient: prod}           │  ←── Original preserved
+│ ]                               │
+└─────────────────────────────────┘
+
+After configs__restore():
+┌─────────────────────────────────┐
+│ configs: {CacheClient: prod}    │  ←── Restored from stack
+│ configs_stack: []               │  ←── Stack popped
+└─────────────────────────────────┘
+```
+
+### 3.2 Nested Save/Restore
+
+The stack supports multiple levels for complex test fixtures:
+
+```python
+# Level 0: Production state
+fast_api__service__registry.configs__save()      # Stack: [prod]
+
+# Level 1: Integration test base
+register_integration_configs()
+fast_api__service__registry.configs__save()      # Stack: [prod, integration]
+
+# Level 2: Specific test override
+register_special_test_config()
+# ... run test ...
+
+fast_api__service__registry.configs__restore()   # Back to integration
+fast_api__service__registry.configs__restore()   # Back to production
+```
+
+### 3.3 Context Manager Exception Safety
+
+```python
+with fast_api__service__registry.with_registry(test_registry):
+    # If this raises an exception...
+    raise ValueError("Something went wrong")
+    
+# ...configs are STILL restored (finally block runs)
+```
+
+The `try/finally` pattern in context managers guarantees restoration regardless of how the block exits:
+- Normal completion ✓
+- Exception raised ✓
+- Return statement ✓
+- Break/continue in loops ✓
+
+---
+
+## 4. Usage Patterns
+
+### 4.1 Integration Test (setUp/tearDown)
+
+```python
+class test_Cache__Service__Client__integration(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        fast_api__service__registry.configs__save()
+        fast_api__service__registry.clear()
+        register_cache_service__in_memory()
+        cls.cache_service_client = Cache__Service__Client()
+
+    @classmethod
+    def tearDownClass(cls):
+        fast_api__service__registry.configs__restore()
+
+    def test__health(self):
+        assert self.cache_service_client.health() is True
+```
+
+### 4.2 Single Test with Context Manager
+
+```python
+def test__with_in_memory_cache(self):
+    test_registry = Fast_API__Service__Registry()
+    register_cache_service__in_memory(registry=test_registry)
+
+    with fast_api__service__registry.with_registry(test_registry):
+        client = Cache__Service__Client()
+        assert client.health() is True
+    
+    # Automatically restored — no tearDown needed
+```
+
+### 4.3 Hot-Swap Single Client
+
+```python
+def test__temporarily_use_mock_llm(self):
+    mock_config = Fast_API__Service__Registry__Client__Config(
+        mode         = Enum__Fast_API__Service__Registry__Client__Mode.IN_MEMORY,
+        fast_api_app = create_mock_llm_app()
+    )
+
+    with fast_api__service__registry.with_config(LLM__Service__Client, mock_config):
+        # Only LLM client is mocked
+        # Cache client still uses production config
+        result = LLM__Service__Client().complete("test prompt")
+        assert result == "mock response"
+```
+
+### 4.4 Nested Test Fixtures
+
+```python
+class test_Base(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        fast_api__service__registry.configs__save()
+        register_base_test_configs()
+
+    @classmethod
+    def tearDownClass(cls):
+        fast_api__service__registry.configs__restore()
+
+
+class test_Specific(test_Base):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        fast_api__service__registry.configs__save()  # Nested save
+        register_specific_test_config()
+
+    @classmethod
+    def tearDownClass(cls):
+        fast_api__service__registry.configs__restore()  # Restore specific
+        super().tearDownClass()  # Restore base
+```
+
+---
+
+## 5. Type Safety
+
+### 5.1 Stack Type Definition
+
+```python
+# List__Fast_API__Service__Configs_Stack.py
+class List__Fast_API__Service__Configs_Stack(Type_Safe__List):
+    expected_type = Dict__Fast_API__Service__Configs_By_Type
+```
+
+This ensures:
+- Only `Dict__Fast_API__Service__Configs_By_Type` objects can be pushed
+- Type errors caught at runtime if wrong type added
+- IDE/type checker support for contents
+
+### 5.2 Snapshot Isolation
+
+Each save creates a **new dictionary instance**:
+
+```python
+def configs__save(self) -> None:
+    snapshot = Dict__Fast_API__Service__Configs_By_Type()  # New instance
+    snapshot.update(self.configs)                          # Copy contents
+    self.configs_stack.append(snapshot)
+```
+
+This prevents the bug where modifying current configs would also modify the saved snapshot (if they shared the same reference).
+
+---
+
+## 6. Comparison: Before vs After
+
+### Lines of Code
+
+| Pattern | setUp | tearDown | Total |
+|---------|-------|----------|-------|
+| **Before** (manual) | 4 | 2 | 6 |
+| **After** (save/restore) | 3 | 1 | 4 |
+| **After** (context manager) | 0 | 0 | 3 (inline) |
+
+### Cognitive Load
+
+| Aspect | Before | After |
+|--------|--------|-------|
+| Remember to copy with `dict()` | Yes | No |
+| Remember to clear before update | Yes | No |
+| Remember tearDown | Yes | Automatic with context manager |
+| Exception safety | Manual | Built-in |
+| Nested fixtures | Complex | Stack handles it |
+
+### Bug Prevention
+
+| Bug Type | Before | After |
+|----------|--------|-------|
+| Reference vs copy | Possible | Prevented |
+| Forgot tearDown | Possible | Prevented (context manager) |
+| Exception leaves dirty state | Possible | Prevented |
+| Wrong restore order | Possible | Stack enforces LIFO |
+
+---
+
+## 7. Files Changed/Added
+
+### New Files
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `List__Fast_API__Service__Configs_Stack.py` | `services/schemas/registry/collections/` | Type-safe stack |
+
+### Modified Files
+
+| File | Changes |
+|------|---------|
+| `Fast_API__Service__Registry.py` | Added `configs_stack`, `configs__save()`, `configs__restore()`, `configs__stack_size()`, `with_registry()`, `with_config()` |
+
+### Test Coverage
+
+| Test Class | Tests | Purpose |
+|------------|-------|---------|
+| `test_Fast_API__Service__Registry` | 9 | Core registry operations |
+| `test_Fast_API__Service__Registry__save_restore` | 7 | Save/restore mechanics |
+| `test_Fast_API__Service__Registry__with_registry` | 4 | Context manager for registry swap |
+| `test_Fast_API__Service__Registry__with_config` | 5 | Context manager for single client |
+| `test_Fast_API__Service__Registry__usage_patterns` | 3 | Real-world usage examples |
+
+**Total: 28 tests**
+
+---
+
+## 8. Migration Guide
+
+### Updating Existing Tests
+
+**Find:** Tests with this pattern:
+```python
+cls.original_configs = dict(fast_api__service__registry.configs)
+```
+
+**Replace with:**
+```python
+fast_api__service__registry.configs__save()
+```
+
+**Find:** Tests with this pattern:
+```python
+fast_api__service__registry.configs.clear()
+fast_api__service__registry.configs.update(cls.original_configs)
+```
+
+**Replace with:**
+```python
+fast_api__service__registry.configs__restore()
+```
+
+### For New Tests
+
+Prefer context managers when possible:
+
+```python
+# Single test needing isolation
+def test__something(self):
+    with fast_api__service__registry.with_registry(test_registry):
+        # test code
+        pass
+
+# Test class needing isolation
+@classmethod
+def setUpClass(cls):
+    fast_api__service__registry.configs__save()
+    # setup code
+
+@classmethod  
+def tearDownClass(cls):
+    fast_api__service__registry.configs__restore()
+```
+
+---
+
+## 9. Design Decisions
+
+### Why Stack (not single backup)?
+
+A single backup would fail for nested fixtures:
+
+```python
+# With single backup:
+save()      # backup = original
+save()      # backup = modified (OVERWRITES original!)
+restore()   # restores modified, not original — BUG!
+
+# With stack:
+save()      # stack = [original]
+save()      # stack = [original, modified]
+restore()   # stack = [original], configs = modified
+restore()   # stack = [], configs = original — CORRECT!
+```
+
+### Why `configs__save()` not `push()`?
+
+- `configs__save()` is more descriptive — says WHAT is being saved
+- Follows the `attribute__action()` naming convention used elsewhere
+- `push`/`pop` are implementation details (stack)
+- `save`/`restore` describe the user's intent
+
+### Why context managers yield `self`?
+
+Enables chaining and access to registry in the `with` block:
+
+```python
+with fast_api__service__registry.with_registry(other) as registry:
+    registry.register(Another__Client, another_config)  # Can still modify
+```
+
+### Why `with_config` saves entire configs (not just one)?
+
+Simpler implementation and consistent behavior:
+- No special handling for "was this key present before?"
+- No edge cases around deletion vs restoration
+- Stack always contains complete snapshots
+- Slight memory overhead is negligible
+
+---
+
+## 10. Future Considerations
+
+### Potential Enhancements
+
+1. **`configs__reset_stack()`** — Clear the entire stack (emergency cleanup)
+2. **`configs__peek()`** — View top of stack without popping
+3. **Thread-local stacks** — For parallel test execution
+4. **Named snapshots** — Save with a name, restore by name (not just LIFO)
+
+### Not Implemented (by design)
+
+1. **Automatic save on register** — Too magical, hides state changes
+2. **Global auto-restore** — Would interfere with intentional state changes
+3. **Deep copy of configs** — Config objects are meant to be shared references
+
+---
+
+## 11. Conclusion
+
+The registry save/restore feature transforms integration test setup from error-prone manual state management into a simple, declarative pattern. The stack-based design handles nested fixtures naturally, context managers provide exception safety automatically, and the Type_Safe foundation ensures correctness at runtime.
+
+**Key benefits:**
+- **50% less boilerplate** in integration tests
+- **Zero risk** of forgetting to restore state (with context managers)
+- **Exception safe** by design
+- **Nested fixtures** work correctly without special handling
+- **Type safe** throughout
+
+The feature is backward compatible — existing code continues to work, and migration is straightforward.

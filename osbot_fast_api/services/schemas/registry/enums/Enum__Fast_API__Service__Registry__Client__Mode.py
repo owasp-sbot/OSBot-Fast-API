@@ -1,9 +1,9 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Enum__Fast_API__Service__Registry__Client__Mode
-# Defines the transport mode for service clients (IN_MEMORY via TestClient or REMOTE via HTTP)
+# Defines the transport mode for service clients
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from enum import Enum
+from enum                                                                       import Enum
 
 
 class Enum__Fast_API__Service__Registry__Client__Mode(Enum):
