@@ -80,8 +80,8 @@ class Fast_API(Type_Safe):
         self.route_helper().add_route_delete(self.app(), function)
         return self
 
-    def add_routes(self, class_routes):
-        class_routes(app=self.app()).setup()
+    def add_routes(self, class_routes, **kwargs):
+        class_routes(app=self.app(), **kwargs).setup()
         return self
 
     @cache_on_self
