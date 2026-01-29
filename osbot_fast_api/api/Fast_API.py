@@ -218,7 +218,10 @@ class Fast_API(Type_Safe):
     def setup_middleware__api_key_check(self, env_var__api_key_name:str=ENV_VAR__FAST_API__AUTH__API_KEY__NAME, env_var__api_key_value:str=ENV_VAR__FAST_API__AUTH__API_KEY__VALUE):
         from osbot_fast_api.api.middlewares.Middleware__Check_API_Key import Middleware__Check_API_Key
         if self.config.enable_api_key:
-            self.app().add_middleware(Middleware__Check_API_Key, env_var__api_key__name=env_var__api_key_name, env_var__api_key__value=env_var__api_key_value)
+            self.app().add_middleware(Middleware__Check_API_Key,
+                                      env_var__api_key__name  = env_var__api_key_name  ,
+                                      env_var__api_key__value = env_var__api_key_value ,
+                                      allow_cors              = self.config.enable_cors)
         return self
 
     def setup_middleware__cors(self):               # todo: double check that this is working see bug test

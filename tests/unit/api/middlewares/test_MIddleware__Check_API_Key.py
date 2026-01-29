@@ -27,7 +27,8 @@ class test_Middleware__Check_API_Key(TestCase):
 
     def test__init__(self):
         expected_middleware = { 'function_name': None                                                          ,
-                                'params'       : { 'env_var__api_key__name' : 'FAST_API__AUTH__API_KEY__NAME'  ,
+                                'params'       : { 'allow_cors'             : False                            ,
+                                                   'env_var__api_key__name' : 'FAST_API__AUTH__API_KEY__NAME'  ,
                                                    'env_var__api_key__value': 'FAST_API__AUTH__API_KEY__VALUE'},
                                  'type'        : 'Middleware__Check_API_Key'}
         with self.admin_fastapi  as _:
