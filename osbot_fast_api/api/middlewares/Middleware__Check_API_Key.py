@@ -15,10 +15,14 @@ ERROR_MESSAGE__API_KEY_INVALID     = "Invalid API key value"
 
 class Middleware__Check_API_Key(BaseHTTPMiddleware):
 
-    def __init__(self, app, env_var__api_key__name, env_var__api_key__value):
+    def __init__(self, app, env_var__api_key__name,
+                       env_var__api_key__value    ,
+                       allow_cors : bool          = False):
+
         super().__init__(app)
         self.api_key__name  = get_env(env_var__api_key__name )
         self.api_key__value = get_env(env_var__api_key__value)
+        self.allow_cors     = allow_cors
 
     def return_error(self, error_message):
         content = to_json_str(status_error(error_message))
@@ -30,6 +34,8 @@ class Middleware__Check_API_Key(BaseHTTPMiddleware):
 
         if request.url.path in AUTH__EXCLUDED_PATHS:                                                 # allow for the seeing the docs and accessing the methods to set the cookie
             return await call_next(request)
+        if request.method == 'OPTIONS' and self.allow_cors:
+            return self.create_allow_cors_response(request=request)
 
         if not self.api_key__name:
             return self.return_error(ERROR_MESSAGE__NO_KEY_NAME_SETUP)
@@ -48,3 +54,12 @@ class Middleware__Check_API_Key(BaseHTTPMiddleware):
 
         response = await call_next(request)                                                         # If API key is valid, continue with the request
         return response
+
+
+    def create_allow_cors_response(self, request: Request):
+        origin = request.headers.get('origin', '*')
+        return Response(status_code = 204,
+                        headers     = { 'Access-Control-Allow-Origin'   : origin                                          ,
+                                        'Access-Control-Allow-Methods'  : 'GET, POST, PUT, DELETE, OPTIONS'               ,
+                                        'Access-Control-Allow-Headers'  : 'api-key__for__mgraph-ai__service, content-type',
+                                        'Access-Control-Max-Age'        : '86400'                                         })
