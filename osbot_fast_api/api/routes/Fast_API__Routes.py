@@ -36,6 +36,12 @@ class Fast_API__Routes(Type_Safe):                                       # Base 
         return self.add_route(function, methods=['GET'])
 
     @type_safe
+    def add_route_patch(self, function : Callable                        # Function to register as POST
+                        ):                                              # Register POST route with Type_Safe support
+        return self.add_route(function, methods=['PATCH'])
+
+
+    @type_safe
     def add_route_post(self, function : Callable                        # Function to register as POST
                         ):                                              # Register POST route with Type_Safe support
         return self.add_route(function, methods=['POST'])
