@@ -102,9 +102,9 @@ class Fast_API(Type_Safe):
     def app_router(self):
         return self.app().router
 
-    def client(self):
+    def client(self, **kwargs):
         from starlette.testclient import TestClient             # moved here for performance reasons
-        return TestClient(self.app())
+        return TestClient(self.app(), **kwargs)
 
     def config__no_default_routes(self): self.config.default_routes = False ; return self
     def config__no_api_key       (self): self.config.enable_api_key = False ; return self
