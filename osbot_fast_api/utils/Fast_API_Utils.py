@@ -15,6 +15,16 @@ class Fast_API_Utils:
             router = self.app
         routes = []
         for route in router.routes:
+            # FastAPI >= 0.137: include_router() no longer flattens child routes into
+            # app.routes; it inserts an _IncludedRouter wrapper (a BaseRoute with no .path).
+            # Expand it into its effective routes so introspection keeps working.
+            if route.__class__.__name__ == '_IncludedRouter':
+                routes.extend(self.fastapi_routes__from_included(route,
+                                                                 include_default=include_default,
+                                                                 expand_mounts=expand_mounts,
+                                                                 route_prefix=route_prefix))
+                continue
+
             if include_default is False and route.path in FAST_API_DEFAULT_ROUTES_PATHS:
                 continue
             if type(route) is Mount:
@@ -39,4 +49,22 @@ class Fast_API_Utils:
             route_path = route_prefix + route.path
             route_to_add = {"http_path": route_path, "method_name": route.name, "http_methods": methods}
             routes.append(route_to_add)
+        return routes
+
+    def fastapi_routes__from_included(self, included, include_default, expand_mounts, route_prefix):
+        routes = []
+        for candidate in included.effective_candidates():
+            if candidate.__class__.__name__ == '_IncludedRouter':                       # nested include_router
+                routes.extend(self.fastapi_routes__from_included(candidate,
+                                                                 include_default = include_default,
+                                                                 expand_mounts   = expand_mounts,
+                                                                 route_prefix    = route_prefix))
+                continue
+            path = candidate.path                                                        # effective, prefix already applied
+            if include_default is False and path in FAST_API_DEFAULT_ROUTES_PATHS:
+                continue
+            methods = sorted(candidate.methods) if getattr(candidate, 'methods', None) else []   # websocket → []
+            routes.append({"http_path"   : route_prefix + path,
+                           "method_name" : candidate.name,
+                           "http_methods": methods})
         return routes
